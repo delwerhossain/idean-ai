@@ -131,10 +131,10 @@ Our primary target market consists of...
   const generateAIDocument = useCallback(async () => {
     try {
       const businessName = localStorage.getItem('businessName') || 'Your Business'
-      const clientName = localStorage.getItem('clientName') || ''
+      const clientName = localStorage.getItem('userName') || '' // Fixed: use userName instead of clientName
       const industry = localStorage.getItem('industry') || ''
       const website = localStorage.getItem('website') || ''
-      const additionalInfo = localStorage.getItem('additionalInfo') || ''
+      const additionalInfo = localStorage.getItem('businessContext') || '' // Fixed: use businessContext instead of additionalInfo
 
       const onboardingData = {
         clientName,
@@ -144,6 +144,9 @@ Our primary target market consists of...
         additionalInfo,
         knowledgeBase: [] // TODO: Extract from uploaded PDFs
       }
+
+      // Debug logging
+      console.log('Sending data to API:', { onboardingData, documentType: selectedDocType })
 
       const response = await fetch('/api/generate-document', {
         method: 'POST',
