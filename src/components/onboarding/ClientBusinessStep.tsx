@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Sparkles, User, Building2 } from 'lucide-react'
 
@@ -118,7 +117,7 @@ export default function ClientBusinessStep({
             </Button>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Don't have a business name yet? Click "AI Suggest" for creative ideas!
+            Don&apos;t have a business name yet? Click &quot;AI Suggest&quot; for creative ideas!
           </p>
         </div>
       </div>

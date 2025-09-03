@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -66,38 +66,6 @@ export default function GenerateDocumentPage() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
 
-  useEffect(() => {
-    if (isGenerating && generationProgress < 100) {
-      const timer = setTimeout(() => {
-        setGenerationProgress(prev => {
-          const newProgress = prev + Math.random() * 10 + 5
-          
-          // Update generation steps based on progress
-          if (newProgress < 20) {
-            setGenerationStep('Analyzing your business information...')
-          } else if (newProgress < 40) {
-            setGenerationStep('Processing knowledge base documents...')
-          } else if (newProgress < 60) {
-            setGenerationStep('Researching industry best practices...')
-          } else if (newProgress < 80) {
-            setGenerationStep('Generating content sections...')
-          } else if (newProgress < 95) {
-            setGenerationStep('Reviewing and optimizing content...')
-          } else {
-            setGenerationStep('Finalizing document...')
-          }
-          
-          return Math.min(newProgress, 100)
-        })
-      }, 800)
-      
-      return () => clearTimeout(timer)
-    } else if (generationProgress >= 100 && isGenerating) {
-      // Generate document using AI
-      generateAIDocument()
-    }
-  }, [isGenerating, generationProgress, selectedDocType])
-
   const getDocumentTitle = (docType: string) => {
     const doc = DOCUMENT_TYPES.find(d => d.id === docType)
     return doc?.title || 'Generated Document'
@@ -160,7 +128,7 @@ Our primary target market consists of...
     return sampleContent[docType as keyof typeof sampleContent] || 'Generated content will appear here...'
   }
 
-  const generateAIDocument = async () => {
+  const generateAIDocument = useCallback(async () => {
     try {
       const businessName = localStorage.getItem('businessName') || 'Your Business'
       const clientName = localStorage.getItem('clientName') || ''
@@ -197,7 +165,7 @@ Our primary target market consists of...
       const newDoc = {
         title: getDocumentTitle(selectedDocType),
         content: content,
-        type: selectedDocType as any,
+        type: selectedDocType as 'business_plan' | 'executive_summary' | 'marketing_plan',
         status: 'completed' as const,
         businessName,
         clientName,
@@ -218,7 +186,7 @@ Our primary target market consists of...
       const newDoc = {
         title: getDocumentTitle(selectedDocType),
         content: `# Error: AI Generation Failed\n\nWe encountered an issue generating your document. Please try again.\n\nFallback content:\n${generateSampleContent(selectedDocType)}`,
-        type: selectedDocType as any,
+        type: selectedDocType as 'business_plan' | 'executive_summary' | 'marketing_plan',
         status: 'completed' as const,
         businessName,
         clientName,
@@ -230,7 +198,39 @@ Our primary target market consists of...
       setEditedContent(newDoc.content)
       setIsGenerating(false)
     }
-  }
+  }, [selectedDocType])
+
+  useEffect(() => {
+    if (isGenerating && generationProgress < 100) {
+      const timer = setTimeout(() => {
+        setGenerationProgress(prev => {
+          const newProgress = prev + Math.random() * 10 + 5
+          
+          // Update generation steps based on progress
+          if (newProgress < 20) {
+            setGenerationStep('Analyzing your business information...')
+          } else if (newProgress < 40) {
+            setGenerationStep('Processing knowledge base documents...')
+          } else if (newProgress < 60) {
+            setGenerationStep('Researching industry best practices...')
+          } else if (newProgress < 80) {
+            setGenerationStep('Generating content sections...')
+          } else if (newProgress < 95) {
+            setGenerationStep('Reviewing and optimizing content...')
+          } else {
+            setGenerationStep('Finalizing document...')
+          }
+          
+          return Math.min(newProgress, 100)
+        })
+      }, 800)
+      
+      return () => clearTimeout(timer)
+    } else if (generationProgress >= 100 && isGenerating) {
+      // Generate document using AI
+      generateAIDocument()
+    }
+  }, [isGenerating, generationProgress, selectedDocType, generateAIDocument])
 
   const startGeneration = (docType: string) => {
     setSelectedDocType(docType)
@@ -475,7 +475,7 @@ Our primary target market consists of...
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Choose Your Document Type</h1>
           <p className="text-lg text-gray-600">
-            Select the type of document you'd like to generate based on your business information
+            Select the type of document you&apos;d like to generate based on your business information
           </p>
         </div>
 

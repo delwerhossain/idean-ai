@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateDocument, OnboardingData } from '@/lib/aiService'
+import { generateDocument } from '@/lib/aiService'
 
 export async function POST(request: NextRequest) {
   try {

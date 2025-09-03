@@ -99,7 +99,7 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
                 onClick={handleCustomIndustry}
                 className="text-blue-600 hover:text-blue-800"
               >
-                Don't see your industry? Enter custom industry
+                Don&apos;t see your industry? Enter custom industry
               </Button>
             </div>
           </>

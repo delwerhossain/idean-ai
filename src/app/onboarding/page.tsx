@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import BasicInfoStep from '@/components/onboarding/BasicInfoStep'
@@ -41,7 +39,7 @@ export default function OnboardingPage() {
     mentorApproval: false
   })
 
-  const updateData = (field: keyof OnboardingData, value: any) => {
+  const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
       const newData = { ...prev, [field]: value }
       // Save to localStorage for persistence
@@ -143,7 +141,7 @@ export default function OnboardingPage() {
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">iDEAN AI</h1>
           <p className="text-lg text-gray-600">Your Growth Co-Pilot</p>
-          <p className="text-sm text-gray-500 mt-1">Let's set up your business information</p>
+          <p className="text-sm text-gray-500 mt-1">Let&apos;s set up your business information</p>
         </div>
 
         {/* Progress Bar */}

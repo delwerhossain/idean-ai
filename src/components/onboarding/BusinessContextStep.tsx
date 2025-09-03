@@ -2,7 +2,6 @@
 
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { MessageSquare, Lightbulb, Target, Users, CheckCircle2 } from 'lucide-react'
 
 interface BusinessContextStepProps {
@@ -120,7 +119,7 @@ export default function BusinessContextStep({
                         {prompt.description}
                       </p>
                       <p className="text-xs text-gray-600 italic">
-                        "{prompt.example}"
+                        &quot;{prompt.example}&quot;
                       </p>
                     </div>
                   </div>
@@ -156,7 +155,7 @@ export default function BusinessContextStep({
             <label className="text-sm text-gray-700 cursor-pointer select-none" onClick={() => onMentorApprovalChange(!mentorApproval)}>
               Has a mentor reviewed and approved your business information?
               <span className="text-gray-500 block text-xs mt-1">
-                (Optional) If you have a business mentor or advisor, check this if they've reviewed your info
+                (Optional) If you have a business mentor or advisor, check this if they&apos;ve reviewed your info
               </span>
             </label>
           </div>

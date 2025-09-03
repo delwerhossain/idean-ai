@@ -185,7 +185,7 @@ export default function BasicInfoStep({
                   
                   {suggestions.length === 0 && !isLoadingAI && (
                     <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                      Click "Get AI Suggestions" for personalized names
+                      Click &quot;Get AI Suggestions&quot; for personalized names
                     </div>
                   )}
                 </div>
@@ -218,7 +218,7 @@ export default function BasicInfoStep({
           </div>
           
           <p className="text-xs text-gray-500 mt-1">
-            Don't have a name yet? Click "AI Suggest" for ideas / নাম নেই? "AI Suggest" ক্লিক করুন
+            Don&apos;t have a name yet? Click &quot;AI Suggest&quot; for ideas / নাম নেই? &quot;AI Suggest&quot; ক্লিক করুন
           </p>
         </div>
       </div>
@@ -243,7 +243,7 @@ export default function BasicInfoStep({
           <li>• Keep it simple and memorable</li>
           <li>• Consider your target market</li>
           <li>• Check if domain name is available</li>
-          <li>• Make sure it's easy to pronounce</li>
+          <li>• Make sure it&apos;s easy to pronounce</li>
         </ul>
       </div>
     </div>

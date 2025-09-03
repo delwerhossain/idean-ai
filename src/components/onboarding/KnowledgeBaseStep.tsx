@@ -2,7 +2,6 @@
 
 import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Upload, FileText, X, AlertCircle } from 'lucide-react'
 
 interface KnowledgeBaseStepProps {
@@ -151,7 +150,7 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
         {knowledgeBase.length === 0 && (
           <div className="text-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-700">
-              <strong>Optional:</strong> You can skip this step if you don't have relevant documents ready. 
+              <strong>Optional:</strong> You can skip this step if you don&apos;t have relevant documents ready. 
               You can always add them later to improve your generated content.
             </p>
           </div>

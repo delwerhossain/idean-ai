@@ -50,7 +50,7 @@ export default function AdditionalInfoStep({ additionalInfo, onAdditionalInfoCha
       <div className="text-center">
         <MessageSquare className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Anything else you'd like to share?
+          Anything else you&apos;d like to share?
         </h3>
         <p className="text-gray-600">
           Share any additional details about your business, goals, or specific requirements. 
@@ -102,7 +102,7 @@ export default function AdditionalInfoStep({ additionalInfo, onAdditionalInfoCha
                         {prompt.description}
                       </p>
                       <p className="text-sm text-gray-600 italic">
-                        "{prompt.example}"
+                        &quot;{prompt.example}&quot;
                       </p>
                     </div>
                   </div>
@@ -132,7 +132,7 @@ export default function AdditionalInfoStep({ additionalInfo, onAdditionalInfoCha
             <li>• Be specific about your target market and customer needs</li>
             <li>• Mention any unique features or competitive advantages</li>
             <li>• Include your business goals and what success looks like</li>
-            <li>• Share any challenges you're facing or want to address</li>
+            <li>• Share any challenges you&apos;re facing or want to address</li>
             <li>• Mention your preferred tone of voice (formal, casual, technical, etc.)</li>
           </ul>
         </div>
