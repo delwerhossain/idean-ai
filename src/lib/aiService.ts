@@ -2,8 +2,8 @@ import OpenAI from 'openai'
 
 // Initialize OpenAI client with OpenRouter configuration
 const openai = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY!,
-  baseURL: process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1'
+  apiKey: process.env.OPENAI_API_KEY!,
+  baseURL: process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1'
 })
 
 export interface OnboardingData {
@@ -20,7 +20,7 @@ export interface AIGenerationOptions {
   documentType: 'business_plan' | 'executive_summary' | 'marketing_plan'
 }
 
-const MODEL = process.env.AI_MODEL || 'anthropic/claude-3.5-sonnet'
+const MODEL = process.env.AI_MODEL || 'openai/gpt-4o-mini'
 
 export const generateBusinessNames = async (clientName: string, industry?: string, additionalContext?: string): Promise<string[]> => {
   try {
@@ -51,6 +51,11 @@ Return only the business names, one per line, no explanations or numbering.`
       ],
       temperature: 0.8,
       max_tokens: 500
+    }, {
+      headers: {
+        'HTTP-Referer': 'https://idean-ai.vercel.app',
+        'X-Title': 'iDEAN AI Business Name Generator'
+      }
     })
 
     const names = response.choices[0]?.message?.content?.trim().split('\n').filter(name => name.trim()) || []
@@ -119,6 +124,11 @@ IMPORTANT:
       ],
       temperature: 0.7,
       max_tokens: 4000
+    }, {
+      headers: {
+        'HTTP-Referer': 'https://idean-ai.vercel.app',
+        'X-Title': 'iDEAN AI Document Generator'
+      }
     })
 
     return response.choices[0]?.message?.content || 'Error generating document content.'
