@@ -1,18 +1,29 @@
 import OpenAI from 'openai'
 
-// Debug environment variables
-console.log('API Key:', process.env.OPENAI_API_KEY ? 'PRESENT' : 'MISSING')
-console.log('Base URL:', process.env.OPENAI_API_URL || 'DEFAULT')
+// Initialize OpenAI client lazily to avoid build-time errors
+let openaiClient: OpenAI | null = null
 
-// Initialize OpenAI client with OpenRouter configuration
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-  baseURL: process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1',
-  defaultHeaders: {
-    'HTTP-Referer': 'https://idean-ai.vercel.app',
-    'X-Title': 'iDEAN AI'
+const getOpenAIClient = () => {
+  if (!openaiClient) {
+    // Debug environment variables
+    console.log('API Key:', process.env.OPENAI_API_KEY ? 'PRESENT' : 'MISSING')
+    console.log('Base URL:', process.env.OPENAI_API_URL || 'DEFAULT')
+    
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is required')
+    }
+    
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      baseURL: process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1',
+      defaultHeaders: {
+        'HTTP-Referer': 'https://idean-ai.vercel.app',
+        'X-Title': 'iDEAN AI'
+      }
+    })
   }
-})
+  return openaiClient
+}
 
 export interface OnboardingData {
   clientName: string
@@ -45,7 +56,7 @@ Requirements:
 
 Return only the business names, one per line, no explanations or numbering.`
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: MODEL,
       messages: [
         {
@@ -118,7 +129,7 @@ IMPORTANT:
 - Write in a professional, authoritative tone
 - Ensure the content is actionable and valuable`
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: MODEL,
       messages: [
         {
