@@ -40,7 +40,9 @@
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_fill_form",
       "Bash(timeout 30s pnpm run type-check)",
-      "Bash(pnpm run:*)"
+      "Bash(pnpm run:*)",
+      "Bash(pnpm run:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": [],
