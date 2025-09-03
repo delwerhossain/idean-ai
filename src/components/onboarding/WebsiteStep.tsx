@@ -29,23 +29,23 @@ export default function WebsiteStep({ website, onWebsiteChange }: WebsiteStepPro
       <div className="text-center">
         <Globe className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Do you have a website?
+          Do you have a website? / আপনার কি ওয়েবসাইট আছে?
         </h3>
         <p className="text-gray-600">
-          Share your website URL if you have one. This is optional but helps us understand your business better.
+          Share your website URL if you have one. This is optional but helps iDEAN AI understand your business better.
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Website URL (Optional)
+            Website URL (Optional) / ওয়েবসাইট ঠিকানা (ঐচ্ছিক)
           </label>
           <Input
             placeholder="e.g., yourcompany.com or https://yourcompany.com"
             value={website}
             onChange={(e) => onWebsiteChange(e.target.value)}
-            className={`w-full ${!isValidUrl(website) && website ? 'border-red-300' : ''}`}
+            className={`w-full text-base p-3 border-2 border-gray-300 rounded focus:border-blue-500 ${!isValidUrl(website) && website ? 'border-red-300' : ''}`}
           />
           {!isValidUrl(website) && website && (
             <p className="text-xs text-red-600 mt-1">

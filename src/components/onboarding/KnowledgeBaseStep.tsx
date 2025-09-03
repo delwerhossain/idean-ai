@@ -12,7 +12,8 @@ interface KnowledgeBaseStepProps {
 
 export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange }: KnowledgeBaseStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const MAX_FILES = 3
+  const MAX_FILES = 4
+  const MAX_PAGES_PER_FILE = 30
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
@@ -58,11 +59,11 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
       <div className="text-center">
         <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Upload Knowledge Base Documents
+          Upload Business Documents
         </h3>
         <p className="text-gray-600">
-          Upload up to 3 PDF documents that contain important information about your business, 
-          products, or services. This helps us create more accurate and relevant content.
+          Upload up to 4 PDF documents (maximum 30 pages each) that contain important information about your business. 
+          This helps iDEAN AI understand your business better and create more relevant content.
         </p>
       </div>
 
@@ -85,7 +86,7 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
                 Click to upload or drag and drop PDF files
               </p>
               <p className="text-sm text-gray-400">
-                Maximum {MAX_FILES} files • PDF only
+                Maximum {MAX_FILES} files • PDF only • Max {MAX_PAGES_PER_FILE} pages each
               </p>
               <Button
                 onClick={openFileDialog}

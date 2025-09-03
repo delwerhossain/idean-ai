@@ -13,25 +13,27 @@ interface IndustryStepProps {
 
 const POPULAR_INDUSTRIES = [
   'Technology & Software',
-  'E-commerce & Retail',
-  'Healthcare & Medical',
-  'Financial Services',
-  'Real Estate',
-  'Marketing & Advertising',
+  'E-commerce & Online Business',
+  'Digital Marketing & Advertising',
   'Education & Training',
-  'Food & Beverage',
-  'Manufacturing',
   'Consulting Services',
-  'Construction',
-  'Entertainment & Media',
-  'Travel & Tourism',
-  'Non-profit',
-  'Professional Services',
+  'Healthcare & Medical',
+  'Food & Restaurant Business',
+  'Fashion & Clothing',
+  'Real Estate',
+  'Manufacturing & Production',
+  'Agriculture & Farming',
+  'Transportation & Logistics',
+  'Financial Services',
+  'Construction & Engineering',
   'Beauty & Wellness',
-  'Automotive',
-  'Agriculture',
-  'Energy & Utilities',
-  'Transportation & Logistics'
+  'Travel & Tourism', 
+  'Import & Export',
+  'Textile & Garments',
+  'Retail & Trading',
+  'Professional Services',
+  'Entertainment & Media',
+  'Non-profit & NGO'
 ]
 
 export default function IndustryStep({ industry, onIndustryChange }: IndustryStepProps) {
@@ -57,10 +59,10 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
       <div className="text-center">
         <TrendingUp className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          What industry is your business in?
+          What industry is your business in? / আপনার ব্যবসা কোন খাতে?
         </h3>
         <p className="text-gray-600">
-          This helps us tailor the document content and recommendations specific to your industry.
+          This helps iDEAN AI create content and strategies specifically tailored for your industry.
         </p>
       </div>
 
