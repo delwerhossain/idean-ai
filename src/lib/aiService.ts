@@ -13,9 +13,13 @@ const getOpenAIClient = () => {
       throw new Error('OPENAI_API_KEY environment variable is required')
     }
     
+    // Ensure we're using OpenRouter by explicitly setting the base URL
+    const baseURL = process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1'
+    console.log('Creating OpenAI client with baseURL:', baseURL)
+    
     openaiClient = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
-      baseURL: process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1',
+      baseURL: baseURL,
       defaultHeaders: {
         'HTTP-Referer': 'https://idean-ai.vercel.app',
         'X-Title': 'iDEAN AI'
