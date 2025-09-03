@@ -93,27 +93,8 @@ export default function GenerateDocumentPage() {
       
       return () => clearTimeout(timer)
     } else if (generationProgress >= 100 && isGenerating) {
-      // Simulate document completion
-      setTimeout(() => {
-        const businessName = localStorage.getItem('businessName') || 'Your Business'
-        const clientName = localStorage.getItem('clientName') || ''
-        const industry = localStorage.getItem('industry') || ''
-        
-        const newDoc = {
-          title: getDocumentTitle(selectedDocType),
-          content: generateSampleContent(selectedDocType),
-          type: selectedDocType as any,
-          status: 'completed' as const,
-          businessName,
-          clientName,
-          industry,
-          generatedDate: new Date().toLocaleDateString()
-        }
-        
-        setGeneratedDoc(newDoc)
-        setEditedContent(newDoc.content)
-        setIsGenerating(false)
-      }, 1000)
+      // Generate document using AI
+      generateAIDocument()
     }
   }, [isGenerating, generationProgress, selectedDocType])
 
@@ -177,6 +158,78 @@ Our primary target market consists of...
     }
     
     return sampleContent[docType as keyof typeof sampleContent] || 'Generated content will appear here...'
+  }
+
+  const generateAIDocument = async () => {
+    try {
+      const businessName = localStorage.getItem('businessName') || 'Your Business'
+      const clientName = localStorage.getItem('clientName') || ''
+      const industry = localStorage.getItem('industry') || ''
+      const website = localStorage.getItem('website') || ''
+      const additionalInfo = localStorage.getItem('additionalInfo') || ''
+
+      const onboardingData = {
+        clientName,
+        businessName,
+        website,
+        industry,
+        additionalInfo,
+        knowledgeBase: [] // TODO: Extract from uploaded PDFs
+      }
+
+      const response = await fetch('/api/generate-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: onboardingData,
+          documentType: selectedDocType
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate document')
+      }
+
+      const { content } = await response.json()
+
+      const newDoc = {
+        title: getDocumentTitle(selectedDocType),
+        content: content,
+        type: selectedDocType as any,
+        status: 'completed' as const,
+        businessName,
+        clientName,
+        industry,
+        generatedDate: new Date().toLocaleDateString()
+      }
+      
+      setGeneratedDoc(newDoc)
+      setEditedContent(newDoc.content)
+      setIsGenerating(false)
+    } catch (error) {
+      console.error('Error generating document:', error)
+      // Fallback to sample content if AI fails
+      const businessName = localStorage.getItem('businessName') || 'Your Business'
+      const clientName = localStorage.getItem('clientName') || ''
+      const industry = localStorage.getItem('industry') || ''
+      
+      const newDoc = {
+        title: getDocumentTitle(selectedDocType),
+        content: `# Error: AI Generation Failed\n\nWe encountered an issue generating your document. Please try again.\n\nFallback content:\n${generateSampleContent(selectedDocType)}`,
+        type: selectedDocType as any,
+        status: 'completed' as const,
+        businessName,
+        clientName,
+        industry,
+        generatedDate: new Date().toLocaleDateString()
+      }
+      
+      setGeneratedDoc(newDoc)
+      setEditedContent(newDoc.content)
+      setIsGenerating(false)
+    }
   }
 
   const startGeneration = (docType: string) => {

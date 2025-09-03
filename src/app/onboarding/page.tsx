@@ -40,7 +40,12 @@ export default function OnboardingPage() {
   })
 
   const updateData = (field: keyof OnboardingData, value: any) => {
-    setData(prev => ({ ...prev, [field]: value }))
+    setData(prev => {
+      const newData = { ...prev, [field]: value }
+      // Save to localStorage for persistence
+      localStorage.setItem('onboardingData', JSON.stringify(newData))
+      return newData
+    })
   }
 
   const nextStep = () => {
@@ -67,7 +72,17 @@ export default function OnboardingPage() {
   }
 
   const handleFinish = () => {
-    // Navigate to document generation/preview
+    // Save final data to localStorage
+    localStorage.setItem('onboardingData', JSON.stringify(data))
+    localStorage.setItem('hasCompletedOnboarding', 'true')
+    
+    // Save individual fields for easy access
+    localStorage.setItem('clientName', data.clientName)
+    localStorage.setItem('businessName', data.businessName)
+    localStorage.setItem('industry', data.industry)
+    localStorage.setItem('website', data.website)
+    localStorage.setItem('additionalInfo', data.additionalInfo)
+    
     console.log('Onboarding completed:', data)
     window.location.href = '/generate-document'
   }

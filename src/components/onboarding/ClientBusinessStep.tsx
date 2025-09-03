@@ -36,14 +36,42 @@ export default function ClientBusinessStep({
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestedNames, setSuggestedNames] = useState<string[]>([])
 
-  const generateAISuggestions = () => {
-    // Simulate AI generation based on client name
-    const suggestions = AI_SUGGESTED_NAMES
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 6)
-    
-    setSuggestedNames(suggestions)
+  const generateAISuggestions = async () => {
+    if (!clientName.trim()) {
+      alert('Please enter your name first')
+      return
+    }
+
     setShowSuggestions(true)
+    setSuggestedNames(['Loading AI suggestions...'])
+    
+    try {
+      const response = await fetch('/api/generate-names', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clientName: clientName,
+          industry: localStorage.getItem('industry') || '',
+          additionalContext: localStorage.getItem('additionalInfo') || ''
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate names')
+      }
+
+      const { names } = await response.json()
+      setSuggestedNames(names || AI_SUGGESTED_NAMES.slice(0, 6))
+    } catch (error) {
+      console.error('Error generating AI suggestions:', error)
+      // Fallback to predefined names
+      const suggestions = AI_SUGGESTED_NAMES
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 6)
+      setSuggestedNames(suggestions)
+    }
   }
 
   const selectSuggestion = (suggestion: string) => {
@@ -108,21 +136,32 @@ export default function ClientBusinessStep({
               Here are some AI-generated business name suggestions based on your information:
             </p>
             <div className="grid grid-cols-1 gap-2">
-              {suggestedNames.map((name, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  onClick={() => selectSuggestion(name)}
-                  className="justify-start h-auto p-3 text-left hover:bg-blue-50"
-                >
-                  <div>
-                    <div className="font-medium">{name}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Click to select this name
+              {suggestedNames.map((name, index) => {
+                const isLoading = name === 'Loading AI suggestions...'
+                return (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => !isLoading && selectSuggestion(name)}
+                    disabled={isLoading}
+                    className={`justify-start h-auto p-3 text-left ${!isLoading ? 'hover:bg-blue-50' : 'opacity-50'}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isLoading && (
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      )}
+                      <div>
+                        <div className="font-medium">{name}</div>
+                        {!isLoading && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Click to select this name
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Button>
-              ))}
+                  </Button>
+                )
+              })}
             </div>
             <div className="pt-2 border-t">
               <Button
