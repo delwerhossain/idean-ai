@@ -1,9 +1,17 @@
 import OpenAI from 'openai'
 
+// Debug environment variables
+console.log('API Key:', process.env.OPENAI_API_KEY ? 'PRESENT' : 'MISSING')
+console.log('Base URL:', process.env.OPENAI_API_URL || 'DEFAULT')
+
 // Initialize OpenAI client with OpenRouter configuration
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
-  baseURL: process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1'
+  baseURL: process.env.OPENAI_API_URL || 'https://openrouter.ai/api/v1',
+  defaultHeaders: {
+    'HTTP-Referer': 'https://idean-ai.vercel.app',
+    'X-Title': 'iDEAN AI'
+  }
 })
 
 export interface OnboardingData {
