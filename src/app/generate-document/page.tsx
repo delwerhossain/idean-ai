@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Textarea } from '@/components/ui/textarea'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { 
   FileText, 
   Download, 
@@ -14,14 +16,22 @@ import {
   Clock, 
   Sparkles,
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  Save,
+  Copy,
+  FileDown
 } from 'lucide-react'
+import { DocumentData, generatePDF, shareDocument, downloadAsText, formatContentForDisplay } from '@/lib/documentUtils'
 
 interface GeneratedDocument {
   title: string
   content: string
   type: 'business_plan' | 'executive_summary' | 'marketing_plan'
   status: 'generating' | 'completed' | 'error'
+  clientName?: string
+  businessName?: string
+  industry?: string
+  generatedDate: string
 }
 
 const DOCUMENT_TYPES = [
@@ -51,6 +61,10 @@ export default function GenerateDocumentPage() {
   const [generationProgress, setGenerationProgress] = useState(0)
   const [generatedDoc, setGeneratedDoc] = useState<GeneratedDocument | null>(null)
   const [generationStep, setGenerationStep] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedContent, setEditedContent] = useState('')
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
 
   useEffect(() => {
     if (isGenerating && generationProgress < 100) {
@@ -81,12 +95,23 @@ export default function GenerateDocumentPage() {
     } else if (generationProgress >= 100 && isGenerating) {
       // Simulate document completion
       setTimeout(() => {
-        setGeneratedDoc({
+        const businessName = localStorage.getItem('businessName') || 'Your Business'
+        const clientName = localStorage.getItem('clientName') || ''
+        const industry = localStorage.getItem('industry') || ''
+        
+        const newDoc = {
           title: getDocumentTitle(selectedDocType),
           content: generateSampleContent(selectedDocType),
           type: selectedDocType as any,
-          status: 'completed'
-        })
+          status: 'completed' as const,
+          businessName,
+          clientName,
+          industry,
+          generatedDate: new Date().toLocaleDateString()
+        }
+        
+        setGeneratedDoc(newDoc)
+        setEditedContent(newDoc.content)
         setIsGenerating(false)
       }, 1000)
     }
@@ -165,6 +190,57 @@ Our primary target market consists of...
     window.location.href = '/onboarding'
   }
 
+  const handleDownloadPDF = async () => {
+    if (generatedDoc) {
+      const docData: DocumentData = {
+        ...generatedDoc,
+        content: isEditing ? editedContent : generatedDoc.content
+      }
+      await generatePDF(docData)
+    }
+  }
+
+  const handleShare = async () => {
+    if (generatedDoc) {
+      const docData: DocumentData = {
+        ...generatedDoc,
+        content: isEditing ? editedContent : generatedDoc.content
+      }
+      const url = await shareDocument(docData)
+      setShareUrl(url)
+      setShareDialogOpen(true)
+    }
+  }
+
+  const handleEdit = () => {
+    setIsEditing(true)
+  }
+
+  const handleSaveEdit = () => {
+    if (generatedDoc) {
+      setGeneratedDoc({
+        ...generatedDoc,
+        content: editedContent
+      })
+    }
+    setIsEditing(false)
+  }
+
+  const handleCancelEdit = () => {
+    setEditedContent(generatedDoc?.content || '')
+    setIsEditing(false)
+  }
+
+  const handleDownloadText = () => {
+    if (generatedDoc) {
+      const docData: DocumentData = {
+        ...generatedDoc,
+        content: isEditing ? editedContent : generatedDoc.content
+      }
+      downloadAsText(docData)
+    }
+  }
+
   if (isGenerating || generatedDoc) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -216,32 +292,68 @@ Our primary target market consists of...
                         {generatedDoc.title}
                       </CardTitle>
                       <p className="text-gray-600 mt-1">
-                        Generated on {new Date().toLocaleDateString()}
+                        {generatedDoc.businessName && `${generatedDoc.businessName} • `}
+                        Generated on {generatedDoc.generatedDate}
                       </p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Edit3 className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Share
-                      </Button>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download PDF
-                      </Button>
+                    <div className="flex gap-2 flex-wrap">
+                      {isEditing ? (
+                        <>
+                          <Button variant="outline" size="sm" onClick={handleCancelEdit}>
+                            Cancel
+                          </Button>
+                          <Button size="sm" onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Changes
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="outline" size="sm" onClick={handleEdit}>
+                            <Edit3 className="w-4 h-4 mr-2" />
+                            Edit
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={handleShare}>
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={handleDownloadText}>
+                            <FileDown className="w-4 h-4 mr-2" />
+                            Download Text
+                          </Button>
+                          <Button size="sm" onClick={handleDownloadPDF} className="bg-blue-600 hover:bg-blue-700">
+                            <Download className="w-4 h-4 mr-2" />
+                            Download PDF
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-white rounded-lg border p-6 max-h-96 overflow-y-auto">
-                    <div className="prose prose-sm max-w-none">
-                      <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                        {generatedDoc.content}
-                      </pre>
-                    </div>
+                  <div className="bg-white rounded-lg border p-6">
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        <Textarea
+                          value={editedContent}
+                          onChange={(e) => setEditedContent(e.target.value)}
+                          className="min-h-96 resize-none font-mono text-sm"
+                          placeholder="Edit your document content..."
+                        />
+                        <div className="text-xs text-gray-500">
+                          Tip: You can use markdown formatting (# for headings, * for bullets, etc.)
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="max-h-96 overflow-y-auto">
+                        <div 
+                          className="prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ 
+                            __html: formatContentForDisplay(generatedDoc.content) 
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -259,6 +371,47 @@ Our primary target market consists of...
             </div>
           )}
         </div>
+
+        {/* Share Dialog */}
+        <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Share2 className="w-5 h-5" />
+                Share Document
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Your document has been made shareable! Anyone with this link can view the document.
+              </p>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  readOnly
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+                />
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareUrl)
+                    alert('Link copied to clipboard!')
+                  }}
+                  className="flex items-center gap-1"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy
+                </Button>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-md">
+                <p className="text-xs text-blue-800">
+                  💡 <strong>Tip:</strong> This link will remain active indefinitely. You can share it via email, social media, or any other platform.
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     )
   }
