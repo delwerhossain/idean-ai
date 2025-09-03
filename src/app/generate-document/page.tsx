@@ -157,7 +157,9 @@ Our primary target market consists of...
       })
 
       if (!response.ok) {
-        throw new Error('Failed to generate document')
+        const errorData = await response.json()
+        console.error('API Error Response:', errorData)
+        throw new Error(`Failed to generate document: ${errorData.details || response.statusText}`)
       }
 
       const { content } = await response.json()

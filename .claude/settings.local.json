@@ -45,7 +45,8 @@
       "Bash(git add:*)",
       "Bash(pnpm add:*)",
       "Bash(git commit:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": [],

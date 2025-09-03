@@ -25,8 +25,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ content })
   } catch (error) {
     console.error('Error in generate-document API:', error)
+    
+    // Return more specific error information for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to generate document' },
+      { 
+        error: 'Failed to generate document',
+        details: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     )
   }
