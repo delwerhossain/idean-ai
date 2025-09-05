@@ -93,7 +93,6 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
             <>
               <div className="flex flex-col flex-1 min-w-0">
                 <span className="font-bold text-lg text-gray-900 truncate">iDEAN AI</span>
-                <span className="text-sm font-medium text-gray-800 truncate">{userName}</span>
               </div>
             </>
           )}
@@ -187,9 +186,13 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
               <User className="w-3 h-3 text-gray-600" />
             </div>
             {isHovered && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-                <p className="text-xs text-gray-500">Account</p>
+              <div className="flex items-center justify-between flex-1 min-w-0">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Account</p>
+                </div>
               </div>
             )}
           </button>
