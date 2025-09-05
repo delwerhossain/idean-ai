@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import { ArrowRight, Sparkles, FileText, Users, Zap, CheckCircle, Star, TrendingUp, Globe } from 'lucide-react'
+import { ArrowRight, Sparkles, FileText, Users, Zap, CheckCircle, Star, TrendingUp, Globe, BarChart3 } from 'lucide-react'
 
 export default function Home() {
   useEffect(() => {
@@ -32,13 +32,13 @@ export default function Home() {
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Everything you need to plan, start, and grow your{' '}
+              Your AI-powered{' '}
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                business
+                Growth Co-Pilot
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Create a world-class business plan in minutes with AI
+              Transform business ideas into actionable strategies with 18+ proven frameworks from iMarketing, GrowthX & iMBA
             </p>
             <Button
               onClick={startOnboarding}
@@ -59,12 +59,11 @@ export default function Home() {
       <div className="bg-white border-y border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-            We are on a mission to help entrepreneurs succeed
+            Built for Bengali entrepreneurs, by growth experts
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            iDEAN AI makes professional business planning accessible to everyone. 
-            From startup founders to established business owners, our AI-powered tools 
-            help you create comprehensive business plans, financial projections, and strategic documents.
+            iDEAN AI combines proven business frameworks with AI to help Bengali SMB owners and marketers 
+            execute faster. From strategy to campaigns, transform weeks of planning into minutes of focused action.
           </p>
         </div>
       </div>
@@ -84,11 +83,11 @@ export default function Home() {
           <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow p-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-blue-600" />
+                <TrendingUp className="w-8 h-8 text-blue-600" />
               </div>
-              <CardTitle className="text-xl mb-3">Business Planning</CardTitle>
+              <CardTitle className="text-xl mb-3">Strategy & Branding Lab</CardTitle>
               <p className="text-gray-600 text-sm">
-                AI-generated comprehensive business plans tailored to your industry and goals
+                8 frameworks including Niche Finder, Blue Ocean Navigator, and StoryBrand Builder
               </p>
             </div>
           </Card>
@@ -96,11 +95,11 @@ export default function Home() {
           <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow p-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-green-600" />
+                <Zap className="w-8 h-8 text-green-600" />
               </div>
-              <CardTitle className="text-xl mb-3">Financial Forecasting</CardTitle>
+              <CardTitle className="text-xl mb-3">Execution & Growth Cockpit</CardTitle>
               <p className="text-gray-600 text-sm">
-                Professional financial projections with revenue and expense modeling
+                10 tactical tools like Funnel Builder, Campaign Planner, and Growth Hacking Ideas
               </p>
             </div>
           </Card>
@@ -110,9 +109,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-purple-600" />
               </div>
-              <CardTitle className="text-xl mb-3">Pitch Deck Generation</CardTitle>
+              <CardTitle className="text-xl mb-3">Content Creation Engine</CardTitle>
               <p className="text-gray-600 text-sm">
-                Investor-ready presentations that tell your business story effectively
+                Facebook Ads, Organic Posts, Video Scripts with guided workflows in Bengali & English
               </p>
             </div>
           </Card>
@@ -120,11 +119,11 @@ export default function Home() {
           <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow p-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Globe className="w-8 h-8 text-orange-600" />
+                <BarChart3 className="w-8 h-8 text-orange-600" />
               </div>
-              <CardTitle className="text-xl mb-3">Market Research</CardTitle>
+              <CardTitle className="text-xl mb-3">Analytics Hub</CardTitle>
               <p className="text-gray-600 text-sm">
-                In-depth market analysis and competitive intelligence for your industry
+                Performance tracking, CSV data import, and ROI analysis for campaign optimization
               </p>
             </div>
           </Card>

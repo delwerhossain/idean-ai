@@ -98,7 +98,7 @@ export type ToolType = StrategyTool | ExecutionTool | ContentTool
 
 export interface ToolGenerationOptions {
   tool: ToolType
-  inputs: Record<string, any>
+  inputs: Record<string, unknown>
   businessContext: OnboardingData
   language?: Language
   provider?: AIProvider
@@ -118,7 +118,7 @@ export interface StructuredContent {
     heading: string
     content: string
   }>
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 const MODELS = {
@@ -133,9 +133,9 @@ const getModel = (provider: AIProvider = 'openai') => {
 // Enhanced AI calling function with fallback support
 const callAIWithFallback = async (
   provider: AIProvider = 'openai',
-  params: any,
+  params: OpenAI.Chat.Completions.ChatCompletionCreateParams,
   maxRetries: number = 2
-): Promise<any> => {
+): Promise<OpenAI.Chat.Completions.ChatCompletion> => {
   const providers: AIProvider[] = provider === 'openai' ? ['openai', 'openrouter'] : ['openrouter', 'openai']
   
   for (let i = 0; i < providers.length && i < maxRetries; i++) {
@@ -145,8 +145,9 @@ const callAIWithFallback = async (
       
       return await client.chat.completions.create({
         ...params,
-        model: modelToUse
-      })
+        model: modelToUse,
+        stream: false
+      }) as OpenAI.Chat.Completions.ChatCompletion
     } catch (error) {
       console.error(`Error with provider ${providers[i]}:`, error)
       if (i === providers.length - 1) {
@@ -154,6 +155,9 @@ const callAIWithFallback = async (
       }
     }
   }
+  
+  // This should never be reached, but TypeScript requires it
+  throw new Error('All AI providers failed')
 }
 
 export const generateBusinessNames = async (
@@ -208,7 +212,7 @@ Return only the business names, one per line, no explanations or numbering.`
       max_tokens: 500
     })
 
-    const names = response.choices[0]?.message?.content?.trim().split('\n').filter(name => name.trim()) || []
+    const names = response.choices[0]?.message?.content?.trim().split('\n').filter((name: string) => name.trim()) || []
     return names.slice(0, 10)
   } catch (error) {
     console.error('Error generating business names:', error)
@@ -469,14 +473,46 @@ export const generateToolContent = async (options: ToolGenerationOptions): Promi
 // Strategy Tools Implementation
 
 const generateNicheFinder = async (
-  inputs: Record<string, any>,
+  inputs: Record<string, unknown>,
   businessContext: OnboardingData,
   language: Language,
   provider: AIProvider
 ): Promise<StructuredContent> => {
+  const targetMarket = inputs.targetMarket as string || 'general market'
+  const budget = inputs.budget as string || 'not specified'
+  const timeframe = inputs.timeframe as string || '3-6 months'
+
   const prompt = language === 'bn'
-    ? `${businessContext.businessName} এর জন্য একটি লাভজনক নিশ খুঁজে বের করুন। ব্যবসার তথ্য: ${businessContext.industry}, ${businessContext.additionalInfo}. ইনপুট তথ্য: ${JSON.stringify(inputs)}`
-    : `Find a profitable niche for ${businessContext.businessName}. Business info: ${businessContext.industry}, ${businessContext.additionalInfo}. Input data: ${JSON.stringify(inputs)}`
+    ? `${businessContext.businessName} এর জন্য একটি লাভজনক নিশ খুঁজে বের করুন। 
+    
+    ব্যবসার তথ্য: 
+    - শিল্প: ${businessContext.industry}
+    - টার্গেট মার্কেট: ${targetMarket}
+    - বাজেট: ${budget}
+    - সময়সীমা: ${timeframe}
+    - অতিরিক্ত তথ্য: ${businessContext.additionalInfo}
+    
+    নিম্নলিখিত বিষয়গুলি বিশ্লেষণ করুন:
+    1. মার্কেট সাইজ এবং সুযোগ
+    2. প্রতিযোগিতার অবস্থা
+    3. গ্রাহকদের সমস্যা এবং চাহিদা
+    4. আয়ের সম্ভাবনা
+    5. প্রবেশের বাধা`
+    : `Find a profitable niche for ${businessContext.businessName}.
+    
+    Business Information:
+    - Industry: ${businessContext.industry}
+    - Target Market: ${targetMarket}
+    - Budget: ${budget}
+    - Timeframe: ${timeframe}
+    - Additional Info: ${businessContext.additionalInfo}
+    
+    Analyze the following aspects:
+    1. Market size and opportunity
+    2. Competition landscape
+    3. Customer pain points and needs
+    4. Revenue potential
+    5. Barriers to entry`
 
   const response = await callAIWithFallback(provider, {
     model: getModel(provider),
@@ -500,12 +536,18 @@ const generateNicheFinder = async (
         heading: language === 'bn' ? 'মার্কেট সুযোগ' : 'Market Opportunity',
         content: response.choices[0]?.message?.content || 'Content generation failed'
       }
-    ]
+    ],
+    metadata: {
+      targetMarket,
+      budget,
+      timeframe,
+      generatedAt: new Date().toISOString()
+    }
   }
 }
 
 const generateFacebookAd = async (
-  inputs: Record<string, any>,
+  inputs: Record<string, unknown>,
   businessContext: OnboardingData,
   language: Language,
   provider: AIProvider
@@ -546,48 +588,101 @@ const generateFacebookAd = async (
   const content = response.choices[0]?.message?.content || ''
   
   // Parse structured response
-  const hook = content.match(/HOOK:\s*(.*?)(?=\n|BODY:|$)/s)?.[1]?.trim() || ''
-  const body = content.match(/BODY:\s*(.*?)(?=\n|CTA:|$)/s)?.[1]?.trim() || ''
-  const cta = content.match(/CTA:\s*(.*?)(?=\n|CAPTION:|$)/s)?.[1]?.trim() || ''
-  const caption = content.match(/CAPTION:\s*(.*?)(?=\n|$)/s)?.[1]?.trim() || ''
+  const hook = content.match(/HOOK:\s*([\s\S]*?)(?=\n|BODY:|$)/)?.[1]?.trim() || ''
+  const body = content.match(/BODY:\s*([\s\S]*?)(?=\n|CTA:|$)/)?.[1]?.trim() || ''
+  const cta = content.match(/CTA:\s*([\s\S]*?)(?=\n|CAPTION:|$)/)?.[1]?.trim() || ''
+  const caption = content.match(/CAPTION:\s*([\s\S]*?)(?=\n|$)/)?.[1]?.trim() || ''
 
   return { hook, body, cta, caption }
 }
 
 // Additional tool implementations would go here...
-const generateCoreStrategy = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<StructuredContent> => {
-  // Implementation for core strategy builder
-  return { title: 'Core Strategy', sections: [{ heading: 'Strategy', content: 'Implementation pending' }] }
+const generateCoreStrategy = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<StructuredContent> => {
+  const businessModel = inputs.businessModel as string || 'not specified'
+  const valueProposition = inputs.valueProposition as string || businessContext.additionalInfo
+  
+  return { 
+    title: language === 'bn' ? 'মূল কৌশল' : 'Core Strategy', 
+    sections: [{ 
+      heading: language === 'bn' ? 'কৌশল' : 'Strategy', 
+      content: `${language === 'bn' ? 'ব্যবসায়িক মডেল:' : 'Business Model:'} ${businessModel}\n${language === 'bn' ? 'মূল্য প্রস্তাব:' : 'Value Proposition:'} ${valueProposition}\n${language === 'bn' ? 'ব্যবসার নাম:' : 'Business:'} ${businessContext.businessName}` 
+    }],
+    metadata: { businessModel, valueProposition, tool: 'core-strategy-builder' }
+  }
 }
 
-const generateBlueOceanStrategy = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<StructuredContent> => {
-  // Implementation for blue ocean navigator
-  return { title: 'Blue Ocean Strategy', sections: [{ heading: 'Opportunity', content: 'Implementation pending' }] }
+const generateBlueOceanStrategy = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<StructuredContent> => {
+  const marketSpace = inputs.marketSpace as string || businessContext.industry
+  const innovation = inputs.innovation as string || 'new approach'
+  
+  return { 
+    title: language === 'bn' ? 'ব্লু ওশান কৌশল' : 'Blue Ocean Strategy', 
+    sections: [{ 
+      heading: language === 'bn' ? 'সুযোগ' : 'Opportunity', 
+      content: `${language === 'bn' ? 'বাজার স্থান:' : 'Market Space:'} ${marketSpace}\n${language === 'bn' ? 'উদ্ভাবন:' : 'Innovation:'} ${innovation}\n${language === 'bn' ? 'ব্যবসা:' : 'Business:'} ${businessContext.businessName}` 
+    }],
+    metadata: { marketSpace, innovation, tool: 'blue-ocean-navigator' }
+  }
 }
 
-const generateStoryBrand = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<StructuredContent> => {
-  // Implementation for StoryBrand builder
-  return { title: 'StoryBrand Framework', sections: [{ heading: 'Brand Story', content: 'Implementation pending' }] }
+const generateStoryBrand = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<StructuredContent> => {
+  const heroJourney = inputs.heroJourney as string || 'customer transformation'
+  const brandMessage = inputs.brandMessage as string || businessContext.additionalInfo
+  
+  return { 
+    title: language === 'bn' ? 'স্টোরিব্র্যান্ড ফ্রেমওয়ার্ক' : 'StoryBrand Framework', 
+    sections: [{ 
+      heading: language === 'bn' ? 'ব্র্যান্ড গল্প' : 'Brand Story', 
+      content: `${language === 'bn' ? 'হিরো যাত্রা:' : 'Hero Journey:'} ${heroJourney}\n${language === 'bn' ? 'ব্র্যান্ড বার্তা:' : 'Brand Message:'} ${brandMessage}\n${language === 'bn' ? 'ব্যবসা:' : 'Business:'} ${businessContext.businessName}` 
+    }],
+    metadata: { heroJourney, brandMessage, tool: 'storybrand-builder' }
+  }
 }
 
-const generateOrganicPost = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<string> => {
-  // Implementation for organic post generator
-  return 'Organic post implementation pending'
+const generateOrganicPost = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<string> => {
+  const platform = inputs.platform as string || 'Facebook'
+  const tone = inputs.tone as string || 'professional'
+  const topic = inputs.topic as string || businessContext.industry
+  
+  return `${language === 'bn' ? 'অর্গানিক পোস্ট' : 'Organic Post'} ${language === 'bn' ? 'প্ল্যাটফর্ম:' : 'for'} ${platform}\n${language === 'bn' ? 'টোন:' : 'Tone:'} ${tone}\n${language === 'bn' ? 'বিষয়:' : 'Topic:'} ${topic}\n${language === 'bn' ? 'ব্যবসা:' : 'Business:'} ${businessContext.businessName}`
 }
 
-const generateEmailCopy = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<string> => {
-  // Implementation for email copy generator
-  return 'Email copy implementation pending'
+const generateEmailCopy = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<string> => {
+  const emailType = inputs.emailType as string || 'promotional'
+  const audience = inputs.audience as string || 'customers'
+  const offer = inputs.offer as string || businessContext.additionalInfo
+  
+  return `${language === 'bn' ? 'ইমেইল কপি' : 'Email Copy'}\n${language === 'bn' ? 'ধরন:' : 'Type:'} ${emailType}\n${language === 'bn' ? 'অডিয়েন্স:' : 'Audience:'} ${audience}\n${language === 'bn' ? 'অফার:' : 'Offer:'} ${offer}\n${language === 'bn' ? 'ব্যবসা:' : 'Business:'} ${businessContext.businessName}`
 }
 
-const generateCampaignPlan = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<StructuredContent> => {
-  // Implementation for campaign planner
-  return { title: 'Campaign Plan', sections: [{ heading: 'Strategy', content: 'Implementation pending' }] }
+const generateCampaignPlan = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<StructuredContent> => {
+  const campaignGoal = inputs.campaignGoal as string || 'brand awareness'
+  const duration = inputs.duration as string || '30 days'
+  const channels = inputs.channels as string || 'social media'
+  
+  return { 
+    title: language === 'bn' ? 'ক্যাম্পেইন পরিকল্পনা' : 'Campaign Plan', 
+    sections: [{ 
+      heading: language === 'bn' ? 'কৌশল' : 'Strategy', 
+      content: `${language === 'bn' ? 'লক্ষ্য:' : 'Goal:'} ${campaignGoal}\n${language === 'bn' ? 'সময়কাল:' : 'Duration:'} ${duration}\n${language === 'bn' ? 'চ্যানেল:' : 'Channels:'} ${channels}\n${language === 'bn' ? 'ব্যবসা:' : 'Business:'} ${businessContext.businessName}` 
+    }],
+    metadata: { campaignGoal, duration, channels, tool: 'campaign-planner' }
+  }
 }
 
-const generateGrowthHackingIdeas = async (inputs: Record<string, any>, businessContext: OnboardingData, language: Language, provider: AIProvider): Promise<StructuredContent> => {
-  // Implementation for growth hacking ideas
-  return { title: 'Growth Hacking Ideas', sections: [{ heading: 'Ideas', content: 'Implementation pending' }] }
+const generateGrowthHackingIdeas = async (inputs: Record<string, unknown>, businessContext: OnboardingData, language: Language, _provider: AIProvider): Promise<StructuredContent> => {
+  const growthStage = inputs.growthStage as string || 'early stage'
+  const resources = inputs.resources as string || 'limited budget'
+  const timeline = inputs.timeline as string || '3 months'
+  
+  return { 
+    title: language === 'bn' ? 'গ্রোথ হ্যাকিং আইডিয়া' : 'Growth Hacking Ideas', 
+    sections: [{ 
+      heading: language === 'bn' ? 'আইডিয়া' : 'Ideas', 
+      content: `${language === 'bn' ? 'গ্রোথ স্টেজ:' : 'Growth Stage:'} ${growthStage}\n${language === 'bn' ? 'রিসোর্স:' : 'Resources:'} ${resources}\n${language === 'bn' ? 'সময়রেখা:' : 'Timeline:'} ${timeline}\n${language === 'bn' ? 'ব্যবসা:' : 'Business:'} ${businessContext.businessName}` 
+    }],
+    metadata: { growthStage, resources, timeline, tool: 'growth-hacking-ideas' }
+  }
 }
 
 // Business Overview Generation
