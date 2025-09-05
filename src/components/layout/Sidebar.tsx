@@ -188,10 +188,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
             {isHovered && (
               <div className="flex items-center justify-between flex-1 min-w-0">
                 <div>
-                  <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Account</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">Account</p>
                 </div>
               </div>
             )}
