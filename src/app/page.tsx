@@ -92,25 +92,24 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Stats Section */}
+      {/* Product Demo Section */}
       <div className="bg-gray-50 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">18+</div>
-              <div className="text-gray-600">Business Frameworks</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">50+</div>
-              <div className="text-gray-600">Industry Templates</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">10k+</div>
-              <div className="text-gray-600">Strategies Generated</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-gray-900 mb-2">99%</div>
-              <div className="text-gray-600">User Satisfaction</div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              See iDEAN AI in Action
+            </h2>
+            <p className="text-lg text-gray-600">
+              Professional business strategy tools built for real entrepreneurs
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+                alt="Business strategy dashboard interface"
+                className="w-full h-64 md:h-80 object-cover"
+              />
             </div>
           </div>
         </div>
