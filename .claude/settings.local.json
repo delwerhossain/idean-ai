@@ -46,7 +46,9 @@
       "Bash(pnpm add:*)",
       "Bash(git commit:*)",
       "Bash(npx tsc:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebSearch",
+      "WebFetch(domain:www.venturekit.ai)"
     ],
     "deny": [],
     "ask": [],
