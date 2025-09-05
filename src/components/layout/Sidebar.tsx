@@ -54,6 +54,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
   const pathname = usePathname()
   const [isHovered, setIsHovered] = useState(false)
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
+  const [showAccountMenu, setShowAccountMenu] = useState(false)
   const [businessName, setBusinessName] = useState('Your Business')
   const [userName, setUserName] = useState('User')
 
@@ -79,6 +80,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       onMouseLeave={() => {
         setIsHovered(false)
         setShowCompanySwitcher(false)
+        setShowAccountMenu(false)
       }}
     >
       {/* Fixed Header */}
@@ -153,41 +155,52 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       </div>
 
       {/* Fixed Bottom Section */}
-      <div className="flex-shrink-0 p-2 border-t border-gray-200 space-y-1">
+      <div className="flex-shrink-0 p-2 border-t border-gray-200 space-y-1 relative">
         {/* Upgrade Button */}
         <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <Crown className="w-5 h-5 flex-shrink-0 text-yellow-600" />
           {isHovered && <span>Upgrade</span>}
         </button>
 
-        {/* Settings */}
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group"
-          title={!isHovered ? 'Settings' : undefined}
-        >
-          <Settings className="w-5 h-5 flex-shrink-0" />
-          {isHovered && <span>Settings</span>}
-        </Link>
+        {/* User Profile with Dropdown */}
+        <div className="relative">
+          <button 
+            onClick={() => setShowAccountMenu(!showAccountMenu)}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
+          >
+            <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="w-3 h-3 text-gray-600" />
+            </div>
+            {isHovered && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+                <p className="text-xs text-gray-500">Account</p>
+              </div>
+            )}
+          </button>
 
-        {/* User Profile */}
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group">
-          <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-            <User className="w-3 h-3 text-gray-600" />
-          </div>
-          {isHovered && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-              <p className="text-xs text-gray-500">Account</p>
+          {/* Account Menu Dropdown */}
+          {showAccountMenu && isHovered && (
+            <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+              <Link
+                href="/settings"
+                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setShowAccountMenu(false)}
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+              </Link>
+              <hr className="my-1 border-gray-100" />
+              <button 
+                className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                onClick={() => setShowAccountMenu(false)}
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
             </div>
           )}
         </div>
-
-        {/* Logout */}
-        <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-red-600 transition-colors group">
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {isHovered && <span>Sign Out</span>}
-        </button>
       </div>
     </div>
   )
