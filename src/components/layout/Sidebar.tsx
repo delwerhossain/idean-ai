@@ -18,7 +18,13 @@ import {
   Crown,
   LogOut,
   ChevronDown,
-  Plus
+  Plus,
+  Target,
+  BarChart3,
+  Users,
+  Briefcase,
+  TrendingUp,
+  Globe
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -36,6 +42,12 @@ const navigationItems = [
   { icon: Search, label: 'Market Research', href: '/market-research' },
   { icon: Calculator, label: 'Financials', href: '/financials' },
   { icon: Building, label: 'Formation', href: '/formation' },
+  { icon: Target, label: 'Goals', href: '/goals' },
+  { icon: BarChart3, label: 'Analytics', href: '/analytics' },
+  { icon: Users, label: 'Team', href: '/team' },
+  { icon: Briefcase, label: 'Projects', href: '/projects' },
+  { icon: TrendingUp, label: 'Growth', href: '/growth' },
+  { icon: Globe, label: 'Markets', href: '/markets' },
 ]
 
 export default function Sidebar({ className = '', onNewCompany }: SidebarProps) {
@@ -69,8 +81,8 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
         setShowCompanySwitcher(false)
       }}
     >
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">iD</span>
@@ -114,32 +126,34 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-2 space-y-1">
-        {navigationItems.map((item) => {
-          const Icon = item.icon
-          const isActive = pathname === item.href
-          
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
-                isActive
-                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-              title={!isHovered ? item.label : undefined}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {isHovered && <span>{item.label}</span>}
-            </Link>
-          )
-        })}
-      </nav>
+      {/* Scrollable Navigation Content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <nav className="p-2 space-y-1">
+          {navigationItems.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                  isActive
+                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+                title={!isHovered ? item.label : undefined}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {isHovered && <span>{item.label}</span>}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
 
-      {/* Bottom Section */}
-      <div className="p-2 border-t border-gray-200 space-y-1">
+      {/* Fixed Bottom Section */}
+      <div className="flex-shrink-0 p-2 border-t border-gray-200 space-y-1">
         {/* Upgrade Button */}
         <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <Crown className="w-5 h-5 flex-shrink-0 text-yellow-600" />
