@@ -85,7 +85,7 @@ export default function OnboardingPage() {
     localStorage.setItem('mentorApproval', data.mentorApproval.toString())
     
     console.log('Onboarding completed:', data)
-    window.location.href = '/generate-document'
+    window.location.href = '/dashboard'
   }
 
   const renderStep = () => {

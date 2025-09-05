@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import DashboardLayout from '@/components/layout/DashboardLayout'
 import { 
   FileText, 
   Download, 
@@ -475,7 +476,8 @@ Our primary target market consists of...
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <DashboardLayout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Choose Your Document Type</h1>
@@ -539,6 +541,7 @@ Our primary target market consists of...
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }
