@@ -20,11 +20,11 @@ interface OnboardingData {
 }
 
 const STEPS = [
-  { title: 'Basic Information', description: 'Your name and business name' },
-  { title: 'Website', description: 'Business website (optional)' },
-  { title: 'Industry', description: 'What industry are you in?' },
-  { title: 'Knowledge Base', description: 'Upload business documents (max 4 PDFs)' },
-  { title: 'Business Context', description: 'Additional business information' }
+  { title: 'Basic Info', description: 'Name and business' },
+  { title: 'Website', description: 'Optional' },
+  { title: 'Industry', description: 'Your market' },
+  { title: 'Documents', description: 'Optional PDFs' },
+  { title: 'Context', description: 'Additional info' }
 ]
 
 export default function OnboardingPage() {
@@ -135,78 +135,70 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">iDEAN AI</h1>
-          <p className="text-lg text-gray-600">Your Growth Co-Pilot</p>
-          <p className="text-sm text-gray-500 mt-1">Let&apos;s set up your business information</p>
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center space-x-2 mb-6">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">iD</span>
+            </div>
+            <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
+          </div>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            {STEPS[currentStep].title}
+          </h1>
+          <p className="text-gray-600">{STEPS[currentStep].description}</p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Step {currentStep + 1} of {STEPS.length}
-            </span>
-            <span className="text-sm text-gray-500">
-              {Math.round(((currentStep + 1) / STEPS.length) * 100)}%
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
-            ></div>
-          </div>
+        {/* Progress */}
+        <div className="flex items-center justify-center space-x-2 mb-12">
+          {STEPS.map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                index <= currentStep ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            />
+          ))}
         </div>
 
-        {/* Main Content Card */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-20">
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">{STEPS[currentStep].title}</h2>
-            <p className="text-gray-600 text-sm mt-1">{STEPS[currentStep].description}</p>
-          </div>
-          
-          <div className="min-h-96">
-            {renderStep()}
-          </div>
+        {/* Content */}
+        <div className="mb-12">
+          {renderStep()}
         </div>
 
-        {/* Fixed Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4">
-          <div className="max-w-3xl mx-auto flex justify-between">
+        {/* Navigation */}
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            className="px-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+
+          {currentStep === STEPS.length - 1 ? (
             <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 0}
-              className="flex items-center gap-2 px-6 py-2"
+              onClick={handleFinish}
+              disabled={!isStepValid()}
+              className="bg-blue-600 hover:bg-blue-700 px-6"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Previous
+              Complete
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-
-            {currentStep === STEPS.length - 1 ? (
-              <Button
-                onClick={handleFinish}
-                disabled={!isStepValid()}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-2"
-              >
-                Complete Setup
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            ) : (
-              <Button
-                onClick={nextStep}
-                disabled={!isStepValid()}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-2"
-              >
-                Next Step
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
+          ) : (
+            <Button
+              onClick={nextStep}
+              disabled={!isStepValid()}
+              className="bg-blue-600 hover:bg-blue-700 px-6"
+            >
+              Continue
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
