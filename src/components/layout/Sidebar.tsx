@@ -94,21 +94,39 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
               <div className="flex flex-col flex-1 min-w-0">
                 <span className="font-bold text-lg text-gray-900 truncate">iDEAN AI</span>
                 <span className="text-sm font-medium text-gray-800 truncate">{userName}</span>
-                <button 
-                  onClick={() => setShowCompanySwitcher(!showCompanySwitcher)}
-                  className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 transition-colors truncate mt-0.5"
-                >
-                  <span className="truncate">{businessName}</span>
-                  <ChevronDown className="w-3 h-3 flex-shrink-0" />
-                </button>
+                <span className="text-xs text-gray-500 mt-0.5">Business Strategy Platform</span>
               </div>
             </>
           )}
         </div>
+      </div>
+
+      {/* Company Section - Always Visible */}
+      <div className="flex-shrink-0 p-3 border-b border-gray-100 relative">
+        <button
+          onClick={() => isHovered && setShowCompanySwitcher(!showCompanySwitcher)}
+          className="flex items-center gap-3 w-full hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors"
+          disabled={!isHovered}
+        >
+          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span className="text-white font-bold text-sm">
+              {businessName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          {isHovered && (
+            <div className="flex flex-col flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="font-semibold text-sm text-gray-900 truncate">{businessName}</span>
+                <ChevronDown className="w-3 h-3 flex-shrink-0 text-gray-400" />
+              </div>
+              <span className="text-xs text-gray-500">Company</span>
+            </div>
+          )}
+        </button>
 
         {/* Company Switcher Dropdown */}
         {showCompanySwitcher && isHovered && (
-          <div className="absolute top-16 left-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-2">
+          <div className="absolute top-full left-3 right-3 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-2">
             <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
               Current Company
             </div>
