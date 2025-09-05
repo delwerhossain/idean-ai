@@ -48,7 +48,9 @@
       "Bash(npx tsc:*)",
       "Bash(git push:*)",
       "WebSearch",
-      "WebFetch(domain:www.venturekit.ai)"
+      "WebFetch(domain:www.venturekit.ai)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(pnpm build:*)"
     ],
     "deny": [],
     "ask": [],
