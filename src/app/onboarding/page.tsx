@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Globe } from 'lucide-react'
 import BasicInfoStep from '@/components/onboarding/BasicInfoStep'
 import WebsiteStep from '@/components/onboarding/WebsiteStep'
 import IndustryStep from '@/components/onboarding/IndustryStep'
@@ -19,16 +19,26 @@ interface OnboardingData {
   mentorApproval: boolean
 }
 
-const STEPS = [
-  { title: 'Basic Info', description: 'Name and business' },
-  { title: 'Website', description: 'Optional' },
-  { title: 'Industry', description: 'Your market' },
-  { title: 'Documents', description: 'Optional PDFs' },
-  { title: 'Context', description: 'Additional info' }
-]
+const STEPS = {
+  en: [
+    { title: 'Basic Info', description: 'Name and business' },
+    { title: 'Website', description: 'Optional' },
+    { title: 'Industry', description: 'Your market' },
+    { title: 'Documents', description: 'Optional PDFs' },
+    { title: 'Context', description: 'Additional info' }
+  ],
+  bn: [
+    { title: 'প্রাথমিক তথ্য', description: 'নাম এবং ব্যবসা' },
+    { title: 'ওয়েবসাইট', description: 'ঐচ্ছিক' },
+    { title: 'ইন্ডাস্ট্রি', description: 'আপনার বাজার' },
+    { title: 'ডকুমেন্ট', description: 'ঐচ্ছিক পিডিএফ' },
+    { title: 'প্রসঙ্গ', description: 'অতিরিক্ত তথ্য' }
+  ]
+}
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
+  const [language, setLanguage] = useState<'en' | 'bn'>('en')
   const [data, setData] = useState<OnboardingData>({
     userName: '',
     businessName: '',
@@ -38,6 +48,8 @@ export default function OnboardingPage() {
     businessContext: '',
     mentorApproval: false
   })
+  
+  const currentSteps = STEPS[language]
 
   const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
@@ -49,7 +61,7 @@ export default function OnboardingPage() {
   }
 
   const nextStep = () => {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < currentSteps.length - 1) {
       setCurrentStep(currentStep + 1)
     }
   }
@@ -135,25 +147,39 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pb-24">
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-2 mb-6">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">iD</span>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-8"></div>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">iD</span>
+              </div>
+              <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLanguage(language === 'en' ? 'bn' : 'en')}
+              className="flex items-center space-x-1 text-gray-600 hover:text-gray-900"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {language === 'en' ? 'বাং' : 'EN'}
+              </span>
+            </Button>
           </div>
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-            {STEPS[currentStep].title}
+            {currentSteps[currentStep].title}
           </h1>
-          <p className="text-gray-600">{STEPS[currentStep].description}</p>
+          <p className="text-gray-600">{currentSteps[currentStep].description}</p>
         </div>
 
         {/* Progress */}
         <div className="flex items-center justify-center space-x-2 mb-12">
-          {STEPS.map((_, index) => (
+          {currentSteps.map((_, index) => (
             <div
               key={index}
               className={`w-2 h-2 rounded-full transition-colors ${
@@ -167,9 +193,11 @@ export default function OnboardingPage() {
         <div className="mb-12">
           {renderStep()}
         </div>
+      </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between">
+      {/* Fixed Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div className="max-w-2xl mx-auto flex justify-between">
           <Button
             variant="outline"
             onClick={prevStep}
@@ -177,16 +205,16 @@ export default function OnboardingPage() {
             className="px-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            {language === 'en' ? 'Back' : 'পূর্ববর্তী'}
           </Button>
 
-          {currentStep === STEPS.length - 1 ? (
+          {currentStep === currentSteps.length - 1 ? (
             <Button
               onClick={handleFinish}
               disabled={!isStepValid()}
               className="bg-blue-600 hover:bg-blue-700 px-6"
             >
-              Complete
+              {language === 'en' ? 'Complete' : 'সম্পূর্ণ'}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
@@ -195,7 +223,7 @@ export default function OnboardingPage() {
               disabled={!isStepValid()}
               className="bg-blue-600 hover:bg-blue-700 px-6"
             >
-              Continue
+              {language === 'en' ? 'Continue' : 'চালিয়ে যান'}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
