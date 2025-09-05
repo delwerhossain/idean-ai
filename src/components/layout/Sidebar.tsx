@@ -93,9 +93,10 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
             <>
               <div className="flex flex-col flex-1 min-w-0">
                 <span className="font-bold text-lg text-gray-900 truncate">iDEAN AI</span>
+                <span className="text-sm font-medium text-gray-800 truncate">{userName}</span>
                 <button 
                   onClick={() => setShowCompanySwitcher(!showCompanySwitcher)}
-                  className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 transition-colors truncate"
+                  className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 transition-colors truncate mt-0.5"
                 >
                   <span className="truncate">{businessName}</span>
                   <ChevronDown className="w-3 h-3 flex-shrink-0" />
