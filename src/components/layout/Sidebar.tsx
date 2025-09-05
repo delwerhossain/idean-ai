@@ -52,6 +52,7 @@ const navigationItems = [
 
 export default function Sidebar({ className = '', onNewCompany }: SidebarProps) {
   const pathname = usePathname()
+  const [isExpanded, setIsExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
   const [showAccountMenu, setShowAccountMenu] = useState(false)
@@ -73,10 +74,12 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
     onNewCompany?.()
   }
 
+  const shouldShowExpanded = isExpanded || isHovered
+
   return (
     <div 
-      className={`${isHovered ? 'w-64' : 'w-16'} transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col h-screen ${className} relative z-50`}
-      onMouseEnter={() => setIsHovered(true)}
+      className={`${shouldShowExpanded ? 'w-64' : 'w-16'} transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col h-screen ${className} relative z-50`}
+      onMouseEnter={() => isExpanded && setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false)
         setShowCompanySwitcher(false)
@@ -86,10 +89,13 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       {/* Fixed Header */}
       <div className="flex-shrink-0 p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 hover:bg-blue-700 transition-colors"
+          >
             <span className="text-white font-bold text-sm">iD</span>
-          </div>
-          {isHovered && (
+          </button>
+          {shouldShowExpanded && (
             <>
               <div className="flex flex-col flex-1 min-w-0">
                 <span className="font-bold text-lg text-gray-900 truncate">iDEAN AI</span>
@@ -102,16 +108,16 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       {/* Company Section - Always Visible */}
       <div className="flex-shrink-0 p-3 border-b border-gray-100 relative">
         <button
-          onClick={() => isHovered && setShowCompanySwitcher(!showCompanySwitcher)}
+          onClick={() => shouldShowExpanded && setShowCompanySwitcher(!showCompanySwitcher)}
           className="flex items-center gap-3 w-full hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors"
-          disabled={!isHovered}
+          disabled={!shouldShowExpanded}
         >
           <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
             <span className="text-white font-bold text-sm">
               {businessName.charAt(0).toUpperCase()}
             </span>
           </div>
-          {isHovered && (
+          {shouldShowExpanded && (
             <div className="flex items-center gap-1 flex-1 min-w-0">
               <span className="font-semibold text-sm text-gray-900 truncate">{businessName}</span>
               <ChevronDown className="w-3 h-3 flex-shrink-0 text-gray-400" />
@@ -120,7 +126,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
         </button>
 
         {/* Company Switcher Dropdown */}
-        {showCompanySwitcher && isHovered && (
+        {showCompanySwitcher && shouldShowExpanded && (
           <div className="absolute top-full left-3 right-3 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-2">
             <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
               Current Company
@@ -158,10 +164,10 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
                     ? 'bg-blue-50 text-blue-700 border border-blue-200'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
-                title={!isHovered ? item.label : undefined}
+                title={!shouldShowExpanded ? item.label : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {isHovered && <span>{item.label}</span>}
+                {shouldShowExpanded && <span>{item.label}</span>}
               </Link>
             )
           })}
@@ -173,7 +179,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
         {/* Upgrade Button */}
         <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <Crown className="w-5 h-5 flex-shrink-0 text-yellow-600" />
-          {isHovered && <span>Upgrade</span>}
+          {shouldShowExpanded && <span>Upgrade</span>}
         </button>
 
         {/* User Profile with Dropdown */}
@@ -185,7 +191,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
             <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="w-3 h-3 text-gray-600" />
             </div>
-            {isHovered && (
+            {shouldShowExpanded && (
               <div className="flex items-center justify-between flex-1 min-w-0">
                 <div>
                   <p className="text-sm font-medium text-gray-900 truncate">Account</p>
@@ -195,7 +201,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
           </button>
 
           {/* Account Menu Dropdown */}
-          {showAccountMenu && isHovered && (
+          {showAccountMenu && shouldShowExpanded && (
             <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
               <Link
                 href="/settings"
