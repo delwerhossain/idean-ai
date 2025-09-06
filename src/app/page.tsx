@@ -11,12 +11,12 @@ export default function Home() {
     const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding')
     if (!hasCompletedOnboarding) {
       // Uncomment for auto-redirect:
-      // window.location.href = '/onboarding'
+      // window.location.href = '/dashboard/onboarding'
     }
   }, [])
 
   const startOnboarding = () => {
-    window.location.href = '/dashboard'
+    window.location.href = '/dashboard/onboarding'
   }
 
   return (
