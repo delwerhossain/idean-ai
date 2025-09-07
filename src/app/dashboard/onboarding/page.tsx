@@ -109,6 +109,7 @@ export default function OnboardingPage() {
             businessName={data.businessName}
             onUserNameChange={(value) => updateData('userName', value)}
             onBusinessNameChange={(value) => updateData('businessName', value)}
+            language={language}
           />
         )
       case 1:
@@ -116,6 +117,7 @@ export default function OnboardingPage() {
           <WebsiteStep
             website={data.website}
             onWebsiteChange={(value) => updateData('website', value)}
+            language={language}
           />
         )
       case 2:
@@ -123,6 +125,7 @@ export default function OnboardingPage() {
           <IndustryStep
             industry={data.industry}
             onIndustryChange={(value) => updateData('industry', value)}
+            language={language}
           />
         )
       case 3:
@@ -130,6 +133,7 @@ export default function OnboardingPage() {
           <KnowledgeBaseStep
             knowledgeBase={data.knowledgeBase}
             onKnowledgeBaseChange={(value) => updateData('knowledgeBase', value)}
+            language={language}
           />
         )
       case 4:
@@ -139,6 +143,7 @@ export default function OnboardingPage() {
             mentorApproval={data.mentorApproval}
             onBusinessContextChange={(value) => updateData('businessContext', value)}
             onMentorApprovalChange={(value) => updateData('mentorApproval', value)}
+            language={language}
           />
         )
       default:
@@ -147,17 +152,17 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      <div className="max-w-2xl mx-auto px-4 py-12">
+    <div className="min-h-screen bg-white pb-16">
+      <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-between mb-6">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="w-8"></div>
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">iD</span>
+              <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                <span className="text-white font-bold text-xs">iD</span>
               </div>
-              <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
+              <span className="font-bold text-lg text-gray-900">iDEAN AI</span>
             </div>
             <Button
               variant="ghost"
@@ -171,14 +176,72 @@ export default function OnboardingPage() {
               </span>
             </Button>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">
             {currentSteps[currentStep].title}
           </h1>
-          <p className="text-gray-600">{currentSteps[currentStep].description}</p>
+          <p className="text-sm text-gray-600">{currentSteps[currentStep].description}</p>
+        </div>
+
+        {/* Animated Visual Element */}
+        <div className="flex justify-center mb-6">
+          <div className="relative w-32 h-20 overflow-hidden">
+            {/* Step-based animated visual */}
+            {currentStep === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <div className="relative animate-float">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full animate-glow"></div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-bounce"></div>
+                  <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-green-400 rounded-full animate-ping"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs font-bold">✨</div>
+                </div>
+              </div>
+            )}
+            {currentStep === 1 && (
+              <div className="flex items-center justify-center h-full">
+                <div className="relative animate-float">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg animate-glow"></div>
+                  <div className="absolute top-1 left-1 w-8 h-8 border-2 border-white rounded animate-spin"></div>
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full animate-bounce"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs">🌐</div>
+                </div>
+              </div>
+            )}
+            {currentStep === 2 && (
+              <div className="flex items-center justify-center h-full">
+                <div className="relative animate-float">
+                  <div className="w-14 h-14 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full animate-glow"></div>
+                  <div className="absolute top-2 left-2 w-10 h-10 border-2 border-white rounded-full animate-spin"></div>
+                  <div className="absolute top-4 left-4 w-6 h-6 bg-white rounded-full animate-bounce"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-600 text-xs">🏢</div>
+                </div>
+              </div>
+            )}
+            {currentStep === 3 && (
+              <div className="flex items-center justify-center h-full">
+                <div className="relative flex space-x-1 animate-float">
+                  <div className="w-3 h-12 bg-blue-400 rounded animate-pulse" style={{animationDelay: '0s'}}></div>
+                  <div className="w-3 h-8 bg-green-400 rounded animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-3 h-10 bg-purple-400 rounded animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  <div className="w-3 h-6 bg-orange-400 rounded animate-pulse" style={{animationDelay: '0.6s'}}></div>
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-lg">📄</div>
+                </div>
+              </div>
+            )}
+            {currentStep === 4 && (
+              <div className="flex items-center justify-center h-full">
+                <div className="relative animate-float">
+                  <div className="w-16 h-12 bg-gradient-to-r from-indigo-400 to-cyan-400 rounded-lg animate-glow"></div>
+                  <div className="absolute top-1 left-1 right-1 bottom-1 border border-white rounded animate-ping"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs">💬</div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Progress */}
-        <div className="flex items-center justify-center space-x-2 mb-12">
+        <div className="flex items-center justify-center space-x-2 mb-6">
           {currentSteps.map((_, index) => (
             <div
               key={index}
@@ -190,7 +253,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Content */}
-        <div className="mb-12">
+        <div className="mb-6">
           {renderStep()}
         </div>
       </div>

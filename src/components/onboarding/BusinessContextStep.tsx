@@ -2,13 +2,14 @@
 
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { MessageSquare, Lightbulb, Target, Users, CheckCircle2 } from 'lucide-react'
+import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle } from 'lucide-react'
 
 interface BusinessContextStepProps {
   businessContext: string
   mentorApproval: boolean
   onBusinessContextChange: (value: string) => void
   onMentorApprovalChange: (value: boolean) => void
+  language: 'en' | 'bn'
 }
 
 const BUSINESS_CONTEXT_PROMPTS = [
@@ -36,7 +37,8 @@ export default function BusinessContextStep({
   businessContext, 
   mentorApproval,
   onBusinessContextChange, 
-  onMentorApprovalChange 
+  onMentorApprovalChange,
+  language
 }: BusinessContextStepProps) {
   const characterCount = businessContext.length
   const maxCharacters = 500
@@ -65,11 +67,37 @@ export default function BusinessContextStep({
     <div className="space-y-6">
       <div className="text-center">
         <MessageSquare className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Business Context / ব্যবসায়িক তথ্য
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center justify-center gap-2">
+          {language === 'en' ? 'Business Context' : 'ব্যবসায়িক তথ্য'}
+          <div className="relative group">
+            <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+            <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-64 bg-gray-900 text-white text-xs rounded-lg p-3 z-50">
+              <div className="font-medium mb-2">💡 {language === 'en' ? 'What information helps iDEAN AI?' : 'কোন তথ্য iDEAN AI কে সাহায্য করে?'}</div>
+              <ul className="space-y-1">
+                {language === 'en' ? (
+                  <>
+                    <li>• Target customer demographics and needs</li>
+                    <li>• What makes your business unique</li>
+                    <li>• Your main business goals and challenges</li>
+                    <li>• Preferred communication tone (formal/casual)</li>
+                    <li>• Key products or services you offer</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• টার্গেট গ্রাহকের তথ্য এবং প্রয়োজন</li>
+                    <li>• আপনার ব্যবসাকে অনন্য করে তোলে কী</li>
+                    <li>• আপনার মুখ্য ব্যবসায়িক লক্ষ্য এবং চ্যালেঞ্জ</li>
+                    <li>• পছন্দের যোগাযোগের ধরন (আনুষ্ঠানিক/অনানুষ্ঠানিক)</li>
+                    <li>• আপনার মুখ্য পণ্য বা সেবা</li>
+                  </>
+                )}
+              </ul>
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+            </div>
+          </div>
         </h3>
         <p className="text-gray-600">
-          Tell us more about your business to help iDEAN AI create better content for you.
+          {language === 'en' ? 'Tell us more about your business to help iDEAN AI create better content for you.' : 'iDEAN AI কে আপনার জন্য আরো ভালো কন্টেন্ট তৈরি করতে সাহায্য করতে আপনার ব্যবসা সম্পর্কে আরো বলুন।'}
         </p>
       </div>
 
@@ -77,7 +105,7 @@ export default function BusinessContextStep({
         {/* Business Context Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Additional Business Information (Optional)
+            {language === 'en' ? 'Additional Business Information (Optional)' : 'অতিরিক্ত ব্যবসায়িক তথ্য (ঐচ্ছিক)'}
           </label>
           <Textarea
             placeholder="Tell us about your target customers, unique selling points, business goals, challenges, or any other relevant information..."
@@ -174,17 +202,6 @@ export default function BusinessContextStep({
           </div>
         )}
 
-        {/* Help Section */}
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-          <h4 className="font-medium text-orange-800 mb-2">💡 What information helps iDEAN AI?</h4>
-          <ul className="text-sm text-orange-700 space-y-1">
-            <li>• Target customer demographics and needs</li>
-            <li>• What makes your business unique</li>
-            <li>• Your main business goals and challenges</li>
-            <li>• Preferred communication tone (formal/casual)</li>
-            <li>• Key products or services you offer</li>
-          </ul>
-        </div>
       </div>
     </div>
   )

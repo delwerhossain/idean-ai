@@ -3,13 +3,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { User, Building2, Sparkles, Loader2 } from 'lucide-react'
+import { User, Building2, Sparkles, Loader2, HelpCircle } from 'lucide-react'
 
 interface BasicInfoStepProps {
   userName: string
   businessName: string
   onUserNameChange: (value: string) => void
   onBusinessNameChange: (value: string) => void
+  language: 'en' | 'bn'
 }
 
 // Bengali business name suggestions
@@ -40,7 +41,8 @@ export default function BasicInfoStep({
   userName, 
   businessName, 
   onUserNameChange, 
-  onBusinessNameChange 
+  onBusinessNameChange,
+  language
 }: BasicInfoStepProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [isLoadingAI, setIsLoadingAI] = useState(false)
@@ -65,7 +67,7 @@ export default function BasicInfoStep({
 
   const generateAISuggestions = async () => {
     if (!userName.trim()) {
-      alert('অনুগ্রহ করে আপনার নাম লিখুন / Please enter your name first')
+      alert(language === 'en' ? 'Please enter your name first' : 'অনুগ্রহ করে আপনার নাম লিখুন')
       return
     }
 
@@ -129,22 +131,22 @@ export default function BasicInfoStep({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-4 animate-fade-in">
+      <div className="space-y-3">
         {/* User Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <User className="w-4 h-4 inline mr-2" />
-            Your Name / আপনার নাম *
+            {language === 'en' ? 'Your Name *' : 'আপনার নাম *'}
           </label>
           <Input
-            placeholder="Enter your full name / আপনার পূর্ণ নাম লিখুন"
+            placeholder={language === 'en' ? 'Enter your full name' : 'আপনার পূর্ণ নাম লিখুন'}
             value={userName}
             onChange={(e) => onUserNameChange(e.target.value)}
             className="w-full text-base p-3 border-2 border-gray-300 rounded focus:border-blue-500"
           />
           <p className="text-xs text-gray-500 mt-1">
-            This will be used for personalization / এটি ব্যক্তিগতকরণের জন্য ব্যবহৃত হবে
+            {language === 'en' ? 'This will be used for personalization' : 'এটি ব্যক্তিগতকরণের জন্য ব্যবহৃত হবে'}
           </p>
         </div>
 
@@ -152,14 +154,38 @@ export default function BasicInfoStep({
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Building2 className="w-4 h-4 inline mr-2" />
-            Business Name / ব্যবসার নাম *
+            {language === 'en' ? 'Business Name *' : 'ব্যবসার নাম *'}
+            <div className="inline-block ml-2 relative group">
+              <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+              <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 bg-gray-900 text-white text-xs rounded-lg p-3 z-50">
+                <div className="font-medium mb-2">💡 {language === 'en' ? 'Tips for Business Name' : 'ব্যবসার নামের জন্য টিপস'}</div>
+                <ul className="space-y-1">
+                  {language === 'en' ? (
+                    <>
+                      <li>• Keep it simple and memorable</li>
+                      <li>• Consider your target market</li>
+                      <li>• Check if domain name is available</li>
+                      <li>• Make sure it&apos;s easy to pronounce</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>• সহজ এবং স্মরণীয় রাখুন</li>
+                      <li>• আপনার টার্গেট মার্কেট বিবেচনা করুন</li>
+                      <li>• ডোমেইন নাম পাওয়া যায় কিনা চেক করুন</li>
+                      <li>• উচ্চারণ সহজ হওয়া নিশ্চিত করুন</li>
+                    </>
+                  )}
+                </ul>
+                <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+              </div>
+            </div>
           </label>
           
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Input
                 ref={inputRef}
-                placeholder="Enter business name / ব্যবসার নাম লিখুন"
+                placeholder={language === 'en' ? 'Enter business name' : 'ব্যবসার নাম লিখুন'}
                 value={businessName}
                 onChange={(e) => onBusinessNameChange(e.target.value)}
                 onFocus={handleBusinessNameFocus}
@@ -185,7 +211,7 @@ export default function BasicInfoStep({
                   
                   {suggestions.length === 0 && !isLoadingAI && (
                     <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                      Click &quot;Get AI Suggestions&quot; for personalized names
+                      {language === 'en' ? 'Click "Get AI Suggestions" for personalized names' : '"AI Suggest" এ ক্লিক করুন ব্যক্তিগত নামের জন্য'}
                     </div>
                   )}
                 </div>
@@ -196,7 +222,7 @@ export default function BasicInfoStep({
                 <div className="absolute z-50 w-full mt-1 bg-white border-2 border-gray-200 rounded shadow-lg">
                   <div className="px-4 py-4 text-center">
                     <Loader2 className="w-5 h-5 animate-spin inline mr-2" />
-                    <span className="text-sm text-gray-600">AI generating suggestions...</span>
+                    <span className="text-sm text-gray-600">{language === 'en' ? 'AI generating suggestions...' : 'AI সাজেশন তৈরি করছে...'}</span>
                   </div>
                 </div>
               )}
@@ -206,7 +232,7 @@ export default function BasicInfoStep({
               type="button"
               onClick={generateAISuggestions}
               disabled={!userName.trim() || isLoadingAI}
-              className="px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2 whitespace-nowrap text-sm"
+              className="px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2 whitespace-nowrap text-sm hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               {isLoadingAI ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -218,34 +244,24 @@ export default function BasicInfoStep({
           </div>
           
           <p className="text-xs text-gray-500 mt-1">
-            Don&apos;t have a name yet? Click &quot;AI Suggest&quot; for ideas / নাম নেই? &quot;AI Suggest&quot; ক্লিক করুন
+            {language === 'en' ? 'Don\'t have a name yet? Click "AI Suggest" for ideas' : 'নাম নেই? "AI Suggest" ক্লিক করুন'}
           </p>
         </div>
       </div>
 
       {/* Selected Business Name Display */}
       {businessName && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-green-600" />
+            <Building2 className="w-4 h-4 text-green-600" />
             <div>
-              <p className="font-medium text-green-800">Business Name Selected</p>
+              <p className="font-medium text-green-800 text-sm">{language === 'en' ? 'Business Name Selected' : 'ব্যবসার নাম নির্বাচিত'}</p>
               <p className="text-sm text-green-600">{businessName}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Help Section */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-800 mb-2">💡 Tips for Business Name</h4>
-        <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Keep it simple and memorable</li>
-          <li>• Consider your target market</li>
-          <li>• Check if domain name is available</li>
-          <li>• Make sure it&apos;s easy to pronounce</li>
-        </ul>
-      </div>
     </div>
   )
 }

@@ -56,15 +56,12 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const [businessName, setBusinessName] = useState('Your Business')
-  const [userName, setUserName] = useState('User')
 
   useEffect(() => {
     // Load user data from localStorage
     if (typeof window !== 'undefined') {
       const savedBusinessName = localStorage.getItem('businessName') || 'Your Business'
-      const savedUserName = localStorage.getItem('userName') || 'User'
       setBusinessName(savedBusinessName)
-      setUserName(savedUserName)
     }
   }, [])
 

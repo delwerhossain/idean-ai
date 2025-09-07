@@ -9,6 +9,7 @@ import { Search, Building, Briefcase, TrendingUp } from 'lucide-react'
 interface IndustryStepProps {
   industry: string
   onIndustryChange: (value: string) => void
+  language: 'en' | 'bn'
 }
 
 const POPULAR_INDUSTRIES = [
@@ -36,7 +37,7 @@ const POPULAR_INDUSTRIES = [
   'Non-profit & NGO'
 ]
 
-export default function IndustryStep({ industry, onIndustryChange }: IndustryStepProps) {
+export default function IndustryStep({ industry, onIndustryChange, language }: IndustryStepProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
 
@@ -59,10 +60,10 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
       <div className="text-center">
         <TrendingUp className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          What industry is your business in? / আপনার ব্যবসা কোন খাতে?
+          {language === 'en' ? 'What industry is your business in?' : 'আপনার ব্যবসা কোন খাতে?'}
         </h3>
         <p className="text-gray-600">
-          This helps iDEAN AI create content and strategies specifically tailored for your industry.
+          {language === 'en' ? 'This helps iDEAN AI create content and strategies specifically tailored for your industry.' : 'এটি iDEAN AI কে আপনার ইন্ডাস্ট্রির জন্য বিশেষভাবে তৈরি কন্টেন্ট এবং কৌশল তৈরি করতে সাহায্য করে।'}
         </p>
       </div>
 
@@ -72,7 +73,7 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search industries..."
+                placeholder={language === 'en' ? 'Search industries...' : 'ইন্ডাস্ট্রি খুঁজুন...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -99,7 +100,7 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
                 onClick={handleCustomIndustry}
                 className="text-blue-600 hover:text-blue-800"
               >
-                Don&apos;t see your industry? Enter custom industry
+                {language === 'en' ? 'Don\'t see your industry? Enter custom industry' : 'আপনার ইন্ডাস্ট্রি নেই? কাস্টম ইন্ডাস্ট্রি লিখুন'}
               </Button>
             </div>
           </>
@@ -107,10 +108,10 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Enter your industry
+                {language === 'en' ? 'Enter your industry' : 'আপনার ইন্ডাস্ট্রি লিখুন'}
               </label>
               <Input
-                placeholder="e.g., Custom Software Development"
+                placeholder={language === 'en' ? 'e.g., Custom Software Development' : 'যেমন: কাস্টম সফটওয়্যার ডেভেলপমেন্ট'}
                 value={industry}
                 onChange={(e) => onIndustryChange(e.target.value)}
                 className="w-full"
@@ -122,7 +123,7 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
               onClick={() => setShowCustomInput(false)}
               className="w-full"
             >
-              Back to industry list
+              {language === 'en' ? 'Back to industry list' : 'ইন্ডাস্ট্রি তালিকায় ফিরে যান'}
             </Button>
           </div>
         )}
@@ -132,7 +133,7 @@ export default function IndustryStep({ industry, onIndustryChange }: IndustrySte
             <div className="flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-green-600" />
               <div>
-                <p className="font-medium text-green-800">Industry Selected</p>
+                <p className="font-medium text-green-800">{language === 'en' ? 'Industry Selected' : 'ইন্ডাস্ট্রি নির্বাচিত'}</p>
                 <Badge variant="secondary" className="mt-1">
                   {industry}
                 </Badge>
