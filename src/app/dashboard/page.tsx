@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import OnboardingModal from '@/components/onboarding/OnboardingModal'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { 
@@ -34,7 +33,6 @@ export default function DashboardPage() {
     website: '',
     businessContext: ''
   })
-  const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
     // Check if user has completed onboarding
@@ -42,7 +40,8 @@ export default function DashboardPage() {
       const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding')
       
       if (!hasCompletedOnboarding) {
-        setShowOnboarding(true)
+        window.location.href = '/dashboard/onboarding'
+        return
       }
 
       // Load business information from localStorage
@@ -75,29 +74,18 @@ export default function DashboardPage() {
     { action: 'Completed onboarding', time: '2 days ago', type: 'setup' },
   ]
 
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false)
-    // Reload business info after onboarding
-    const userName = localStorage.getItem('userName') || ''
-    const businessName = localStorage.getItem('businessName') || 'Your Business'
-    const industry = localStorage.getItem('industry') || ''
-    const website = localStorage.getItem('website') || ''
-    const businessContext = localStorage.getItem('businessContext') || ''
-
-    setBusinessInfo({
-      userName,
-      businessName,
-      industry,
-      website,
-      businessContext
-    })
-  }
 
   const handleNewCompany = () => {
-    // Clear current onboarding data but keep it as completed to show the modal
+    // Clear current onboarding data for new company setup
     localStorage.removeItem('onboardingData')
-    // Don't remove hasCompletedOnboarding to maintain the dashboard view
-    setShowOnboarding(true)
+    localStorage.removeItem('userName')
+    localStorage.removeItem('businessName')
+    localStorage.removeItem('industry')
+    localStorage.removeItem('website')
+    localStorage.removeItem('businessContext')
+    localStorage.removeItem('hasCompletedOnboarding')
+    // Redirect to onboarding route instead of showing modal
+    window.location.href = '/dashboard/onboarding'
   }
 
   return (
@@ -258,10 +246,6 @@ export default function DashboardPage() {
       </div>
       </DashboardLayout>
       
-      {/* Onboarding Modal */}
-      {showOnboarding && (
-        <OnboardingModal onComplete={handleOnboardingComplete} />
-      )}
     </>
   )
 }

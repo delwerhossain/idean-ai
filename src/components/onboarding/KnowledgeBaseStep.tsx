@@ -7,9 +7,10 @@ import { Upload, FileText, X, AlertCircle } from 'lucide-react'
 interface KnowledgeBaseStepProps {
   knowledgeBase: File[]
   onKnowledgeBaseChange: (value: File[]) => void
+  language: 'en' | 'bn'
 }
 
-export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange }: KnowledgeBaseStepProps) {
+export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange, language }: KnowledgeBaseStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const MAX_FILES = 4
   const MAX_PAGES_PER_FILE = 30
@@ -19,12 +20,12 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
     const pdfFiles = files.filter(file => file.type === 'application/pdf')
     
     if (pdfFiles.length !== files.length) {
-      alert('Only PDF files are allowed')
+      alert(language === 'en' ? 'Only PDF files are allowed' : 'কেবল PDF ফাইল অনুমোদিত')
     }
     
     const totalFiles = knowledgeBase.length + pdfFiles.length
     if (totalFiles > MAX_FILES) {
-      alert(`You can only upload a maximum of ${MAX_FILES} files`)
+      alert(language === 'en' ? `You can only upload a maximum of ${MAX_FILES} files` : `আপনি সর্বোচ্চ ${MAX_FILES}টি ফাইল আপলোড করতে পারেন`)
       return
     }
     
@@ -58,11 +59,10 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
       <div className="text-center">
         <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Upload Business Documents
+          {language === 'en' ? 'Upload Business Documents' : 'ব্যবসায়িক ডকুমেন্ট আপলোড করুন'}
         </h3>
         <p className="text-gray-600">
-          Upload up to 4 PDF documents (maximum 30 pages each) that contain important information about your business. 
-          This helps iDEAN AI understand your business better and create more relevant content.
+          {language === 'en' ? 'Upload up to 4 PDF documents (maximum 30 pages each) that contain important information about your business. This helps iDEAN AI understand your business better and create more relevant content.' : 'আপনার ব্যবসার গুরুত্বপূর্ণ তথ্য সম্বলিত সর্বোচ্চ 4টি PDF ডকুমেন্ট (প্রতিটি সর্বোচ্চ 30 পাতা) আপলোড করুন। এটি iDEAN AI কে আপনার ব্যবসা আরো ভালোভাবে বুঝতে এবং আরো প্রাসঙ্গিক কন্টেন্ট তৈরি করতে সাহায্য করে।'}
         </p>
       </div>
 
@@ -82,24 +82,24 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
             <div>
               <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-gray-600 mb-2">
-                Click to upload or drag and drop PDF files
+                {language === 'en' ? 'Click to upload or drag and drop PDF files' : 'PDF ফাইল আপলোড করতে ক্লিক করুন বা ড্র্যাগ করুন'}
               </p>
               <p className="text-sm text-gray-400">
-                Maximum {MAX_FILES} files • PDF only • Max {MAX_PAGES_PER_FILE} pages each
+                {language === 'en' ? `Maximum ${MAX_FILES} files • PDF only • Max ${MAX_PAGES_PER_FILE} pages each` : `সর্বোচ্চ ${MAX_FILES}টি ফাইল • কেবল PDF • প্রতিটি সর্বোচ্চ ${MAX_PAGES_PER_FILE} পাতা`}
               </p>
               <Button
                 onClick={openFileDialog}
                 className="mt-4"
                 variant="outline"
               >
-                Choose Files
+                {language === 'en' ? 'Choose Files' : 'ফাইল বাছাই করুন'}
               </Button>
             </div>
           ) : (
             <div>
               <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
               <p className="text-amber-600">
-                Maximum of {MAX_FILES} files reached
+                {language === 'en' ? `Maximum of ${MAX_FILES} files reached` : `সর্বোচ্চ ${MAX_FILES}টি ফাইল পৌঁছে গেছে`}
               </p>
             </div>
           )}
@@ -108,7 +108,7 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
         {knowledgeBase.length > 0 && (
           <div className="space-y-3">
             <h4 className="font-medium text-gray-800">
-              Uploaded Files ({knowledgeBase.length}/{MAX_FILES})
+              {language === 'en' ? `Uploaded Files (${knowledgeBase.length}/${MAX_FILES})` : `আপলোড করা ফাইল (${knowledgeBase.length}/${MAX_FILES})`}
             </h4>
             {knowledgeBase.map((file, index) => (
               <div
@@ -136,22 +136,38 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
         )}
 
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <h4 className="font-medium text-gray-800 mb-2">What documents work best?</h4>
+          <h4 className="font-medium text-gray-800 mb-2">{language === 'en' ? 'What documents work best?' : 'কোন ডকুমেন্টগুলো সবচেয়ে ভালো কাজ করে?'}</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            <li>• Business plans or executive summaries</li>
-            <li>• Product catalogs or service descriptions</li>
-            <li>• Company policies or procedures</li>
-            <li>• Marketing materials or brochures</li>
-            <li>• Technical documentation or manuals</li>
-            <li>• Financial reports or projections</li>
+            {language === 'en' ? (
+              <>
+                <li>• Business plans or executive summaries</li>
+                <li>• Product catalogs or service descriptions</li>
+                <li>• Company policies or procedures</li>
+                <li>• Marketing materials or brochures</li>
+                <li>• Technical documentation or manuals</li>
+                <li>• Financial reports or projections</li>
+              </>
+            ) : (
+              <>
+                <li>• ব্যবসায়িক পরিকল্পনা বা কার্যনির্বাহী সারাংশ</li>
+                <li>• পণ্যের ক্যাটালগ বা সেবার বর্ণনা</li>
+                <li>• কোম্পানির নীতি বা প্রক্রিয়া</li>
+                <li>• মার্কেটিং ম্যাটেরিয়াল বা ব্রোশার</li>
+                <li>• প্রযুক্তিগত ডকুমেন্টেশন বা ম্যানুয়াল</li>
+                <li>• আর্থিক রিপোর্ট বা প্রক্ষেপণ</li>
+              </>
+            )}
           </ul>
         </div>
 
         {knowledgeBase.length === 0 && (
           <div className="text-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-700">
-              <strong>Optional:</strong> You can skip this step if you don&apos;t have relevant documents ready. 
-              You can always add them later to improve your generated content.
+              {language === 'en' ? (
+                <><strong>Optional:</strong> You can skip this step if you don&apos;t have relevant documents ready. You can always add them later to improve your generated content.</>
+              ) : (
+                <><strong>ঐচ্ছিক:</strong> যদি আপনার কাছে প্রাসঙ্গিক ডকুমেন্ট প্রস্তুত না থাকে তাহলে এই ধাপটি এড়িয়ে যেতে পারেন। আপনার তৈরি করা কন্টেন্ট উন্নত করতে পরে সেগুলো যোগ করতে পারেন।</>
+              )}
             </p>
           </div>
         )}
