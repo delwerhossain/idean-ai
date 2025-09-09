@@ -62,18 +62,18 @@ export function UserProfile() {
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Plan</span>
+            <span className="text-sm font-medium text-gray-700">Provider</span>
             <Badge variant="outline" className="capitalize">
-              {user.subscriptionTier}
+              {user.provider || 'email'}
             </Badge>
           </div>
 
-          {user.organizationId && (
+          {user.businessId && (
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Organization</span>
+              <span className="text-sm font-medium text-gray-700">Business</span>
               <div className="flex items-center text-sm text-gray-600">
                 <Building className="w-4 h-4 mr-1" />
-                Org #{user.organizationId.slice(-6)}
+                Business #{user.businessId.slice(-6)}
               </div>
             </div>
           )}

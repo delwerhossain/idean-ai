@@ -1,24 +1,32 @@
+// Updated to match backend Prisma schema
 export interface User {
-  id: string
+  id: string                  // Firebase UID
   email: string
   name: string
-  role: 'owner' | 'admin' | 'member'
-  organizationId?: string
-  subscriptionTier: 'free' | 'standard' | 'pro'
-  aiCredits: number
+  role: 'user' | 'admin' | 'owner'  // Default role is 'user'
+  firebaseUid: string         // Firebase UID for backend reference
+  photoURL?: string
+  provider: 'google' | 'email' | 'facebook'  // OAuth provider
+  businessId?: string         // Reference to business
   createdAt: Date
-  lastLoginAt: Date
+  updatedAt: Date
 }
 
-export interface Organization {
+export interface Business {
   id: string
-  name: string
-  plan: 'free' | 'standard' | 'pro'
-  locale: 'en' | 'bn'
-  ownerId: string
-  totalUsers: number
-  monthlyUsage: number
+  business_name: string
+  website_url: string
+  industry_tag: string
+  business_documents: string[]        // Array of document URLs/paths
+  business_context?: string           // Optional business context
+  language: string                    // Primary language
+  mentor_approval: string             // Approval status
+  adds_history: string[]              // Ad campaign history
+  module_select: 'standard' | 'pro'  // Subscription module
+  readiness_checklist: string        // Onboarding checklist status
   createdAt: Date
+  updatedAt: Date
+  users: User[]                       // Users in this business
 }
 
 export interface AuthSession {
@@ -26,12 +34,15 @@ export interface AuthSession {
     id: string
     email: string
     name: string
-    role: 'owner' | 'admin' | 'member'
-    organizationId?: string
-    subscriptionTier: 'free' | 'standard' | 'pro'
+    role: 'user' | 'admin' | 'owner'
+    businessId?: string
+    firebaseUid: string
+    provider: string
+    photoURL?: string
   }
 }
 
+// NextAuth v5 type declarations aligned with backend schema
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -39,8 +50,10 @@ declare module 'next-auth' {
       email: string
       name: string
       role: string
-      organizationId: string
-      subscriptionTier: string
+      businessId: string
+      firebaseUid: string
+      provider: string
+      photoURL?: string
       emailVerified: boolean
     }
     firebaseToken: string
@@ -49,11 +62,43 @@ declare module 'next-auth' {
 
   interface User {
     role?: string
-    organizationId?: string
-    subscriptionTier?: string
+    businessId?: string
+    firebaseUid?: string
     firebaseToken?: string
+    provider?: string
+    photoURL?: string
     emailVerified?: boolean
+  }
+
+  interface JWT {
+    uid?: string
+    role?: string
+    businessId?: string
+    firebaseUid?: string
+    firebaseToken?: string
+    provider?: string
+    photoURL?: string
+    emailVerified?: boolean
+    tokenExpiry?: number
   }
 }
 
-// JWT types are now included in NextAuth v5 automatically
+// Additional auth-related types
+export interface UserRegistration {
+  email: string
+  name: string
+  password?: string
+  role: 'user' | 'admin' | 'owner'
+  businessName?: string          // For creating new business
+  businessId?: string            // For joining existing business
+  provider: 'google' | 'email' | 'facebook'
+}
+
+export interface BusinessSetup {
+  business_name: string
+  website_url: string
+  industry_tag: string
+  business_context?: string
+  language: string
+  module_select: 'standard' | 'pro'
+}

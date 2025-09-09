@@ -17,7 +17,7 @@ import {
   SearchFilters,
   PaginationParams,
   PaginatedResponse,
-  Organization,
+  Business,
   Subscription,
   BillingHistory,
   UserUpdateRequest
@@ -83,10 +83,10 @@ export function useUpdateUser() {
   })
 }
 
-export function useOrganization() {
+export function useBusiness() {
   return useQuery({
     queryKey: queryKeys.organization,
-    queryFn: () => apiClient.get<Organization>('/api/organization/me'),
+    queryFn: () => apiClient.get<Business>('/api/business/me'),
     staleTime: 10 * 60 * 1000, // 10 minutes
   })
 }

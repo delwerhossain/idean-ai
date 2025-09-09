@@ -8,45 +8,52 @@ export interface APIResponse<T = any> {
   timestamp?: string
 }
 
-// User & Organization Types
+// User & Business Types (aligned with backend Prisma schema)
 export interface User {
-  id: string
+  id: string                      // Primary key
+  createdAt: string
+  updatedAt: string
   email: string
   name: string
-  role: 'owner' | 'admin' | 'member'
-  organization_id?: string
-  subscription_tier: 'free' | 'standard' | 'pro'
-  ai_credits: number
-  created_at: string
-  last_login_at?: string
-  email_verified: boolean
-  avatar_url?: string
-  settings?: Record<string, any>
+  firebaseUid?: string            // Firebase UID (optional, unique)
+  photoURL?: string
+  provider?: string               // google, email, etc
+  businessId?: string             // Reference to Business
+  role?: string                   // Default: "user"
 }
 
-export interface Organization {
-  id: string
-  name: string
-  plan: 'free' | 'standard' | 'pro'
-  locale: 'en' | 'bn'
-  owner_id: string
-  total_users: number
-  monthly_usage: number
-  created_at: string
-  settings?: Record<string, any>
+export interface Business {
+  id: string                      // Primary key
+  createdAt: string
+  updatedAt: string
+  business_name: string
+  website_url: string
+  industry_tag: string
+  business_documents: string[]    // Array of document references
+  business_context?: string       // Optional context
+  language: string
+  mentor_approval: string
+  adds_history: string[]          // Ad campaign history
+  module_select: string           // standard/pro
+  readiness_checklist: string    // Onboarding progress
+  users: User[]                   // Related users
 }
 
 export interface UserCreateRequest {
   email: string
   name: string
-  role: 'owner' | 'admin' | 'member'
-  organization_name?: string
+  role?: string                   // Default: "user"
+  firebaseUid: string
+  photoURL?: string
+  provider?: string               // google, email, etc
+  businessId?: string             // For joining existing business
 }
 
 export interface UserUpdateRequest {
   name?: string
-  avatar_url?: string
-  settings?: Record<string, any>
+  photoURL?: string
+  businessId?: string
+  role?: string
 }
 
 // Content Generation Types

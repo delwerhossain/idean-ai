@@ -5,7 +5,8 @@ import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } 
 import { doc, setDoc } from 'firebase/firestore'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { auth, firestore } from '@/lib/firebase/config'
+import { auth } from '@/lib/firebase/client'
+import { useSyncUser } from '@/lib/api/hooks/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,14 +22,17 @@ export function RegisterForm() {
     email: '',
     password: '',
     confirmPassword: '',
-    organizationName: '',
-    role: 'member' as 'owner' | 'admin' | 'member'
+    businessName: '',
+    role: 'user' as 'user' | 'admin' | 'owner'  // Updated roles to match backend
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  
+  // Backend sync hook
+  const syncUser = useSyncUser()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -70,65 +74,60 @@ export function RegisterForm() {
     setIsLoading(true)
 
     try {
-      // Create user in Firebase Auth
+      // Step 1: Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth, 
         formData.email, 
         formData.password
       )
       
-      const user = userCredential.user
+      const firebaseUser = userCredential.user
 
-      // Update display name
-      await updateProfile(user, {
+      // Step 2: Update Firebase profile
+      await updateProfile(firebaseUser, {
         displayName: formData.name
       })
 
-      // Create user document in Firestore
-      const userData = {
-        id: user.uid,
-        email: formData.email,
-        name: formData.name,
-        role: formData.role,
-        organizationName: formData.organizationName || null,
-        subscriptionTier: 'free',
-        aiCredits: 500, // Free trial credits
-        createdAt: new Date(),
-        lastLoginAt: new Date()
+      // Step 3: Get Firebase ID token for backend authentication
+      const firebaseToken = await firebaseUser.getIdToken()
+
+      // Step 4: Sync user with backend database
+      try {
+        await syncUser.mutateAsync({
+          email: formData.email,
+          name: formData.name,
+          role: formData.role,
+          firebaseUid: firebaseUser.uid,
+          photoURL: firebaseUser.photoURL || undefined,
+          provider: 'email',
+          businessId: undefined, // Will be set during onboarding if needed
+        })
+      } catch (backendError) {
+        console.error('Backend sync failed:', backendError)
+        // Continue with Firebase verification even if backend sync fails
+        // The sync will be retried on next login
       }
 
-      await setDoc(doc(firestore, 'users', user.uid), userData)
-
-      // If creating organization (owner role)
-      if (formData.role === 'owner' && formData.organizationName) {
-        const orgData = {
-          id: user.uid, // Use user ID as org ID for simplicity
-          name: formData.organizationName,
-          plan: 'free',
-          locale: 'en',
-          ownerId: user.uid,
-          totalUsers: 1,
-          monthlyUsage: 0,
-          createdAt: new Date()
-        }
-
-        await setDoc(doc(firestore, 'organizations', user.uid), orgData)
-      }
-
-      // Send email verification
-      await sendEmailVerification(user, {
+      // Step 5: Send email verification
+      await sendEmailVerification(firebaseUser, {
         url: `${window.location.origin}/dashboard`,
         handleCodeInApp: false,
       })
 
-      // Sign in with NextAuth
-      await signIn('credentials', {
+      // Step 6: Sign in with NextAuth (this will also sync with backend again)
+      const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
         redirect: false,
       })
 
+      if (result?.error) {
+        throw new Error('Failed to sign in after registration')
+      }
+
+      // Step 7: Redirect to onboarding
       router.push('/dashboard/onboarding?message=registration-success')
+      
     } catch (error: any) {
       console.error('Registration error:', error)
       
@@ -136,6 +135,8 @@ export function RegisterForm() {
         setError('This email is already registered. Please try signing in instead.')
       } else if (error.code === 'auth/weak-password') {
         setError('Password is too weak. Please choose a stronger password.')
+      } else if (error.message?.includes('Backend sync failed')) {
+        setError('Account created but there was an issue with setup. Please try logging in.')
       } else {
         setError('An error occurred during registration. Please try again.')
       }
@@ -207,31 +208,31 @@ export function RegisterForm() {
               <Label htmlFor="role" className="text-sm font-medium text-gray-700">
                 Role *
               </Label>
-              <Select value={formData.role} onValueChange={(value: 'owner' | 'admin' | 'member') => handleInputChange('role', value)}>
+              <Select value={formData.role} onValueChange={(value: 'user' | 'admin' | 'owner') => handleInputChange('role', value)}>
                 <SelectTrigger className="h-12 border-gray-200">
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="owner">Owner - Full access & billing</SelectItem>
                   <SelectItem value="admin">Admin - Manage team & settings</SelectItem>
-                  <SelectItem value="member">Member - Generate content</SelectItem>
+                  <SelectItem value="user">User - Generate content & manage projects</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {formData.role === 'owner' && (
               <div className="space-y-2">
-                <Label htmlFor="organizationName" className="text-sm font-medium text-gray-700">
-                  Organization Name
+                <Label htmlFor="businessName" className="text-sm font-medium text-gray-700">
+                  Business Name
                 </Label>
                 <div className="relative">
                   <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    id="organizationName"
+                    id="businessName"
                     type="text"
-                    placeholder="Enter organization name"
-                    value={formData.organizationName}
-                    onChange={(e) => handleInputChange('organizationName', e.target.value)}
+                    placeholder="Enter business name"
+                    value={formData.businessName}
+                    onChange={(e) => handleInputChange('businessName', e.target.value)}
                     className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>

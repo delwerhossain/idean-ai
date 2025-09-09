@@ -3,6 +3,7 @@
 import { ReactNode } from 'react'
 import Sidebar from './Sidebar'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import TestUserPanel from '@/components/dev/TestUserPanel'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -18,6 +19,7 @@ export default function DashboardLayout({ children, className = '', onNewCompany
         <main className={`flex-1 overflow-auto ${className}`}>
           {children}
         </main>
+        <TestUserPanel />
       </div>
     </ProtectedRoute>
   )

@@ -59,8 +59,9 @@ class APIClient {
         'Content-Type': 'application/json',
         'X-User-ID': session.user.id,
         'X-User-Role': session.user.role,
-        'X-Organization-ID': session.user.organizationId || '',
-        'X-Subscription-Tier': session.user.subscriptionTier,
+        'X-Business-ID': session.user.businessId || '',
+        'X-Firebase-UID': session.user.firebaseUid || session.user.id,
+        'X-Provider': session.user.provider || 'email',
       }
     } catch (error) {
       console.error('Error getting authentication headers:', error)

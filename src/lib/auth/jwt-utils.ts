@@ -1,4 +1,4 @@
-import { auth as firebaseAuth } from '@/lib/firebase/config'
+import { auth as firebaseAuth } from '@/lib/firebase/client'
 import { getSession, signOut } from 'next-auth/react'
 
 /**

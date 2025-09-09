@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,16 @@ export function LoginForm() {
   const [error, setError] = useState('')
   const router = useRouter()
 
+  // Pre-fill form from URL params (for test user quick login)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const emailParam = urlParams.get('email')
+    const passwordParam = urlParams.get('password')
+    
+    if (emailParam) setEmail(emailParam)
+    if (passwordParam) setPassword(passwordParam)
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -31,12 +41,26 @@ export function LoginForm() {
       })
 
       if (result?.error) {
-        setError('Invalid email or password')
-      } else {
+        // Handle specific NextAuth error types
+        switch (result.error) {
+          case 'CredentialsSignin':
+            setError('Invalid email or password')
+            break
+          case 'Configuration':
+            setError('Authentication service is temporarily unavailable')
+            break
+          default:
+            setError('Failed to sign in. Please try again.')
+        }
+      } else if (result?.ok) {
+        // Successful login - redirect to dashboard
         router.push('/dashboard')
+      } else {
+        setError('An unexpected error occurred during sign in')
       }
-    } catch (error) {
-      setError('An error occurred. Please try again.')
+    } catch (error: any) {
+      console.error('Login error:', error)
+      setError('Network error. Please check your connection and try again.')
     } finally {
       setIsLoading(false)
     }
