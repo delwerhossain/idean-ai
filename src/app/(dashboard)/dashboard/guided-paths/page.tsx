@@ -1,6 +1,5 @@
 'use client'
 
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { MapPin, Play, CheckCircle, Clock, Star, Users, TrendingUp, Target } from 'lucide-react'
@@ -74,7 +73,6 @@ export default function GuidedPathsPage() {
   }
 
   return (
-    <DashboardLayout>
       <div className="p-6">
         {/* Header */}
         <div className="mb-8">
@@ -242,6 +240,5 @@ export default function GuidedPathsPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   )
 }

@@ -1,13 +1,11 @@
 'use client'
 
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, Plus, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function ContentCalendarPage() {
   return (
-    <DashboardLayout>
       <div className="p-6">
         {/* Header */}
         <div className="mb-8">
@@ -60,6 +58,5 @@ export default function ContentCalendarPage() {
           </div>
         </Card>
       </div>
-    </DashboardLayout>
   )
 }

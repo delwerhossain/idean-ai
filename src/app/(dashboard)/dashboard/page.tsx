@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { 
@@ -75,22 +74,8 @@ export default function DashboardPage() {
   ]
 
 
-  const handleNewCompany = () => {
-    // Clear current onboarding data for new company setup
-    localStorage.removeItem('onboardingData')
-    localStorage.removeItem('userName')
-    localStorage.removeItem('businessName')
-    localStorage.removeItem('industry')
-    localStorage.removeItem('website')
-    localStorage.removeItem('businessContext')
-    localStorage.removeItem('hasCompletedOnboarding')
-    // Redirect to onboarding route instead of showing modal
-    window.location.href = '/dashboard/onboarding'
-  }
 
   return (
-    <>
-      <DashboardLayout onNewCompany={handleNewCompany}>
       <div className="p-6">
         {/* Welcome Header */}
         <div className="mb-8">
@@ -244,8 +229,5 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-      </DashboardLayout>
-      
-    </>
   )
 }

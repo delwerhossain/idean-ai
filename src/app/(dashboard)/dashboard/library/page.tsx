@@ -1,6 +1,5 @@
 'use client'
 
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Search, Filter, Star } from 'lucide-react'
@@ -14,7 +13,6 @@ export default function LibraryPage() {
   ]
 
   return (
-    <DashboardLayout>
       <div className="p-6">
         {/* Header */}
         <div className="mb-8">
@@ -69,6 +67,5 @@ export default function LibraryPage() {
           <p className="text-gray-500">More resources coming soon...</p>
         </div>
       </div>
-    </DashboardLayout>
   )
 }

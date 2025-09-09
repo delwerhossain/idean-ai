@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -59,7 +58,6 @@ export default function CopilotPage() {
   }
 
   return (
-    <DashboardLayout>
       <div className="p-6 h-full flex flex-col">
         {/* Header */}
         <div className="mb-6">
@@ -155,6 +153,5 @@ export default function CopilotPage() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
   )
 }
