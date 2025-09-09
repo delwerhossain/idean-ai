@@ -1,0 +1,110 @@
+ next dev
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.194:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 5.1s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 774ms (312 modules)
+[auth][warn][debug-enabled] Read more: https://warnings.authjs.dev
+ ○ Compiling / ...
+ ✓ Compiled / in 2.8s (737 modules)
+ GET / 200 in 4172ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /login in 2.4s (1067 modules)
+[auth][warn][debug-enabled] Read more: https://warnings.authjs.dev
+ GET /api/auth/session 200 in 3568ms
+ GET /login 200 in 3002ms
+ GET /api/auth/session 200 in 501ms
+ GET /api/auth/session 200 in 22ms
+ GET /api/auth/providers 200 in 25ms
+ GET /api/auth/csrf 200 in 16ms
+Authentication error: Error [FirebaseError]: Firebase: Error (auth/invalid-credential).
+    at async Object.authorize (src\lib\auth\config.ts:97:34)
+   95 |
+   96 |         try {
+>  97 |           const userCredential = await signInWithEmailAndPassword(
+      |                                  ^
+   98 |             firebaseAuth,
+   99 |             credentials.email as string,
+  100 |             credentials.password as string {
+  code: 'auth/invalid-credential',
+  customData: {}
+}
+[auth][error] CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+    at Module.callback (webpack-internal:///(rsc)/./node_modules/.pnpm/@auth+core@0.40.0/node_modules/@auth/core/lib/actions/callback/index.js:246:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AuthInternal (webpack-internal:///(rsc)/./node_modules/.pnpm/@auth+core@0.40.0/node_modules/@auth/core/lib/index.js:70:24)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/.pnpm/@auth+core@0.40.0/node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:5:38696)
+    at async AppRouteRouteModule.handle (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:5:45978)
+    at async responseGenerator (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute&page=%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute.ts&appDir=E%3A%5Ctest%5Cother%5Cai%5Cidea-ai%5Csrc%5Capp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=E%3A%5Ctest%5Cother%5Cai%5Cidea-ai&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:203:38)     
+    at async AppRouteRouteModule.handleResponse (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:1:187565)        
+    at async handleResponse (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute&page=%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute.ts&appDir=E%3A%5Ctest%5Cother%5Cai%5Cidea-ai%5Csrc%5Capp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=E%3A%5Ctest%5Cother%5Cai%5Cidea-ai&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:265:32)        
+    at async handler (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute&page=%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fauth%2F%5B...nextauth%5D%2Froute.ts&appDir=E%3A%5Ctest%5Cother%5Cai%5Cidea-ai%5Csrc%5Capp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=E%3A%5Ctest%5Cother%5Cai%5Cidea-ai&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:317:13)
+    at async DevServer.renderToResponseWithComponentsImpl (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\base-server.js:1514:32)
+    at async DevServer.pipeImpl (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\base-server.js:1025:25)
+    at async NextNodeServer.handleCatchallRenderRequest (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\next-server.js:393:17)
+    at async DevServer.handleRequestImpl (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\base-server.js:916:17)
+    at async E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\dev\next-dev-server.js:399:20
+    at async Span.traceAsyncFn (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\dev\next-dev-server.js:395:24)
+    at async invokeRender (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\lib\router-server.js:240:21)
+    at async handleRequest (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\lib\router-server.js:437:24)
+    at async requestHandlerImpl (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\lib\router-server.js:485:13)
+    at async Server.requestListener (E:\test\other\ai\idea-ai\node_modules\.pnpm\next@15.5.2_@opentelemetry+_1dc9747ae4b6aad77cfb4c6b69265849\node_modules\next\dist\server\lib\start-server.js:226:13)
+ POST /api/auth/callback/credentials? 200 in 799ms
+ GET /api/auth/session 200 in 38ms
+ GET /api/auth/providers 200 in 24ms
+ GET /api/auth/csrf 200 in 18ms
+[auth][debug]: CREATE_PKCECODEVERIFIER {
+  "name": "authjs.pkce.code_verifier",
+  "payload": "855uRXbUhzwZKETF-to_D50g7brR2B3xb8qIhiItcyA",
+  "COOKIE_TTL": 900,
+  "expires": "2025-09-09T12:01:10.954Z"
+}
+[auth][debug]: authorization url is ready {
+  "url": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=your-google-client-id&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback%2Fgoogle&prompt=consent&access_type=offline&scope=openid+profile+email&code_challenge=ot48bsT5jK8Q0qCopTtMAAa29r-EO6AYx7rEkBZtjY8&code_challenge_method=S256",
+  "cookies": [
+    {
+      "name": "authjs.pkce.code_verifier",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiSkxqNWc4MGZObWtuLWl4ajJTS2ZLYmZTVFFRMnB5c3RvMkdUeTBjWUlFLVNVM3ppME1kUk45R1ZOU0JxTkVHaTV4SC1DUEhuNnJvN05FX211ZEtyLXcifQ.._Dj7zhHCR4n5FW2pPgv67g.oob5nI9pCK1spJaeEAtKC7TVQPmO0KleMULM0pj-cjapLRRvUCeoR8yRXXGnGEBbMxPPnRhnzwVGaZUtx_ms05CrxSDqlMQLYneFEMz0PDyKmeaMuIn4wUpMwXszrYehxAkJM38eFQdVTQ6EGjkLPIO1rS1YUGfYeGRv1mTHfCy4cgV3NP9XoMFUku-9WA-v.vAQlekzOphTbApO7kW9_W0SxDtQ9M5tg0avFOZaYzkQ",
+      "options": {
+        "httpOnly": true,
+        "sameSite": "lax",
+        "path": "/",
+        "secure": false,
+        "maxAge": 900,
+        "expires": "2025-09-09T12:01:10.954Z"
+      }
+    }
+  ],
+  "provider": {
+    "id": "google",
+    "name": "Google",
+    "type": "oidc",
+    "issuer": "https://accounts.google.com",
+    "style": {
+      "brandColor": "#1a73e8"
+    },
+    "clientId": "your-google-client-id",
+    "clientSecret": "your-google-client-secret",
+    "authorization": {
+      "url": "https://authjs.dev/?prompt=consent&access_type=offline&response_type=code&scope=openid+profile+email"     
+    },
+    "signinUrl": "http://localhost:3000/api/auth/signin/google",
+    "callbackUrl": "http://localhost:3000/api/auth/callback/google",
+    "wellKnown": "https://accounts.google.com/.well-known/openid-configuration",
+    "checks": [
+      "pkce"
+    ]
+  }
+}
+ POST /api/auth/signin/google? 200 in 253ms
+
+

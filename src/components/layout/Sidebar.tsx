@@ -51,58 +51,58 @@ const navigationItems: NavigationItem[] = [
   { 
     icon: Lightbulb, 
     label: 'Blueprint Builder', 
-    href: '/blueprints',
+    href: '/dashboard/blueprints',
     roles: ['user', 'admin', 'owner'],
     badge: 'Strategy DNA'
   },
   { 
     icon: Zap, 
     label: 'Campaign Engine', 
-    href: '/campaigns',
+    href: '/dashboard/campaigns',
     roles: ['user', 'admin', 'owner'],
     badge: 'Execution DNA'
   },
   { 
     icon: Target, 
     label: 'Growth Audit', 
-    href: '/audit',
+    href: '/dashboard/audit',
     roles: ['user', 'admin', 'owner']
   },
   { 
     icon: MapPin, 
     label: 'Guided Paths', 
-    href: '/guided-paths',
+    href: '/dashboard/guided-paths',
     roles: ['user', 'admin', 'owner'],
     badge: 'Learn'
   },
   { 
     icon: Bot, 
     label: 'AI Co-Pilot', 
-    href: '/copilot',
+    href: '/dashboard/copilot',
     roles: ['user', 'admin', 'owner']
   },
   { 
     icon: Calendar, 
     label: 'Content Calendar', 
-    href: '/content-calendar',
+    href: '/dashboard/content-calendar',
     roles: ['user', 'admin', 'owner']
   },
   { 
     icon: BookOpen, 
     label: 'Framework Library', 
-    href: '/library',
+    href: '/dashboard/library',
     roles: ['user', 'admin', 'owner']
   },
   { 
     icon: BarChart3, 
     label: 'Analytics', 
-    href: '/analytics',
+    href: '/dashboard/analytics',
     roles: ['admin', 'owner']
   },
   { 
     icon: Settings, 
     label: 'Settings', 
-    href: '/settings',
+    href: '/dashboard/settings',
     roles: ['user', 'admin', 'owner']
   }
 ]

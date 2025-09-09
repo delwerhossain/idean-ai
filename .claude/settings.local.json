@@ -55,7 +55,8 @@
       "mcp__memory__add_observations",
       "mcp__filesystem__read_multiple_files",
       "Bash(pnpm lint:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": [],
