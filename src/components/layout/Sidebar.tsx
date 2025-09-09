@@ -2,16 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { 
   FileText,
-  BookOpen,
   MessageCircle,
-  Presentation,
-  Radar,
-  Search,
-  Calculator,
-  Building,
   Settings,
   User,
   Home,
@@ -19,12 +14,16 @@ import {
   LogOut,
   ChevronDown,
   Plus,
-  Target,
   BarChart3,
-  Users,
-  Briefcase,
+  Zap,
+  Bot,
+  MapPin,
   TrendingUp,
-  Globe
+  Lightbulb,
+  PenTool,
+  Calendar,
+  BookOpen,
+  Target
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -32,26 +31,85 @@ interface SidebarProps {
   onNewCompany?: () => void
 }
 
-const navigationItems = [
-  { icon: Home, label: 'Dashboard', href: '/dashboard' },
-  { icon: FileText, label: 'Plans', href: '/plans' },
-  { icon: BookOpen, label: 'Guides', href: '/guides' },
-  { icon: MessageCircle, label: 'AI Consultant', href: '/ai-consultant' },
-  { icon: Presentation, label: 'Pitch', href: '/pitch' },
-  { icon: Radar, label: 'Radar', href: '/radar' },
-  { icon: Search, label: 'Market Research', href: '/market-research' },
-  { icon: Calculator, label: 'Financials', href: '/financials' },
-  { icon: Building, label: 'Formation', href: '/formation' },
-  { icon: Target, label: 'Goals', href: '/goals' },
-  { icon: BarChart3, label: 'Analytics', href: '/analytics' },
-  { icon: Users, label: 'Team', href: '/team' },
-  { icon: Briefcase, label: 'Projects', href: '/projects' },
-  { icon: TrendingUp, label: 'Growth', href: '/growth' },
-  { icon: Globe, label: 'Markets', href: '/markets' },
+// Define navigation items based on iDEAN AI features
+interface NavigationItem {
+  icon: any;
+  label: string;
+  href: string;
+  roles?: string[]; // Required roles to see this item
+  modules?: string[]; // Required modules (iMarketing, GrowthX, iMBA)
+  badge?: string;
+}
+
+const navigationItems: NavigationItem[] = [
+  { 
+    icon: Home, 
+    label: 'Dashboard', 
+    href: '/dashboard',
+    roles: ['user', 'admin', 'owner']
+  },
+  { 
+    icon: Lightbulb, 
+    label: 'Blueprint Builder', 
+    href: '/blueprints',
+    roles: ['user', 'admin', 'owner'],
+    badge: 'Strategy DNA'
+  },
+  { 
+    icon: Zap, 
+    label: 'Campaign Engine', 
+    href: '/campaigns',
+    roles: ['user', 'admin', 'owner'],
+    badge: 'Execution DNA'
+  },
+  { 
+    icon: Target, 
+    label: 'Growth Audit', 
+    href: '/audit',
+    roles: ['user', 'admin', 'owner']
+  },
+  { 
+    icon: MapPin, 
+    label: 'Guided Paths', 
+    href: '/guided-paths',
+    roles: ['user', 'admin', 'owner'],
+    badge: 'Learn'
+  },
+  { 
+    icon: Bot, 
+    label: 'AI Co-Pilot', 
+    href: '/copilot',
+    roles: ['user', 'admin', 'owner']
+  },
+  { 
+    icon: Calendar, 
+    label: 'Content Calendar', 
+    href: '/content-calendar',
+    roles: ['user', 'admin', 'owner']
+  },
+  { 
+    icon: BookOpen, 
+    label: 'Framework Library', 
+    href: '/library',
+    roles: ['user', 'admin', 'owner']
+  },
+  { 
+    icon: BarChart3, 
+    label: 'Analytics', 
+    href: '/analytics',
+    roles: ['admin', 'owner']
+  },
+  { 
+    icon: Settings, 
+    label: 'Settings', 
+    href: '/settings',
+    roles: ['user', 'admin', 'owner']
+  }
 ]
 
 export default function Sidebar({ className = '', onNewCompany }: SidebarProps) {
   const pathname = usePathname()
+  const { data: session } = useSession()
   const [isHovered, setIsHovered] = useState(false)
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
   const [showAccountMenu, setShowAccountMenu] = useState(false)
@@ -64,6 +122,27 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       setBusinessName(savedBusinessName)
     }
   }, [])
+
+  // Filter navigation items based on user role
+  const getFilteredNavigationItems = () => {
+    const userRole = session?.user?.role || 'user'
+    
+    return navigationItems.filter(item => {
+      // Check if user role has access to this item
+      if (item.roles && !item.roles.includes(userRole)) {
+        return false
+      }
+      
+      // TODO: Add module-based filtering when modules are implemented
+      // if (item.modules && !userHasModule(item.modules)) {
+      //   return false
+      // }
+      
+      return true
+    })
+  }
+
+  const filteredItems = getFilteredNavigationItems()
 
   const handleNewCompany = () => {
     setShowCompanySwitcher(false)
@@ -142,7 +221,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       {/* Scrollable Navigation Content */}
       <div className={`flex-1 overflow-x-hidden ${isHovered ? 'overflow-y-auto' : 'overflow-y-hidden'}`}>
         <nav className="p-2 space-y-1">
-          {navigationItems.map((item) => {
+          {filteredItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
             
@@ -150,7 +229,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                   isActive
                     ? 'bg-blue-50 text-blue-700 border border-blue-200'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -158,7 +237,16 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
                 title={!isHovered ? item.label : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {isHovered && <span>{item.label}</span>}
+                {isHovered && (
+                  <>
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge && (
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium">
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
+                )}
               </Link>
             )
           })}

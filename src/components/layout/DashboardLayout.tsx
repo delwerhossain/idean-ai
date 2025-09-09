@@ -13,7 +13,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, className = '', onNewCompany }: DashboardLayoutProps) {
   return (
-    <ProtectedRoute requiredRoles={['owner', 'admin', 'member']}>
+    <ProtectedRoute requiredRoles={['owner', 'admin', 'user']}>
       <div className="flex h-screen bg-gray-50">
         <Sidebar onNewCompany={onNewCompany} />
         <main className={`flex-1 overflow-auto ${className}`}>

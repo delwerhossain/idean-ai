@@ -25,14 +25,17 @@ export function useAuth() {
       integrations: ['owner', 'admin'],
       dataRetention: ['owner', 'admin'],
       
-      // Member permissions
-      contentGeneration: ['owner', 'admin', 'member'],
-      uploadFiles: ['owner', 'admin', 'member'],
-      viewAnalytics: ['owner', 'admin', 'member'],
-      manageOwnContent: ['owner', 'admin', 'member'],
+      // User permissions (regular users)
+      contentGeneration: ['owner', 'admin', 'user'],
+      uploadFiles: ['owner', 'admin', 'user'],
+      viewAnalytics: ['owner', 'admin', 'user'],
+      manageOwnContent: ['owner', 'admin', 'user'],
+      
+      // Basic dashboard access
+      dashboardAccess: ['owner', 'admin', 'user'],
       
       // Viewer permissions (if needed for future expansion)
-      readReports: ['owner', 'admin', 'member', 'viewer']
+      readReports: ['owner', 'admin', 'user', 'viewer']
     }
     
     return hasRole(permissions[feature as keyof typeof permissions] || [])
@@ -40,6 +43,7 @@ export function useAuth() {
 
   const isOwner = () => session?.user?.role === 'owner'
   const isAdmin = () => session?.user?.role === 'admin' || session?.user?.role === 'owner'
+  const isUser = () => ['user', 'admin', 'owner'].includes(session?.user?.role || '')
   const isMember = () => !!session?.user?.role
 
   return {
@@ -51,6 +55,7 @@ export function useAuth() {
     canAccess,
     isOwner,
     isAdmin,
+    isUser,
     isMember,
   }
 }

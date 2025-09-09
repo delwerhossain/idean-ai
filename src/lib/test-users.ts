@@ -13,6 +13,8 @@ export interface TestUser {
   website?: string;
   onboardingCompleted: boolean;
   createdAt: string;
+  modules?: string[]; // iMarketing, GrowthX, iMBA
+  tier?: 'free' | 'basic' | 'pro'; // Subscription tier
 }
 
 // Mock test users for development
@@ -28,6 +30,8 @@ export const TEST_USERS: TestUser[] = [
     industry: 'Technology',
     website: 'https://techstartup.com',
     onboardingCompleted: true,
+    modules: ['iMarketing'],
+    tier: 'basic',
     createdAt: new Date().toISOString()
   },
   {
@@ -41,6 +45,8 @@ export const TEST_USERS: TestUser[] = [
     industry: 'Marketing',
     website: 'https://creativeagency.com',
     onboardingCompleted: true,
+    modules: ['iMarketing', 'GrowthX'],
+    tier: 'pro',
     createdAt: new Date().toISOString()
   },
   {
@@ -54,6 +60,8 @@ export const TEST_USERS: TestUser[] = [
     industry: 'AI/Software',
     website: 'https://idean.ai',
     onboardingCompleted: true,
+    modules: ['iMarketing', 'GrowthX', 'iMBA'],
+    tier: 'pro',
     createdAt: new Date().toISOString()
   }
 ];

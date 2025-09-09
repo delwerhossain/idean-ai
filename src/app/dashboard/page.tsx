@@ -158,15 +158,15 @@ export default function DashboardPage() {
               <Button 
                 variant="outline" 
                 className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/tools'}
+                onClick={() => window.location.href = '/blueprints'}
               >
                 <div className="flex items-center gap-3 w-full">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-blue-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium">Strategy & Branding Lab</p>
-                    <p className="text-sm text-gray-500">8 frameworks for business strategy</p>
+                    <p className="font-medium">Blueprint Builder</p>
+                    <p className="text-sm text-gray-500">Create strategy frameworks</p>
                   </div>
                   <ArrowRight className="w-4 h-4 ml-auto" />
                 </div>
@@ -175,15 +175,15 @@ export default function DashboardPage() {
               <Button 
                 variant="outline" 
                 className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/tools?category=execution'}
+                onClick={() => window.location.href = '/campaigns'}
               >
                 <div className="flex items-center gap-3 w-full">
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                     <Zap className="w-5 h-5 text-green-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium">Execution & Growth Cockpit</p>
-                    <p className="text-sm text-gray-500">10 tactical tools for growth</p>
+                    <p className="font-medium">Generate Campaign</p>
+                    <p className="text-sm text-gray-500">Create marketing campaigns</p>
                   </div>
                   <ArrowRight className="w-4 h-4 ml-auto" />
                 </div>
@@ -192,15 +192,15 @@ export default function DashboardPage() {
               <Button 
                 variant="outline" 
                 className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/tools?category=content'}
+                onClick={() => window.location.href = '/audit'}
               >
                 <div className="flex items-center gap-3 w-full">
                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                     <Target className="w-5 h-5 text-purple-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium">Content Creation Engine</p>
-                    <p className="text-sm text-gray-500">Facebook Ads, Posts, Scripts</p>
+                    <p className="font-medium">Growth Audit</p>
+                    <p className="text-sm text-gray-500">Assess your business growth</p>
                   </div>
                   <ArrowRight className="w-4 h-4 ml-auto" />
                 </div>
@@ -209,15 +209,15 @@ export default function DashboardPage() {
               <Button 
                 variant="outline" 
                 className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/tools?category=analytics'}
+                onClick={() => window.location.href = '/copilot'}
               >
                 <div className="flex items-center gap-3 w-full">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                     <BarChart3 className="w-5 h-5 text-orange-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium">Analytics Hub</p>
-                    <p className="text-sm text-gray-500">Performance tracking & insights</p>
+                    <p className="font-medium">AI Co-Pilot</p>
+                    <p className="text-sm text-gray-500">Get AI-powered assistance</p>
                   </div>
                   <ArrowRight className="w-4 h-4 ml-auto" />
                 </div>
