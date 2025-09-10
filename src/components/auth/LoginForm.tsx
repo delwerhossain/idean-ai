@@ -18,14 +18,20 @@ export function LoginForm() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  // Pre-fill form from URL params (for test user quick login)
+  // Pre-fill form from URL params and handle success messages
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const emailParam = urlParams.get('email')
     const passwordParam = urlParams.get('password')
+    const messageParam = urlParams.get('message')
     
     if (emailParam) setEmail(emailParam)
     if (passwordParam) setPassword(passwordParam)
+    
+    if (messageParam === 'registration-success') {
+      setError('') // Clear any existing errors
+      // You can add a success message here if needed
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,19 +50,25 @@ export function LoginForm() {
         // Handle specific NextAuth error types
         switch (result.error) {
           case 'CredentialsSignin':
-            setError('Invalid email or password')
+            setError('Invalid email or password. Please check your credentials and try again.')
             break
           case 'Configuration':
-            setError('Authentication service is temporarily unavailable')
+            setError('Authentication service is temporarily unavailable. Please try again later.')
+            break
+          case 'AccessDenied':
+            setError('Access denied. Please contact support if this persists.')
+            break
+          case 'Verification':
+            setError('Please verify your email address before signing in.')
             break
           default:
-            setError('Failed to sign in. Please try again.')
+            setError('Sign in failed. Please check your credentials and try again.')
         }
       } else if (result?.ok) {
         // Successful login - redirect to dashboard
         router.push('/dashboard')
       } else {
-        setError('An unexpected error occurred during sign in')
+        setError('An unexpected error occurred. Please try again.')
       }
     } catch (error: any) {
       console.error('Login error:', error)

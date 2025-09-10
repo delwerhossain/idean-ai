@@ -1,54 +1,103 @@
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
-import { auth as firebaseAuth } from '@/lib/firebase/client'
-import { doc, getDoc } from 'firebase/firestore'
-import { firestore } from '@/lib/firebase/client'
-import { BackendAPI, initializeTestUsers } from '@/lib/test-users'
 
-// Helper function to get user data from backend API
-async function getUserDataFromBackend(firebaseUid: string, firebaseToken: string) {
+// Helper function to authenticate user with backend API
+async function authenticateWithBackend(email: string, password?: string, firebaseToken?: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${firebaseToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
     
-    if (response.ok) {
-      return await response.json()
+    // For credentials login (email + password), try backend login directly
+    if (email && password) {
+      try {
+        // First try login (for existing users)
+        const loginResponse = await fetch(`${backendUrl}/api/v1/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email })
+        });
+        
+        if (loginResponse.ok) {
+          const loginData = await loginResponse.json();
+          return {
+            success: true,
+            user: loginData.user,
+            token: loginData.token,
+            message: loginData.message
+          };
+        }
+        
+        // If user not found (400), try registration
+        if (loginResponse.status === 400) {
+          const registerResponse = await fetch(`${backendUrl}/api/v1/auth/register`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email,
+              name: email.split('@')[0], // Default name from email
+              password, // Include password for Firebase user creation
+              provider: 'email'
+            })
+          });
+          
+          if (registerResponse.ok) {
+            const registerData = await registerResponse.json();
+            return {
+              success: true,
+              user: registerData.user,
+              token: registerData.token,
+              message: registerData.message,
+              isNewUser: true
+            };
+          }
+        }
+        
+        return { success: false, error: 'Invalid credentials' };
+      } catch (error) {
+        console.error('Backend credentials authentication error:', error);
+        return { success: false, error: 'Authentication service unavailable' };
+      }
     }
-    return null
+    
+    // For OAuth users (Google, etc.) - use Firebase token
+    if (firebaseToken) {
+      try {
+        const loginResponse = await fetch(`${backendUrl}/api/v1/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            firebaseToken
+          })
+        });
+        
+        if (loginResponse.ok) {
+          const loginData = await loginResponse.json();
+          return {
+            success: true,
+            user: loginData.user,
+            token: loginData.token,
+            message: loginData.message
+          };
+        }
+        
+        return { success: false, error: 'OAuth authentication failed' };
+      } catch (error) {
+        console.error('OAuth backend authentication error:', error);
+        return { success: false, error: 'OAuth service unavailable' };
+      }
+    }
+    
+    return { success: false, error: 'No authentication method provided' };
   } catch (error) {
-    console.error('Error fetching user data from backend:', error)
-    return null
-  }
-}
-
-// Helper function to sync user with backend after Firebase auth
-async function syncUserWithBackend(firebaseUser: any, firebaseToken: string) {
-  try {
-    // Initialize test users on first run
-    initializeTestUsers();
-    
-    // Use BackendAPI for user sync (will be FastAPI tomorrow)
-    const backendResponse = await BackendAPI.syncUser(firebaseUser, firebaseToken);
-    
-    const response = { 
-      ok: true, 
-      json: async () => backendResponse
-    }
-    
-    if (response.ok) {
-      return await response.json()
-    }
-    return null
-  } catch (error) {
-    console.error('Error syncing user with backend:', error)
-    return null
+    console.error('Backend authentication error:', error);
+    return { success: false, error: 'Authentication failed' };
   }
 }
 
@@ -64,7 +113,6 @@ export const authConfig: NextAuthConfig = {
           response_type: "code"
         }
       },
-      // Handle Google OAuth callback
       profile(profile) {
         return {
           id: profile.sub,
@@ -73,7 +121,6 @@ export const authConfig: NextAuthConfig = {
           image: profile.picture,
           role: 'user',
           provider: 'google',
-          firebaseUid: '', // Will be set after Firebase auth
           emailVerified: profile.email_verified,
         }
       }
@@ -89,160 +136,160 @@ export const authConfig: NextAuthConfig = {
           return null
         }
 
-        // Initialize test users
-        initializeTestUsers();
-        
-        console.log('🔍 Auth attempt:', { email: credentials.email, password: credentials.password?.substring(0, 3) + '***' });
-        
-        // First, try to authenticate with test users (for development)
-        const testUser = await BackendAPI.login(credentials.email, credentials.password);
-        
-        console.log('🧪 Test user result:', testUser ? 'Found' : 'Not found');
-        
-        if (testUser) {
-          console.log('✅ Test user authentication successful:', testUser.email);
-          // Test user authentication successful
-          return {
-            id: testUser.id,
-            email: testUser.email,
-            name: testUser.name,
-            role: testUser.role,
-            businessId: testUser.businessId,
-            firebaseUid: testUser.id, // Use test user ID as firebase UID
-            firebaseToken: `test_token_${testUser.id}`,
-            emailVerified: true,
-            provider: 'email',
-            photoURL: testUser.photoURL || undefined
-          }
-        }
-        
-        console.log('🔥 Falling back to Firebase authentication');
-
-        // If not a test user, try Firebase authentication
         try {
-          const userCredential = await signInWithEmailAndPassword(
-            firebaseAuth, 
-            credentials.email as string, 
+          const result = await authenticateWithBackend(
+            credentials.email as string,
             credentials.password as string
-          )
-          
-          const firebaseUser = userCredential.user
-          
-          // Get Firebase ID token for backend communication
-          const idToken = await firebaseUser.getIdToken()
-          
-          // Sync user with backend and get user data
-          const backendUserData = await syncUserWithBackend(firebaseUser, idToken)
-          
-          return {
-            id: firebaseUser.uid,
-            email: firebaseUser.email,
-            name: backendUserData?.name || firebaseUser.displayName || firebaseUser.email,
-            role: backendUserData?.role || 'user',
-            businessId: backendUserData?.businessId || undefined,
-            firebaseUid: firebaseUser.uid,
-            firebaseToken: idToken,
-            emailVerified: firebaseUser.emailVerified,
-            provider: 'email',
-            photoURL: firebaseUser.photoURL || undefined
+          );
+
+          if (result.success && result.user && result.token) {
+            return {
+              id: result.user.id.toString(),
+              email: result.user.email,
+              name: result.user.name,
+              role: result.user.role || 'user',
+              businessId: result.user.business?.id,
+              provider: result.user.provider || 'email',
+              photoURL: result.user.photoURL,
+              emailVerified: true,
+              backendToken: result.token, // Store backend JWT directly
+              isNewUser: result.isNewUser || false
+            }
           }
+
+          return null;
         } catch (error) {
-          console.error('Firebase authentication failed:', error)
-          return null
+          console.error('Authorize error:', error);
+          return null;
         }
       }
     })
   ],
   session: { 
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 7 * 24 * 60 * 60, // 7 days to match backend JWT expiry
   },
   callbacks: {
     async jwt({ token, user, account, trigger }) {
-      // Initial sign in - store user data in token
-      if (user) {
-        token.uid = user.id
-        token.role = user.role
-        token.businessId = user.businessId
-        token.firebaseUid = user.firebaseUid || user.id
-        token.firebaseToken = user.firebaseToken
-        token.emailVerified = user.emailVerified
-        token.provider = user.provider || account?.provider
-        token.photoURL = user.photoURL || user.image
-        token.tokenExpiry = Date.now() + (55 * 60 * 1000) // Firebase tokens expire in 1 hour, refresh at 55min
-      }
-
-      // Google OAuth - handle Firebase authentication
-      if (account?.provider === 'google' && user) {
+      // Initial sign in - store user data and backend token
+      if (user && account) {
         try {
-          // Here you would typically authenticate with Firebase using the Google token
-          // and then sync with your backend
-          // For now, we'll set basic data
-          token.provider = 'google'
-          token.firebaseUid = user.id // This would be set after Firebase auth
+          if (user.provider === 'google' && account.id_token) {
+            // Handle Google OAuth - authenticate with backend using Firebase token
+            const result = await authenticateWithBackend(
+              user.email!,
+              undefined,
+              account.id_token
+            );
+
+            if (result.success && result.user && result.token) {
+              token.uid = result.user.id.toString()
+              token.role = result.user.role || 'user'
+              token.businessId = result.user.business?.id
+              token.provider = result.user.provider
+              token.photoURL = result.user.photoURL || user.image
+              token.backendToken = result.token
+              token.emailVerified = true
+            } else {
+              // Fallback for Google OAuth
+              token.uid = user.id
+              token.role = user.role || 'user'
+              token.businessId = user.businessId
+              token.provider = user.provider
+              token.photoURL = user.image
+              token.emailVerified = user.emailVerified || true
+            }
+          } else {
+            // Handle credentials login - token already from backend
+            token.uid = user.id
+            token.role = user.role || 'user'
+            token.businessId = user.businessId
+            token.provider = user.provider || 'email'
+            token.photoURL = user.photoURL
+            token.backendToken = user.backendToken
+            token.emailVerified = user.emailVerified || true
+            token.isNewUser = user.isNewUser || false
+          }
         } catch (error) {
-          console.error('Error handling Google OAuth:', error)
+          console.error('JWT callback error:', error);
+          // Set basic user data as fallback
+          token.uid = user.id
+          token.role = user.role || 'user'
+          token.businessId = user.businessId
+          token.provider = user.provider || 'email'
+          token.photoURL = user.image
+          token.emailVerified = user.emailVerified || true
         }
       }
 
-      // Token refresh - check if Firebase token needs refreshing
-      if (token.tokenExpiry && typeof token.tokenExpiry === 'number' && Date.now() > token.tokenExpiry) {
+      // Token refresh - check if backend token needs refreshing
+      const now = Date.now();
+      if (token.backendToken && trigger !== 'update') {
         try {
-          // Refresh user data from backend
-          if (token.firebaseToken) {
-            const userData = await getUserDataFromBackend(token.firebaseUid as string, token.firebaseToken as string)
-            if (userData) {
-              token.role = userData.role
-              token.businessId = userData.businessId
-              token.tokenExpiry = Date.now() + (55 * 60 * 1000)
+          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+          const response = await fetch(`${backendUrl}/api/v1/auth/refresh`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: token.backendToken })
+          });
+          
+          if (response.ok) {
+            const refreshData = await response.json();
+            if (refreshData.token) {
+              token.backendToken = refreshData.token;
+              token.role = refreshData.user?.role || token.role;
+              token.businessId = refreshData.user?.businessId || token.businessId;
             }
           }
         } catch (error) {
-          console.error('Error refreshing token:', error)
-          // Could return null to force re-authentication if needed
-        }
-      }
-
-      // Manual session update (when user data changes)
-      if (trigger === 'update' && token.firebaseUid && token.firebaseToken) {
-        try {
-          const userData = await getUserDataFromBackend(token.firebaseUid as string, token.firebaseToken as string)
-          if (userData) {
-            token.role = userData.role
-            token.businessId = userData.businessId
-          }
-        } catch (error) {
-          console.error('Error updating session:', error)
+          console.error('Token refresh error:', error);
+          // Keep existing token on refresh failure
         }
       }
 
       return token
     },
     async session({ session, token }) {
-      if (session.user && token) {
-        session.user.id = token.uid as string
-        session.user.role = token.role as string
-        session.user.businessId = token.businessId as string
-        session.user.firebaseUid = token.firebaseUid as string
-        session.user.provider = token.provider as string
-        session.user.photoURL = token.photoURL as string
-        // @ts-ignore - NextAuth v5 type issue with boolean
-        session.user.emailVerified = token.emailVerified ? true : false
-        
-        // Add Firebase token to session for API calls
-        session.firebaseToken = token.firebaseToken as string
-        session.accessToken = token.firebaseToken as string // Backward compatibility
+      try {
+        if (session.user && token) {
+          session.user.id = token.uid as string || token.sub as string
+          session.user.role = token.role as string || 'user'
+          session.user.businessId = token.businessId as string
+          session.user.provider = token.provider as string || 'email'
+          session.user.photoURL = token.photoURL as string
+          // @ts-ignore - NextAuth v5 type issue with boolean
+          session.user.emailVerified = token.emailVerified ? true : false
+          session.user.isNewUser = token.isNewUser as boolean || false
+          
+          // Add backend JWT token to session for API calls
+          session.backendToken = token.backendToken as string
+          session.accessToken = token.backendToken as string // Backward compatibility
+        }
+        return session
+      } catch (error) {
+        console.error('Session callback error:', error);
+        // Return session with minimal data if anything fails
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: session.user?.id || 'unknown',
+            role: 'user',
+            emailVerified: true
+          }
+        }
       }
-      return session
     },
     async redirect({ url, baseUrl }) {
-      // Redirect to dashboard after login
+      // Redirect to onboarding for new users, dashboard for existing users
       if (url.startsWith('/')) return `${baseUrl}${url}`
       else if (new URL(url).origin === baseUrl) return url
       return baseUrl + '/dashboard'
     },
     async signIn({ user, account, profile }) {
-      // Allow sign in
+      // Allow sign in for all authenticated users
       return true
     }
   },
@@ -251,7 +298,7 @@ export const authConfig: NextAuthConfig = {
     error: '/auth/error',
     verifyRequest: '/verify-email',
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: false,
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

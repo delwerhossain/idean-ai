@@ -1,12 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { auth } from '@/lib/firebase/client'
-import { useSyncUser } from '@/lib/api/hooks/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,16 +19,14 @@ export function RegisterForm() {
     password: '',
     confirmPassword: '',
     businessName: '',
-    role: 'user' as 'user' | 'admin' | 'owner'  // Updated roles to match backend
+    role: 'user' as 'user' | 'admin' | 'owner'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const router = useRouter()
-  
-  // Backend sync hook
-  const syncUser = useSyncUser()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -62,83 +56,91 @@ export function RegisterForm() {
       return false
     }
 
+    if (formData.name.length < 2 || formData.name.length > 100) {
+      setError('Name must be between 2 and 100 characters')
+      return false
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      return false
+    }
+
     return true
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
 
     if (!validateForm()) return
 
     setIsLoading(true)
 
     try {
-      // Step 1: Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        formData.email, 
-        formData.password
-      )
+      // Register user with backend API directly
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
       
-      const firebaseUser = userCredential.user
-
-      // Step 2: Update Firebase profile
-      await updateProfile(firebaseUser, {
-        displayName: formData.name
-      })
-
-      // Step 3: Get Firebase ID token for backend authentication
-      const firebaseToken = await firebaseUser.getIdToken()
-
-      // Step 4: Sync user with backend database
-      try {
-        await syncUser.mutateAsync({
+      const registerResponse = await fetch(`${backendUrl}/api/v1/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: formData.email,
           name: formData.name,
-          role: formData.role,
-          firebaseUid: firebaseUser.uid,
-          photoURL: firebaseUser.photoURL || undefined,
-          provider: 'email',
-          businessId: undefined, // Will be set during onboarding if needed
+          password: formData.password,
+          provider: 'email'
         })
-      } catch (backendError) {
-        console.error('Backend sync failed:', backendError)
-        // Continue with Firebase verification even if backend sync fails
-        // The sync will be retried on next login
+      });
+
+      if (registerResponse.ok) {
+        const registerData = await registerResponse.json()
+        
+        setSuccess('Account created successfully! Redirecting to login...')
+        
+        // Wait a moment then sign in the user
+        setTimeout(async () => {
+          const result = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          })
+
+          if (result?.ok) {
+            // Redirect to onboarding for new users
+            router.push('/dashboard/onboarding?welcome=true')
+          } else {
+            // Registration succeeded but login failed - redirect to login page
+            router.push('/login?email=' + encodeURIComponent(formData.email) + '&message=registration-success')
+          }
+        }, 1500)
+        
+      } else {
+        // Handle registration errors
+        const errorData = await registerResponse.json().catch(() => ({ error: 'Unknown error' }))
+        
+        if (registerResponse.status === 400) {
+          if (errorData.error?.includes('already exists') || errorData.error?.includes('email')) {
+            setError('This email is already registered. Please try signing in instead.')
+          } else if (errorData.error?.includes('validation')) {
+            setError('Please check your input and try again.')
+          } else {
+            setError(errorData.error || 'Registration failed. Please check your information.')
+          }
+        } else {
+          setError('Registration failed. Please try again.')
+        }
       }
-
-      // Step 5: Send email verification
-      await sendEmailVerification(firebaseUser, {
-        url: `${window.location.origin}/dashboard`,
-        handleCodeInApp: false,
-      })
-
-      // Step 6: Sign in with NextAuth (this will also sync with backend again)
-      const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        throw new Error('Failed to sign in after registration')
-      }
-
-      // Step 7: Redirect to onboarding
-      router.push('/dashboard/onboarding?message=registration-success')
       
     } catch (error: any) {
       console.error('Registration error:', error)
       
-      if (error.code === 'auth/email-already-in-use') {
-        setError('This email is already registered. Please try signing in instead.')
-      } else if (error.code === 'auth/weak-password') {
-        setError('Password is too weak. Please choose a stronger password.')
-      } else if (error.message?.includes('Backend sync failed')) {
-        setError('Account created but there was an issue with setup. Please try logging in.')
+      if (error.message?.includes('fetch')) {
+        setError('Unable to connect to server. Please check your internet connection.')
       } else {
-        setError('An error occurred during registration. Please try again.')
+        setError('An unexpected error occurred. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -147,8 +149,19 @@ export function RegisterForm() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
-    await signIn('google', { callbackUrl: '/dashboard/onboarding' })
-    setIsLoading(false)
+    setError('')
+    
+    try {
+      await signIn('google', { 
+        callbackUrl: '/dashboard/onboarding',
+        redirect: true
+      })
+    } catch (error) {
+      console.error('Google sign in error:', error)
+      setError('Google sign in failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -182,6 +195,8 @@ export function RegisterForm() {
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   required
+                  minLength={2}
+                  maxLength={100}
                 />
               </div>
             </div>
@@ -203,41 +218,6 @@ export function RegisterForm() {
                 />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role" className="text-sm font-medium text-gray-700">
-                Role *
-              </Label>
-              <Select value={formData.role} onValueChange={(value: 'user' | 'admin' | 'owner') => handleInputChange('role', value)}>
-                <SelectTrigger className="h-12 border-gray-200">
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="owner">Owner - Full access & billing</SelectItem>
-                  <SelectItem value="admin">Admin - Manage team & settings</SelectItem>
-                  <SelectItem value="user">User - Generate content & manage projects</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {formData.role === 'owner' && (
-              <div className="space-y-2">
-                <Label htmlFor="businessName" className="text-sm font-medium text-gray-700">
-                  Business Name
-                </Label>
-                <div className="relative">
-                  <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    id="businessName"
-                    type="text"
-                    placeholder="Enter business name"
-                    value={formData.businessName}
-                    onChange={(e) => handleInputChange('businessName', e.target.value)}
-                    className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            )}
             
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium text-gray-700">
@@ -253,6 +233,7 @@ export function RegisterForm() {
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -295,6 +276,12 @@ export function RegisterForm() {
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
                 {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
+                {success}
               </div>
             )}
 

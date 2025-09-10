@@ -35,7 +35,7 @@ class APIClient {
 
   constructor(config: Partial<APIClientConfig> = {}) {
     this.config = {
-      baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+      baseUrl: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001') + '/api/v1',
       timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
       retryAttempts: 3,
       retryDelay: 1000,
@@ -43,7 +43,7 @@ class APIClient {
     }
   }
 
-  // Get authentication headers with JWT token management
+  // Get authentication headers with JWT token from NextAuth session
   private async getAuthHeaders(): Promise<Record<string, string>> {
     const session = await getSession()
     if (!session?.user) {
@@ -51,11 +51,15 @@ class APIClient {
     }
 
     try {
-      // Use JWT token manager to get valid token (with auto-refresh)
-      const validToken = await jwtTokenManager.getValidToken()
+      // Get backend JWT token from NextAuth session
+      const backendToken = (session as any).backendToken || (session as any).accessToken
+      
+      if (!backendToken) {
+        throw new APIError('Backend token not found in session', 401, ERROR_CODES.UNAUTHORIZED)
+      }
       
       return {
-        'Authorization': `Bearer ${validToken}`,
+        'Authorization': `Bearer ${backendToken}`,
         'Content-Type': 'application/json',
         'X-User-ID': session.user.id,
         'X-User-Role': session.user.role,
@@ -205,8 +209,12 @@ class APIClient {
       })
     }
 
-    // Use JWT token manager for consistent token handling
-    const token = await jwtTokenManager.getValidToken()
+    // Get backend JWT token from NextAuth session
+    const backendToken = (session as any).backendToken || (session as any).accessToken
+    if (!backendToken) {
+      throw new APIError('Backend token not found', 401, ERROR_CODES.UNAUTHORIZED)
+    }
+    const token = backendToken
     const url = `${this.config.baseUrl}${endpoint}`
 
     return new Promise((resolve, reject) => {
@@ -298,9 +306,27 @@ class APIClient {
     return ws
   }
 
-  // Health check endpoint
-  async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    return this.get('/health')
+  // Health check endpoint (backend health check)
+  async healthCheck(): Promise<{ status: string; timestamp: string; environment: string }> {
+    try {
+      // Use fetch directly for health check (no auth required)
+      const response = await fetch(this.config.baseUrl.replace('/api/v1', '/health'), {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(5000),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Health check failed: ${response.status}`)
+      }
+      
+      return await response.json()
+    } catch (error) {
+      throw new APIError(
+        `Backend health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        0
+      )
+    }
   }
 
   // Set configuration

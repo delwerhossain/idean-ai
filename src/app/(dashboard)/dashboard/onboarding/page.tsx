@@ -1,13 +1,16 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight, Globe } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Globe, Loader2 } from 'lucide-react'
 import BasicInfoStep from '@/components/onboarding/BasicInfoStep'
 import WebsiteStep from '@/components/onboarding/WebsiteStep'
 import IndustryStep from '@/components/onboarding/IndustryStep'
 import KnowledgeBaseStep from '@/components/onboarding/KnowledgeBaseStep'
 import BusinessContextStep from '@/components/onboarding/BusinessContextStep'
+import { businessAPI, businessUtils, type CreateBusinessData } from '@/lib/api/business'
+import { apiClient } from '@/lib/api/client'
 
 interface OnboardingData {
   userName: string
@@ -37,8 +40,11 @@ const STEPS = {
 }
 
 export default function OnboardingPage() {
+  const { data: session, update } = useSession()
   const [currentStep, setCurrentStep] = useState(0)
   const [language, setLanguage] = useState<'en' | 'bn'>('en')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<OnboardingData>({
     userName: '',
     businessName: '',
@@ -83,21 +89,102 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleFinish = () => {
-    // Save final data to localStorage
-    localStorage.setItem('onboardingData', JSON.stringify(data))
-    localStorage.setItem('hasCompletedOnboarding', 'true')
+  const handleFinish = async () => {
+    if (!session?.user) {
+      setError('You must be signed in to complete onboarding')
+      return
+    }
     
-    // Save individual fields for easy access
-    localStorage.setItem('userName', data.userName)
-    localStorage.setItem('businessName', data.businessName)
-    localStorage.setItem('industry', data.industry)
-    localStorage.setItem('website', data.website)
-    localStorage.setItem('businessContext', data.businessContext)
-    localStorage.setItem('mentorApproval', data.mentorApproval.toString())
+    setIsSubmitting(true)
+    setError(null)
     
-    console.log('Onboarding completed:', data)
-    window.location.href = '/dashboard'
+    try {
+      // Prepare business data for backend
+      const businessData: CreateBusinessData = {
+        business_name: data.businessName.trim(),
+        website_url: data.website.trim() || `https://${data.businessName.toLowerCase().replace(/\s+/g, '')}.com`,
+        industry_tag: data.industry,
+        business_context: data.businessContext.trim() || undefined,
+        language: language,
+        mentor_approval: data.mentorApproval ? 'approved' : 'pending',
+        module_select: 'standard', // Default to standard plan
+        readiness_checklist: JSON.stringify({
+          business_info_complete: true,
+          website_linked: !!data.website.trim(),
+          industry_selected: true,
+          mentor_approval_complete: data.mentorApproval,
+          knowledge_base_uploaded: data.knowledgeBase.length > 0
+        }),
+        business_documents: [], // Will be uploaded separately if files exist
+        adds_history: [] // Empty initially
+      }
+      
+      // Validate business data
+      const validation = businessUtils.validateBusinessData(businessData)
+      if (!validation.isValid) {
+        setError(`Please fix the following issues: ${validation.errors.join(', ')}`)
+        return
+      }
+      
+      console.log('🚀 Creating business:', businessData)
+      
+      // Create business via backend API
+      const business = await businessAPI.createBusiness(businessData)
+      
+      console.log('✅ Business created successfully:', business.id)
+      
+      // Handle file uploads if any
+      if (data.knowledgeBase.length > 0) {
+        console.log('📁 Uploading knowledge base files...');
+        try {
+          await businessAPI.uploadDocuments(
+            business.id,
+            data.knowledgeBase,
+            (progress) => console.log(`Upload progress: ${progress}%`)
+          )
+          console.log('✅ Files uploaded successfully');
+        } catch (uploadError) {
+          console.warn('⚠️ File upload failed:', uploadError);
+          // Continue even if file upload fails
+        }
+      }
+      
+      // Update session with business info
+      await update({
+        user: {
+          ...session.user,
+          businessId: business.id,
+          role: 'owner' // User becomes owner of their business
+        }
+      })
+      
+      // Save completion status to localStorage for quick access
+      localStorage.setItem('hasCompletedOnboarding', 'true')
+      localStorage.setItem('businessId', business.id)
+      localStorage.setItem('businessName', business.business_name)
+      
+      console.log('🎉 Onboarding completed successfully!')
+      
+      // Redirect to dashboard
+      window.location.href = '/dashboard'
+      
+    } catch (error: any) {
+      console.error('❌ Onboarding completion failed:', error)
+      
+      // Handle specific API errors
+      if (error.status === 401) {
+        setError('Your session has expired. Please sign in again.')
+        signIn()
+      } else if (error.status === 400) {
+        setError(error.message || 'Please check your information and try again.')
+      } else if (error.status === 409) {
+        setError('A business with this information already exists.')
+      } else {
+        setError('Failed to complete onboarding. Please try again.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const renderStep = () => {
@@ -252,6 +339,22 @@ export default function OnboardingPage() {
           ))}
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        )}
+        
+        {/* Backend Status Indicator */}
+        {!session?.backendToken && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-sm">
+              ⚠️ Backend not connected. Some features may not work properly.
+            </p>
+          </div>
+        )}
+
         {/* Content */}
         <div className="mb-6">
           {renderStep()}
@@ -274,17 +377,26 @@ export default function OnboardingPage() {
           {currentStep === currentSteps.length - 1 ? (
             <Button
               onClick={handleFinish}
-              disabled={!isStepValid()}
-              className="bg-blue-600 hover:bg-blue-700 px-6"
+              disabled={!isStepValid() || isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 px-6 disabled:opacity-50"
             >
-              {language === 'en' ? 'Complete' : 'সম্পূর্ণ'}
-              <ArrowRight className="w-4 h-4 ml-2" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {language === 'en' ? 'Creating...' : 'তৈরি করা হচ্ছে...'}
+                </>
+              ) : (
+                <>
+                  {language === 'en' ? 'Complete' : 'সম্পূর্ণ'}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+              )}
             </Button>
           ) : (
             <Button
               onClick={nextStep}
-              disabled={!isStepValid()}
-              className="bg-blue-600 hover:bg-blue-700 px-6"
+              disabled={!isStepValid() || isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 px-6 disabled:opacity-50"
             >
               {language === 'en' ? 'Continue' : 'চালিয়ে যান'}
               <ArrowRight className="w-4 h-4 ml-2" />

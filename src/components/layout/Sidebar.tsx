@@ -23,7 +23,9 @@ import {
   PenTool,
   Calendar,
   BookOpen,
-  Target
+  Target,
+  TestTube,
+  Bug
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -98,6 +100,20 @@ const navigationItems: NavigationItem[] = [
     label: 'Analytics', 
     href: '/dashboard/analytics',
     roles: ['admin', 'owner']
+  },
+  { 
+    icon: Bug, 
+    label: 'Auth Debug', 
+    href: '/dashboard/auth-debug',
+    roles: ['admin', 'owner'],
+    badge: 'Debug'
+  },
+  { 
+    icon: TestTube, 
+    label: 'Backend Test', 
+    href: '/dashboard/test-backend',
+    roles: ['admin', 'owner'],
+    badge: 'Debug'
   },
   { 
     icon: Settings, 
