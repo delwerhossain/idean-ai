@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { 
   FileText,
-  MessageCircle,
   Settings,
   User,
   Home,
@@ -14,19 +13,14 @@ import {
   LogOut,
   ChevronDown,
   Plus,
-  BarChart3,
-  Zap,
-  Bot,
-  MapPin,
   TrendingUp,
-  Lightbulb,
   PenTool,
-  Calendar,
-  BookOpen,
-  Target,
-  TestTube,
-  Bug
+  Palette,
+  Building,
+  Check,
+  Loader2
 } from 'lucide-react'
+import { useBusiness } from '@/lib/contexts/BusinessContext'
 
 interface SidebarProps {
   className?: string
@@ -51,69 +45,39 @@ const navigationItems: NavigationItem[] = [
     roles: ['user', 'admin', 'owner']
   },
   { 
-    icon: Lightbulb, 
-    label: 'Blueprint Builder', 
-    href: '/dashboard/blueprints',
+    icon: TrendingUp, 
+    label: 'Growth Co-Pilot', 
+    href: '/dashboard/growth-copilot',
     roles: ['user', 'admin', 'owner'],
-    badge: 'Strategy DNA'
+    modules: ['growthx'],
+    badge: 'Strategy'
   },
   { 
-    icon: Zap, 
-    label: 'Campaign Engine', 
-    href: '/dashboard/campaigns',
+    icon: Palette, 
+    label: 'Branding Lab', 
+    href: '/dashboard/branding-lab',
     roles: ['user', 'admin', 'owner'],
-    badge: 'Execution DNA'
+    modules: ['imarketing'],
+    badge: 'Brand'
   },
   { 
-    icon: Target, 
-    label: 'Growth Audit', 
-    href: '/dashboard/audit',
-    roles: ['user', 'admin', 'owner']
-  },
-  { 
-    icon: MapPin, 
-    label: 'Guided Paths', 
-    href: '/dashboard/guided-paths',
+    icon: PenTool, 
+    label: 'AI Copywriting', 
+    href: '/dashboard/copywriting',
     roles: ['user', 'admin', 'owner'],
-    badge: 'Learn'
+    badge: 'Content'
   },
   { 
-    icon: Bot, 
-    label: 'AI Co-Pilot', 
-    href: '/dashboard/copilot',
+    icon: FileText, 
+    label: 'Templates', 
+    href: '/dashboard/templates',
     roles: ['user', 'admin', 'owner']
   },
   { 
-    icon: Calendar, 
-    label: 'Content Calendar', 
-    href: '/dashboard/content-calendar',
-    roles: ['user', 'admin', 'owner']
-  },
-  { 
-    icon: BookOpen, 
-    label: 'Framework Library', 
-    href: '/dashboard/library',
-    roles: ['user', 'admin', 'owner']
-  },
-  { 
-    icon: BarChart3, 
-    label: 'Analytics', 
-    href: '/dashboard/analytics',
+    icon: Building, 
+    label: 'Business Management', 
+    href: '/dashboard/business',
     roles: ['admin', 'owner']
-  },
-  { 
-    icon: Bug, 
-    label: 'Auth Debug', 
-    href: '/dashboard/auth-debug',
-    roles: ['admin', 'owner'],
-    badge: 'Debug'
-  },
-  { 
-    icon: TestTube, 
-    label: 'Backend Test', 
-    href: '/dashboard/test-backend',
-    roles: ['admin', 'owner'],
-    badge: 'Debug'
   },
   { 
     icon: Settings, 
@@ -126,18 +90,26 @@ const navigationItems: NavigationItem[] = [
 export default function Sidebar({ className = '', onNewCompany }: SidebarProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
   const [showAccountMenu, setShowAccountMenu] = useState(false)
-  const [businessName, setBusinessName] = useState('Your Business')
+  const [switchingBusiness, setSwitchingBusiness] = useState<string | null>(null)
+  
+  // Use business context
+  const { currentBusiness, businesses, loading: loadingBusinesses, switchBusiness } = useBusiness()
 
-  useEffect(() => {
-    // Load user data from localStorage
-    if (typeof window !== 'undefined') {
-      const savedBusinessName = localStorage.getItem('businessName') || 'Your Business'
-      setBusinessName(savedBusinessName)
+  const handleBusinessSwitch = async (businessId: string) => {
+    try {
+      setSwitchingBusiness(businessId)
+      await switchBusiness(businessId)
+      setShowCompanySwitcher(false)
+    } catch (error) {
+      console.error('Failed to switch business:', error)
+    } finally {
+      setSwitchingBusiness(null)
     }
-  }, [])
+  }
 
   // Filter navigation items based on user role
   const getFilteredNavigationItems = () => {
@@ -162,7 +134,8 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
 
   const handleNewCompany = () => {
     setShowCompanySwitcher(false)
-    onNewCompany?.()
+    // Navigate to onboarding for new business creation
+    router.push('/dashboard/onboarding')
   }
 
   return (
@@ -200,12 +173,14 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
         >
           <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
             <span className="text-white font-bold text-sm">
-              {businessName.charAt(0).toUpperCase()}
+              {currentBusiness?.business_name?.charAt(0).toUpperCase() || 'B'}
             </span>
           </div>
           {isHovered && (
             <div className="flex items-center gap-1 flex-1 min-w-0">
-              <span className="font-semibold text-sm text-gray-900 truncate">{businessName}</span>
+              <span className="font-semibold text-sm text-gray-900 truncate">
+                {currentBusiness?.business_name || 'No Business Selected'}
+              </span>
               <ChevronDown className="w-3 h-3 flex-shrink-0 text-gray-400" />
             </div>
           )}
@@ -213,23 +188,91 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
 
         {/* Company Switcher Dropdown */}
         {showCompanySwitcher && isHovered && (
-          <div className="absolute top-full left-3 right-3 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-2">
-            <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
-              Current Company
-            </div>
-            <div className="px-3 py-2 text-sm text-gray-900 bg-blue-50 border-l-2 border-blue-500">
-              {businessName}
-            </div>
-            <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100 mt-2">
-              Actions
-            </div>
-            <button 
-              onClick={handleNewCompany}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              New Company
-            </button>
+          <div className="absolute top-full left-3 right-3 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-2 max-h-80 overflow-y-auto">
+            {loadingBusinesses ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                <span className="ml-2 text-sm text-gray-500">Loading businesses...</span>
+              </div>
+            ) : (
+              <>
+                {/* Current Business */}
+                {currentBusiness && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100">
+                      Current Business
+                    </div>
+                    <div className="px-3 py-2 text-sm text-gray-900 bg-blue-50 border-l-2 border-blue-500">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-blue-600" />
+                        <div>
+                          <div className="font-medium">{currentBusiness.business_name}</div>
+                          <div className="text-xs text-gray-500">{currentBusiness.industry_tag}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Available Businesses */}
+                {businesses.length > 0 && businesses.some(b => b.id !== currentBusiness?.id) && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100 mt-2">
+                      Switch to Business
+                    </div>
+                    {businesses
+                      .filter(business => business.id !== currentBusiness?.id)
+                      .map((business) => (
+                        <button
+                          key={business.id}
+                          onClick={() => handleBusinessSwitch(business.id)}
+                          disabled={switchingBusiness === business.id}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        >
+                          {switchingBusiness === business.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
+                              <span className="text-xs font-bold text-gray-600">
+                                {business.business_name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          <div className="text-left">
+                            <div className="font-medium">{business.business_name}</div>
+                            <div className="text-xs text-gray-500">{business.industry_tag}</div>
+                          </div>
+                        </button>
+                      ))}
+                  </>
+                )}
+
+                {/* Actions */}
+                <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100 mt-2">
+                  Actions
+                </div>
+                <button 
+                  onClick={handleNewCompany}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create New Business
+                </button>
+
+                {/* No Business Message */}
+                {!currentBusiness && businesses.length === 0 && !loadingBusinesses && (
+                  <div className="px-3 py-4 text-center">
+                    <div className="text-sm text-gray-600 mb-2">No businesses found</div>
+                    <button 
+                      onClick={handleNewCompany}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Create your first business
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

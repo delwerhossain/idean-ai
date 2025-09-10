@@ -9,8 +9,7 @@ import WebsiteStep from '@/components/onboarding/WebsiteStep'
 import IndustryStep from '@/components/onboarding/IndustryStep'
 import KnowledgeBaseStep from '@/components/onboarding/KnowledgeBaseStep'
 import BusinessContextStep from '@/components/onboarding/BusinessContextStep'
-import { businessAPI, businessUtils, type CreateBusinessData } from '@/lib/api/business'
-import { apiClient } from '@/lib/api/client'
+import { ideanApi, ideanUtils } from '@/lib/api/idean-api'
 
 interface OnboardingData {
   userName: string
@@ -100,14 +99,14 @@ export default function OnboardingPage() {
     
     try {
       // Prepare business data for backend
-      const businessData: CreateBusinessData = {
+      const businessData = {
         business_name: data.businessName.trim(),
         website_url: data.website.trim() || `https://${data.businessName.toLowerCase().replace(/\s+/g, '')}.com`,
         industry_tag: data.industry,
         business_context: data.businessContext.trim() || undefined,
         language: language,
         mentor_approval: data.mentorApproval ? 'approved' : 'pending',
-        module_select: 'standard', // Default to standard plan
+        module_select: 'standard' as const, // Default to standard plan
         readiness_checklist: JSON.stringify({
           business_info_complete: true,
           website_linked: !!data.website.trim(),
@@ -120,7 +119,7 @@ export default function OnboardingPage() {
       }
       
       // Validate business data
-      const validation = businessUtils.validateBusinessData(businessData)
+      const validation = ideanUtils.validateBusinessData(businessData)
       if (!validation.isValid) {
         setError(`Please fix the following issues: ${validation.errors.join(', ')}`)
         return
@@ -129,7 +128,8 @@ export default function OnboardingPage() {
       console.log('🚀 Creating business:', businessData)
       
       // Create business via backend API
-      const business = await businessAPI.createBusiness(businessData)
+      const businessResponse = await ideanApi.business.create(businessData)
+      const business = businessResponse.data
       
       console.log('✅ Business created successfully:', business.id)
       
@@ -137,11 +137,13 @@ export default function OnboardingPage() {
       if (data.knowledgeBase.length > 0) {
         console.log('📁 Uploading knowledge base files...');
         try {
-          await businessAPI.uploadDocuments(
-            business.id,
-            data.knowledgeBase,
-            (progress) => console.log(`Upload progress: ${progress}%`)
-          )
+          for (const file of data.knowledgeBase) {
+            await ideanApi.documents.upload(
+              file,
+              business.id,
+              (progress) => console.log(`Upload progress: ${progress}%`)
+            )
+          }
           console.log('✅ Files uploaded successfully');
         } catch (uploadError) {
           console.warn('⚠️ File upload failed:', uploadError);
@@ -162,6 +164,7 @@ export default function OnboardingPage() {
       localStorage.setItem('hasCompletedOnboarding', 'true')
       localStorage.setItem('businessId', business.id)
       localStorage.setItem('businessName', business.business_name)
+      localStorage.setItem('currentBusiness', JSON.stringify(business))
       
       console.log('🎉 Onboarding completed successfully!')
       

@@ -32,12 +32,22 @@ export default function GrowthCopilotPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCopilot, setSelectedCopilot] = useState<GrowthCopilot | null>(null)
   const [isExecuting, setIsExecuting] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    loadGrowthCopilots()
-  }, [])
+    if (!hasLoaded && !loading) {
+      loadGrowthCopilots()
+    }
+    
+    // Cleanup function to prevent state updates if component unmounts
+    return () => {
+      setLoading(false)
+    }
+  }, [hasLoaded, loading])
 
   const loadGrowthCopilots = async () => {
+    if (loading || hasLoaded) return // Prevent multiple calls
+    
     try {
       setLoading(true)
       setError(null)
@@ -50,15 +60,24 @@ export default function GrowthCopilotPage() {
       if (response.data) {
         setGrowthCopilots(response.data.data || [])
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load growth copilots:', err)
-      setError('Failed to load growth frameworks. Please try again.')
+      
+      // Don't show error for rate limiting
+      if (err.status === 429) {
+        console.warn('Rate limited - using fallback mode for growth copilots')
+        setGrowthCopilots([]) // Show empty state gracefully
+      } else {
+        setError('Failed to load growth frameworks. Please try again.')
+      }
     } finally {
       setLoading(false)
+      setHasLoaded(true) // Mark as loaded to prevent retries
     }
   }
 
   const handleSearch = () => {
+    setHasLoaded(false) // Reset to allow new search
     loadGrowthCopilots()
   }
 
