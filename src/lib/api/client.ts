@@ -55,6 +55,7 @@ class APIClient {
       const backendToken = (session as any).backendToken || (session as any).accessToken
       
       if (!backendToken) {
+        console.warn('Backend token not found in session, user may need to re-authenticate')
         throw new APIError('Backend token not found in session', 401, ERROR_CODES.UNAUTHORIZED)
       }
       
@@ -70,6 +71,13 @@ class APIClient {
     } catch (error) {
       console.error('Error getting authentication headers:', error)
       throw new APIError('Authentication token unavailable', 401, ERROR_CODES.UNAUTHORIZED)
+    }
+  }
+
+  // Get basic headers without authentication (for public endpoints)
+  private getBasicHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
     }
   }
 
@@ -137,7 +145,7 @@ class APIClient {
     }
   }
 
-  // Base request method
+  // Base request method (requires authentication)
   async request<T>(
     endpoint: string, 
     options: RequestInit = {}
@@ -157,7 +165,44 @@ class APIClient {
     return this.retryRequest<T>(requestFn)
   }
 
-  // HTTP method shortcuts
+  // Public request method (no authentication required)
+  async publicRequest<T>(
+    endpoint: string, 
+    options: RequestInit = {}
+  ): Promise<T> {
+    const headers = this.getBasicHeaders()
+    const url = `${this.config.baseUrl}${endpoint}`
+
+    const requestFn = () => fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...options.headers,
+      },
+      signal: AbortSignal.timeout(this.config.timeout),
+    })
+
+    return this.retryRequest<T>(requestFn)
+  }
+
+  // Safe request method (tries authenticated, falls back to public)
+  async safeRequest<T>(
+    endpoint: string, 
+    options: RequestInit = {},
+    fallbackToPublic: boolean = false
+  ): Promise<T> {
+    try {
+      return await this.request<T>(endpoint, options)
+    } catch (error) {
+      if (fallbackToPublic && error instanceof APIError && error.status === 401) {
+        console.warn('Authentication failed, trying public access')
+        return this.publicRequest<T>(endpoint, options)
+      }
+      throw error
+    }
+  }
+
+  // HTTP method shortcuts (require authentication)
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
     const urlParams = params ? `?${new URLSearchParams(params).toString()}` : ''
     return this.request<T>(`${endpoint}${urlParams}`, { method: 'GET' })
@@ -186,6 +231,19 @@ class APIClient {
 
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' })
+  }
+
+  // Safe HTTP method shortcuts (with fallback to public access)
+  async safeGet<T>(endpoint: string, params?: Record<string, any>, fallbackToPublic: boolean = false): Promise<T> {
+    const urlParams = params ? `?${new URLSearchParams(params).toString()}` : ''
+    return this.safeRequest<T>(`${endpoint}${urlParams}`, { method: 'GET' }, fallbackToPublic)
+  }
+
+  async safePost<T>(endpoint: string, data?: any, fallbackToPublic: boolean = false): Promise<T> {
+    return this.safeRequest<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    }, fallbackToPublic)
   }
 
   // File upload method with JWT token management
@@ -273,6 +331,15 @@ class APIClient {
     params?: PaginationParams & Record<string, any>
   ): Promise<PaginatedResponse<T>> {
     return this.get<PaginatedResponse<T>>(endpoint, params)
+  }
+
+  // Safe paginated requests (with fallback to public access)
+  async safePaginated<T>(
+    endpoint: string, 
+    params?: PaginationParams & Record<string, any>,
+    fallbackToPublic: boolean = false
+  ): Promise<PaginatedResponse<T>> {
+    return this.safeGet<PaginatedResponse<T>>(endpoint, params, fallbackToPublic)
   }
 
   // WebSocket connection for real-time updates

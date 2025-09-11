@@ -105,10 +105,10 @@ export const ideanApi = {
   // Growth Co-pilot API (Strategy & Execution)
   growthCopilot: {
     getAll: (params?: PaginationParams) =>
-      apiClient.getPaginated<GrowthCopilot>('/growthcopilots', params),
+      apiClient.safeGet<PaginatedResponse<GrowthCopilot>>('/growthcopilots', params, true),
 
     getById: (id: string) =>
-      apiClient.get<GrowthCopilot>(`/growthcopilots/${id}`),
+      apiClient.safeGet<GrowthCopilot>(`/growthcopilots/${id}`, undefined, false),
 
     create: (data: {
       name: string
@@ -133,10 +133,10 @@ export const ideanApi = {
   // Branding Lab API (Brand Strategy)
   brandingLab: {
     getAll: (params?: PaginationParams) =>
-      apiClient.getPaginated<BrandingLab>('/brandinglabs', params),
+      apiClient.safeGet<PaginatedResponse<BrandingLab>>('/brandinglabs', params, true),
 
     getById: (id: string) =>
-      apiClient.get<BrandingLab>(`/brandinglabs/${id}`),
+      apiClient.safeGet<BrandingLab>(`/brandinglabs/${id}`, undefined, false),
 
     create: (data: {
       name: string
@@ -161,10 +161,10 @@ export const ideanApi = {
   // Copywriting API (Content Generation)
   copywriting: {
     getAll: (params?: PaginationParams) =>
-      apiClient.getPaginated<Copywriting>('/copywritings', params),
+      apiClient.safeGet<PaginatedResponse<Copywriting>>('/copywritings', params, true),
 
     getById: (id: string) =>
-      apiClient.get<Copywriting>(`/copywritings/${id}`),
+      apiClient.safeGet<Copywriting>(`/copywritings/${id}`, undefined, false),
 
     create: (data: {
       name: string
@@ -189,10 +189,10 @@ export const ideanApi = {
   // Templates API (Reusable Frameworks)
   templates: {
     getAll: (params?: PaginationParams) =>
-      apiClient.getPaginated<Template>('/templates', params),
+      apiClient.safeGet<PaginatedResponse<Template>>('/templates', params, true),
 
     getById: (id: string) =>
-      apiClient.get<Template>(`/templates/${id}`),
+      apiClient.safeGet<Template>(`/templates/${id}`, undefined, false),
 
     create: (data: {
       name: string
@@ -256,10 +256,10 @@ export const ideanApi = {
   // Business Management API
   business: {
     getAll: (params?: PaginationParams) =>
-      apiClient.getPaginated<Business>('/businesses', params),
+      apiClient.safeGet<PaginatedResponse<Business>>('/businesses', params, true),
 
     getById: (id: string) =>
-      apiClient.get<Business>(`/businesses/${id}`),
+      apiClient.safeGet<Business>(`/businesses/${id}`, undefined, false),
 
     create: (data: {
       business_name: string

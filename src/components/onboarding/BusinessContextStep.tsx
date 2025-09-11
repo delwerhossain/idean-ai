@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle } from 'lucide-react'
@@ -43,6 +44,32 @@ export default function BusinessContextStep({
   const characterCount = businessContext.length
   const maxCharacters = 500
 
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const savedBusinessContext = localStorage.getItem('businessContext')
+    const savedMentorApproval = localStorage.getItem('mentorApproval')
+    
+    if (savedBusinessContext && !businessContext) {
+      onBusinessContextChange(savedBusinessContext)
+    }
+    
+    if (savedMentorApproval && !mentorApproval) {
+      onMentorApprovalChange(JSON.parse(savedMentorApproval))
+    }
+  }, [])
+
+  // Optional: Auto-save to backend when data changes (for future use)
+  useEffect(() => {
+    if (businessContext || mentorApproval) {
+      // Debounce the save operation
+      const timeoutId = setTimeout(() => {
+        saveToBackendWhenReady()
+      }, 1000)
+      
+      return () => clearTimeout(timeoutId)
+    }
+  }, [businessContext, mentorApproval])
+
   const addPromptExample = (example: string) => {
     const currentContext = businessContext.trim()
     const newContext = currentContext 
@@ -61,6 +88,58 @@ export default function BusinessContextStep({
     const summary = `${businessName} operates in the ${industry} industry. ${businessContext || 'We provide quality services to our customers and aim to grow our business through effective marketing and customer satisfaction.'}`
     
     return summary
+  }
+
+  // Save data to localStorage for future backend integration and immediate use
+  const saveToLocalStorage = (key: string, value: any) => {
+    try {
+      localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value))
+    } catch (error) {
+      console.warn('Failed to save to localStorage:', error)
+    }
+  }
+
+  // Handle business context changes with localStorage backup
+  const handleBusinessContextChange = (value: string) => {
+    onBusinessContextChange(value)
+    saveToLocalStorage('businessContext', value)
+  }
+
+  // Handle mentor approval changes with localStorage backup
+  const handleMentorApprovalChange = (value: boolean) => {
+    onMentorApprovalChange(value)
+    saveToLocalStorage('mentorApproval', value)
+  }
+
+  // Optional: Prepare data for future backend integration
+  const prepareBusinessData = () => {
+    return {
+      businessName: localStorage.getItem('businessName') || '',
+      industry: localStorage.getItem('industry') || '',
+      businessContext: businessContext || '',
+      mentorApproval: mentorApproval || false,
+      businessSummary: generateBusinessSummary(),
+      timestamp: new Date().toISOString()
+    }
+  }
+
+  // Future backend integration placeholder (currently just logs)
+  const saveToBackendWhenReady = async () => {
+    try {
+      const businessData = prepareBusinessData()
+      
+      // TODO: Uncomment when backend API is ready
+      // const response = await ideanApi.business.create(businessData)
+      // console.log('Business data saved to backend:', response)
+      
+      // For now, just log the data structure that would be sent
+      console.log('Business data prepared for future backend:', businessData)
+      
+      return true
+    } catch (error) {
+      console.warn('Backend not ready, using localStorage fallback:', error)
+      return false
+    }
   }
 
   return (
@@ -110,7 +189,7 @@ export default function BusinessContextStep({
           <Textarea
             placeholder="Tell us about your target customers, unique selling points, business goals, challenges, or any other relevant information..."
             value={businessContext}
-            onChange={(e) => onBusinessContextChange(e.target.value)}
+            onChange={(e) => handleBusinessContextChange(e.target.value)}
             className="min-h-32 resize-none text-base p-3 border-2 border-gray-300 rounded focus:border-blue-500"
             maxLength={maxCharacters}
           />
@@ -171,7 +250,7 @@ export default function BusinessContextStep({
         <div className="border-t pt-4">
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => onMentorApprovalChange(!mentorApproval)}
+              onClick={() => handleMentorApprovalChange(!mentorApproval)}
               className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-colors ${
                 mentorApproval 
                   ? 'bg-green-500 border-green-500 text-white' 
@@ -180,7 +259,7 @@ export default function BusinessContextStep({
             >
               {mentorApproval && <CheckCircle2 className="w-3 h-3" />}
             </button>
-            <label className="text-sm text-gray-700 cursor-pointer select-none" onClick={() => onMentorApprovalChange(!mentorApproval)}>
+            <label className="text-sm text-gray-700 cursor-pointer select-none" onClick={() => handleMentorApprovalChange(!mentorApproval)}>
               Has a mentor reviewed and approved your business information?
               <span className="text-gray-500 block text-xs mt-1">
                 (Optional) If you have a business mentor or advisor, check this if they&apos;ve reviewed your info
