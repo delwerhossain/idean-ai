@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -17,7 +18,21 @@ import {
   BarChart3,
   Building,
   AlertTriangle,
-  Sparkles
+  Sparkles,
+  Palette,
+  PenTool,
+  MessageCircle,
+  Star,
+  Clock,
+  CheckCircle2,
+  Brain,
+  Rocket,
+  Globe,
+  Crown,
+  Activity,
+  Calendar,
+  Eye,
+  ChevronRight
 } from 'lucide-react'
 import { ideanApi } from '@/lib/api/idean-api'
 import { Business } from '@/lib/api/idean-api'
@@ -33,14 +48,26 @@ interface DashboardData {
       aiCredits: { used: number; total: number }
       storage: { used: number; total: number }
     }
+    frameworks: {
+      completed: number
+      total: number
+      recent: string[]
+    }
+    growth: {
+      score: number
+      trend: 'up' | 'down' | 'stable'
+      recommendations: string[]
+    }
   }
 }
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
+  const router = useRouter()
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedQuickAction, setSelectedQuickAction] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -58,33 +85,84 @@ export default function DashboardPage() {
       setLoading(true)
       setError(null)
 
-      // Load user's business and analytics data in parallel
-      const [businessResponse, analyticsResponse] = await Promise.allSettled([
-        ideanApi.business.getMine(),
-        ideanApi.analytics.getDashboard()
-      ])
+      // First check localStorage for business data
+      const savedBusiness = localStorage.getItem('currentBusiness')
+      const businessName = localStorage.getItem('businessName') || 'Your Business'
+      const industry = localStorage.getItem('industry') || 'General'
+      
+      // Check if user is new (for future backend integration)
+      const isNewUser = localStorage.getItem('isNewUser') === 'true'
+      const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted') === 'true'
+      
+      // If new user or no onboarding completed, redirect to onboarding
+      if (isNewUser || !hasCompletedOnboarding) {
+        router.push('/dashboard/onboarding')
+        return
+      }
+      
+      // TODO: Replace with actual API calls when backend is ready
+      // const [businessResponse, analyticsResponse] = await Promise.allSettled([
+      //   ideanApi.business.getMine(),
+      //   ideanApi.analytics.getDashboard()
+      // ])
 
       let business: Business | undefined
+      
+      // Fallback business data from localStorage
+      if (savedBusiness) {
+        try {
+          business = JSON.parse(savedBusiness)
+        } catch {
+          business = {
+            id: 'local',
+            business_name: businessName,
+            website_url: '',
+            industry_tag: industry,
+            language: 'en',
+            mentor_approval: 'pending',
+            module_select: 'standard',
+            readiness_checklist: '{}',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            userId: session?.user?.id || 'unknown'
+          }
+        }
+      }
+
+      // TODO: Handle business data from API when available
+      // if (businessResponse.status === 'fulfilled' && businessResponse.value.data) {
+      //   business = businessResponse.value.data
+      // }
+
       let analytics: DashboardData['analytics'] = {
         totalTemplates: 0,
         totalDocuments: 0,
         totalGenerations: 0,
         recentActivity: [],
         usage: {
-          aiCredits: { used: 0, total: 1000 },
-          storage: { used: 0, total: 5000 }
+          aiCredits: { used: 150, total: 1000 },
+          storage: { used: 250, total: 5000 }
+        },
+        frameworks: {
+          completed: 3,
+          total: 12,
+          recent: ['Customer Value Journey', 'Brand DNA Foundation', 'NeuroCopywriting']
+        },
+        growth: {
+          score: 72,
+          trend: 'up',
+          recommendations: [
+            'Complete your Blue Ocean Strategy framework',
+            'Upload business documents for better AI insights',
+            'Set up your first marketing campaign'
+          ]
         }
       }
 
-      // Handle business data
-      if (businessResponse.status === 'fulfilled' && businessResponse.value.data) {
-        business = businessResponse.value.data
-      }
-
-      // Handle analytics data
-      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
-        analytics = analyticsResponse.value.data
-      }
+      // TODO: Handle analytics data from API when available
+      // if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
+      //   analytics = { ...analytics, ...analyticsResponse.value.data }
+      // }
 
       setDashboardData({ business, analytics })
     } catch (err) {
@@ -95,13 +173,60 @@ export default function DashboardPage() {
     }
   }
 
-  // Show loading state
+  // Get daily insights based on business data
+  const getDailyInsight = () => {
+    const insights = [
+      {
+        icon: Target,
+        title: "Strategy Focus",
+        message: "Your Customer Value Journey framework needs completion. Focus on mapping your customer touchpoints today.",
+        action: "Complete Framework",
+        href: "/dashboard/growth-copilot"
+      },
+      {
+        icon: Palette,
+        title: "Brand Consistency",
+        message: "Your brand voice is 85% defined. Complete your brand messaging framework for stronger market positioning.",
+        action: "Refine Brand",
+        href: "/dashboard/branding-lab"
+      },
+      {
+        icon: PenTool,
+        title: "Content Creation", 
+        message: "Generate engaging social media content using your NeuroCopywriting framework. 3 posts ready to create.",
+        action: "Create Content",
+        href: "/dashboard/copywriting"
+      }
+    ]
+    
+    return insights[Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % insights.length]
+  }
+
+  // Show loading state with skeleton
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-gray-600">Loading your dashboard...</span>
+      <div className="p-6 space-y-8 max-w-7xl mx-auto animate-pulse">
+        {/* Hero Section Skeleton */}
+        <div className="bg-gray-200 rounded-2xl p-8 mb-8 h-48"></div>
+        
+        {/* Module Cards Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="bg-gray-200 rounded-xl h-48"></div>
+          <div className="bg-gray-200 rounded-xl h-48"></div>
+          <div className="bg-gray-200 rounded-xl h-48"></div>
+        </div>
+        
+        {/* Quick Start and Analytics Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-gray-200 rounded-xl h-32"></div>
+          <div className="bg-gray-200 rounded-xl h-32"></div>
+        </div>
+        
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center">
+            <LoadingSpinner size="lg" />
+            <span className="ml-3 text-gray-600">Loading your strategic command center...</span>
+          </div>
         </div>
       </div>
     )
@@ -113,268 +238,390 @@ export default function DashboardPage() {
       <div className="p-6">
         <Card className="p-8 text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Dashboard</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Dashboard Error</h3>
           <p className="text-gray-600 mb-4">{error}</p>
           <Button onClick={loadDashboardData} variant="outline">
-            Try Again
+            Retry Loading
           </Button>
         </Card>
       </div>
     )
   }
 
-  // Redirect to onboarding if no business data
-  if (!dashboardData?.business && session?.user) {
-    window.location.href = '/dashboard/onboarding'
-    return null
-  }
+  if (!dashboardData) return null
 
-  const business = dashboardData!.business!
-  const analytics = dashboardData!.analytics
-
-  const quickStats = [
-    { 
-      icon: FileText, 
-      label: 'Templates', 
-      value: analytics.totalTemplates.toString(), 
-      change: 'Available frameworks', 
-      color: 'bg-blue-500' 
-    },
-    { 
-      icon: Sparkles, 
-      label: 'AI Credits', 
-      value: `${analytics.usage.aiCredits.total - analytics.usage.aiCredits.used}`, 
-      change: `${analytics.usage.aiCredits.used}/${analytics.usage.aiCredits.total} used`, 
-      color: 'bg-green-500' 
-    },
-    { 
-      icon: Target, 
-      label: 'Documents', 
-      value: analytics.totalDocuments.toString(), 
-      change: 'Knowledge base items', 
-      color: 'bg-purple-500' 
-    },
-    { 
-      icon: TrendingUp, 
-      label: 'Generations', 
-      value: analytics.totalGenerations.toString(), 
-      change: 'AI content created', 
-      color: 'bg-orange-500' 
-    },
-  ]
-
-
+  const dailyInsight = getDailyInsight()
+  const businessName = dashboardData.business?.business_name || localStorage.getItem('businessName') || 'Your Business'
+  const industry = dashboardData.business?.industry_tag || localStorage.getItem('industry') || 'General'
+  const currentTime = new Date().getHours()
+  const greeting = currentTime < 12 ? 'Good morning' : currentTime < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-      <div className="p-6">
-        {/* Welcome Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, {session?.user?.name || 'there'}! 👋
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Here&apos;s what&apos;s happening with <strong>{business.business_name}</strong> today.
-              </p>
-              {!session?.backendToken && (
-                <div className="mt-2 text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-md inline-block">
-                  ⚡ Demo mode - Connect backend for full functionality
-                </div>
-              )}
-            </div>
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => window.location.href = '/dashboard/templates'}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Template
-            </Button>
-          </div>
-
-          {/* Business Info Card */}
-          <Card className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Building className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{business.business_name}</h3>
-                  <p className="text-sm text-gray-600">{business.industry_tag}</p>
-                  <p className="text-sm text-blue-600">{business.website_url}</p>
-                </div>
+    <div className="p-6 space-y-8 max-w-7xl mx-auto">
+      {/* Hero Section - Business Welcome */}
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-8 mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Brain className="w-6 h-6 text-blue-600" />
               </div>
-              <div className="text-right">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    business.module_select === 'pro' 
-                      ? 'bg-purple-100 text-purple-700' 
-                      : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {business.module_select.toUpperCase()}
-                  </span>
-                  <span>•</span>
-                  <span>{business.language}</span>
-                </div>
+              <div>
+                <h1 className="text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
+                <p className="text-gray-600 text-lg">
+                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>'s strategic command center
+                </p>
               </div>
-            </div>
-            {business.business_context && (
-              <p className="text-sm text-gray-600 mt-3 leading-relaxed">
-                {business.business_context}
-              </p>
-            )}
-          </Card>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {quickStats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <Card key={index} className="p-6">
-                <div className="flex items-center">
-                  <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center`}>
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">{stat.change}</p>
-              </Card>
-            )
-          })}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Quick Actions */}
-          <Card className="lg:col-span-2 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
-                className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/dashboard/growth-copilot'}
-              >
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Growth Co-Pilot</p>
-                    <p className="text-sm text-gray-500">Strategy & execution frameworks</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 ml-auto" />
-                </div>
-              </Button>
-
-              <Button 
-                variant="outline" 
-                className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/dashboard/branding-lab'}
-              >
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Branding Lab</p>
-                    <p className="text-sm text-gray-500">Brand strategy & messaging</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 ml-auto" />
-                </div>
-              </Button>
-
-              <Button 
-                variant="outline" 
-                className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/dashboard/copywriting'}
-              >
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">AI Copywriting</p>
-                    <p className="text-sm text-gray-500">Content & campaign generation</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 ml-auto" />
-                </div>
-              </Button>
-
-              <Button 
-                variant="outline" 
-                className="justify-start h-auto p-4 text-left"
-                onClick={() => window.location.href = '/dashboard/templates'}
-              >
-                <div className="flex items-center gap-3 w-full">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Templates</p>
-                    <p className="text-sm text-gray-500">Reusable frameworks & workflows</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 ml-auto" />
-                </div>
-              </Button>
-            </div>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-            <div className="space-y-4">
-              {analytics.recentActivity.length > 0 ? (
-                analytics.recentActivity.slice(0, 5).map((activity, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                      <p className="text-xs text-gray-500">{activity.time}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-6">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-sm text-gray-500 mb-2">No recent activity</p>
-                  <p className="text-xs text-gray-400">
-                    Start by creating your first template or using a framework
-                  </p>
-                </div>
-              )}
             </div>
             
-            {/* AI Usage Progress */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">AI Credits</span>
-                <span className="text-sm text-gray-500">
-                  {analytics.usage.aiCredits.used} / {analytics.usage.aiCredits.total}
-                </span>
+            {/* Daily Strategic Insight */}
+            <Card className="bg-white border-blue-200 mt-6">
+              <div className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <dailyInsight.icon className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-semibold text-gray-900">{dailyInsight.title}</h3>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Today's Focus</span>
+                </div>
+                <p className="text-gray-600 text-sm mb-4">{dailyInsight.message}</p>
+                <Button 
+                  onClick={() => router.push(dailyInsight.href)}
+                  className="bg-blue-600 text-white hover:bg-blue-700 text-sm"
+                  size="sm"
+                >
+                  {dailyInsight.action}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                  style={{ 
-                    width: `${Math.min((analytics.usage.aiCredits.used / analytics.usage.aiCredits.total) * 100, 100)}%` 
-                  }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {analytics.usage.aiCredits.total - analytics.usage.aiCredits.used} credits remaining
-              </p>
+            </Card>
+          </div>
+          
+          {/* Quick Stats */}
+          <div className="hidden md:flex flex-col gap-4 ml-8">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{dashboardData.analytics.growth.score}</div>
+              <div className="text-gray-500 text-sm">Growth Score</div>
             </div>
-          </Card>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}/{dashboardData.analytics.frameworks.total}</div>
+              <div className="text-gray-500 text-sm">Frameworks</div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Three Core Module Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {/* Growth Co-Pilot Card */}
+        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200 group cursor-pointer"
+              onClick={() => router.push('/dashboard/growth-copilot')}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Strategy DNA</span>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Growth Co-Pilot</h3>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+            Strategic frameworks for business growth including Customer Value Journey, Blue Ocean Strategy, and Niche Fortune™
+          </p>
+          
+          {/* Quick Stats */}
+          <div className="space-y-3 mb-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Frameworks Available</span>
+              <span className="font-medium">4 Active</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Completion Rate</span>
+              <span className="font-medium text-green-600">75%</span>
+            </div>
+          </div>
+          
+          <Button className="w-full group-hover:bg-blue-600 group-hover:text-white" variant="outline">
+            Start Strategic Planning
+            <Rocket className="w-4 h-4 ml-2" />
+          </Button>
+        </Card>
+
+        {/* Branding Lab Card */}
+        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 group cursor-pointer"
+              onClick={() => router.push('/dashboard/branding-lab')}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Palette className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">Brand DNA</span>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Branding Lab</h3>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+            Strategic brand frameworks including Brand Foundation, NeuroBranding™, and Voice & Messaging systems
+          </p>
+          
+          {/* Quick Stats */}
+          <div className="space-y-3 mb-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Brand Elements</span>
+              <span className="font-medium">3 Defined</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Brand Score</span>
+              <span className="font-medium text-purple-600">85%</span>
+            </div>
+          </div>
+          
+          <Button className="w-full group-hover:bg-purple-600 group-hover:text-white" variant="outline">
+            Build Your Brand
+            <Crown className="w-4 h-4 ml-2" />
+          </Button>
+        </Card>
+
+        {/* AI Copywriting Card */}
+        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-orange-200 group cursor-pointer"
+              onClick={() => router.push('/dashboard/copywriting')}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PenTool className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-medium">Content DNA</span>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">AI Copywriting</h3>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+            Content generation frameworks including NeuroCopywriting™, Nuclear Content™, and conversion-focused copy systems
+          </p>
+          
+          {/* Quick Stats */}
+          <div className="space-y-3 mb-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Copy Frameworks</span>
+              <span className="font-medium">6 Ready</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Content Created</span>
+              <span className="font-medium text-orange-600">24 Pieces</span>
+            </div>
+          </div>
+          
+          <Button className="w-full group-hover:bg-orange-600 group-hover:text-white" variant="outline">
+            Generate Content
+            <Sparkles className="w-4 h-4 ml-2" />
+          </Button>
+        </Card>
+      </div>
+
+      {/* Quick Start Wizard */}
+      <Card className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200 mb-8">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center">
+            <Rocket className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Quick Start: What do you want to create today?</h3>
+            <p className="text-gray-600">Choose your goal and let iDEAN AI guide you through the perfect framework</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Button 
+            variant={selectedQuickAction === 'strategy' ? 'default' : 'outline'}
+            className="h-auto p-4 justify-start"
+            onClick={() => {
+              setSelectedQuickAction('strategy')
+              setTimeout(() => router.push('/dashboard/growth-copilot'), 300)
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <Target className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium">Business Strategy</div>
+                <div className="text-xs opacity-80">Growth frameworks & planning</div>
+              </div>
+            </div>
+          </Button>
+          
+          <Button 
+            variant={selectedQuickAction === 'brand' ? 'default' : 'outline'}
+            className="h-auto p-4 justify-start"
+            onClick={() => {
+              setSelectedQuickAction('brand')
+              setTimeout(() => router.push('/dashboard/branding-lab'), 300)
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <Palette className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium">Brand Identity</div>
+                <div className="text-xs opacity-80">Brand positioning & voice</div>
+              </div>
+            </div>
+          </Button>
+          
+          <Button 
+            variant={selectedQuickAction === 'content' ? 'default' : 'outline'}
+            className="h-auto p-4 justify-start"
+            onClick={() => {
+              setSelectedQuickAction('content')
+              setTimeout(() => router.push('/dashboard/copywriting'), 300)
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <PenTool className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-medium">Marketing Content</div>
+                <div className="text-xs opacity-80">Copy, campaigns & content</div>
+              </div>
+            </div>
+          </Button>
+        </div>
+      </Card>
+
+      {/* Business Health Dashboard & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Business Health Dashboard */}
+        <Card className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-green-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Business Health Score</h3>
+          </div>
+          
+          {/* Growth Score Circle */}
+          <div className="flex items-center gap-6 mb-6">
+            <div className="relative w-20 h-20">
+              <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                <path className="text-gray-200" fill="none" stroke="currentColor" strokeWidth="3"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path className="text-green-500" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+                      strokeDasharray={`${dashboardData.analytics.growth.score}, 100`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.growth.score}</span>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-1">Strategic Completeness</h4>
+              <p className="text-sm text-gray-600 mb-2">Your business frameworks are {dashboardData.analytics.growth.score}% complete</p>
+              <div className="flex items-center gap-1">
+                <TrendingUp className="w-4 h-4 text-green-500" />
+                <span className="text-sm text-green-600 font-medium">Trending Up</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Recommendations */}
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900">Next Actions:</h4>
+            {dashboardData.analytics.growth.recommendations.map((rec, index) => (
+              <div key={index} className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <span className="text-gray-700">{rec}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+        
+        {/* Recent Activity & Templates */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/templates')}>
+              View All
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+          
+          {/* Recent Frameworks */}
+          <div className="space-y-4">
+            {dashboardData.analytics.frameworks.recent.map((framework, index) => (
+              <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <Star className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">{framework}</p>
+                  <p className="text-xs text-gray-500">Completed {Math.floor(Math.random() * 7) + 1} days ago</p>
+                </div>
+                <Button size="sm" variant="ghost">
+                  <Eye className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          
+          {/* Templates Summary */}
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">Saved Templates</span>
+              <span className="font-medium">{dashboardData.analytics.totalTemplates}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm mt-2">
+              <span className="text-gray-600">AI Generations</span>
+              <span className="font-medium">{dashboardData.analytics.totalGenerations}</span>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Analytics & Usage Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Zap className="w-6 h-6 text-blue-600" />
+            </div>
+            <span className="text-2xl font-bold text-gray-900">
+              {dashboardData.analytics.usage.aiCredits.used}
+            </span>
+          </div>
+          <h3 className="font-medium text-gray-900 mb-1">AI Credits Used</h3>
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+            <div 
+              className="bg-blue-500 h-2 rounded-full" 
+              style={{ width: `${(dashboardData.analytics.usage.aiCredits.used / dashboardData.analytics.usage.aiCredits.total) * 100}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-600">of {dashboardData.analytics.usage.aiCredits.total} monthly</p>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
+          </div>
+          <h3 className="font-medium text-gray-900 mb-1">Frameworks</h3>
+          <p className="text-sm text-gray-600">Completed this month</p>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Building className="w-6 h-6 text-purple-600" />
+            </div>
+            <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
+          </div>
+          <h3 className="font-medium text-gray-900 mb-1">Documents</h3>
+          <p className="text-sm text-gray-600">In knowledge base</p>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+              <Globe className="w-6 h-6 text-orange-600" />
+            </div>
+            <span className="text-2xl font-bold text-gray-900">{industry}</span>
+          </div>
+          <h3 className="font-medium text-gray-900 mb-1">Industry</h3>
+          <p className="text-sm text-gray-600">Business vertical</p>
+        </Card>
+      </div>
+    </div>
   )
 }

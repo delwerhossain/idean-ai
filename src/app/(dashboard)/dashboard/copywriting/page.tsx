@@ -53,23 +53,109 @@ export default function CopywritingPage() {
       setLoading(true)
       setError(null)
 
-      const response = await ideanApi.copywriting.getAll({
-        limit: 50,
-        search: searchTerm
-      })
+      // TODO: Replace with actual API call when backend is ready
+      // const response = await ideanApi.copywriting.getAll({
+      //   limit: 50,
+      //   search: searchTerm
+      // })
 
-      if (response.data) {
-        setCopywritings(response.data.data || [])
-      }
+      // Mock data for now - will be replaced with real API
+      const mockCopywritings: any[] = [
+        {
+          id: '1',
+          title: 'AIDA Copywriting Formula',
+          description: 'Master the classic Attention, Interest, Desire, Action framework for compelling copy.',
+          category: 'Formulas',
+          difficulty: 'Beginner',
+          estimatedTime: '1-2 hours',
+          tags: ['aida', 'formula', 'basics'],
+          status: 'available'
+        },
+        {
+          id: '2',
+          title: 'Problem-Agitate-Solution (PAS)',
+          description: 'Learn to identify problems, agitate emotions, and present solutions effectively.',
+          category: 'Formulas',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['pas', 'problem', 'solution'],
+          status: 'available'
+        },
+        {
+          id: '3',
+          title: 'Email Marketing Sequences',
+          description: 'Create high-converting email sequences that nurture leads and drive sales.',
+          category: 'Email',
+          difficulty: 'Advanced',
+          estimatedTime: '3-4 hours',
+          tags: ['email', 'sequences', 'nurturing'],
+          status: 'available'
+        },
+        {
+          id: '4',
+          title: 'Sales Page Headlines',
+          description: 'Craft irresistible headlines that grab attention and drive conversions.',
+          category: 'Headlines',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['headlines', 'sales', 'attention'],
+          status: 'available'
+        },
+        {
+          id: '5',
+          title: 'Social Media Copy',
+          description: 'Write engaging social media copy that builds community and drives engagement.',
+          category: 'Social',
+          difficulty: 'Beginner',
+          estimatedTime: '1-2 hours',
+          tags: ['social', 'engagement', 'community'],
+          status: 'available'
+        },
+        {
+          id: '6',
+          title: 'Ad Copy Optimization',
+          description: 'Optimize your ad copy for maximum click-through rates and conversions.',
+          category: 'Advertising',
+          difficulty: 'Advanced',
+          estimatedTime: '2-4 hours',
+          tags: ['ads', 'optimization', 'conversion'],
+          status: 'available'
+        },
+        {
+          id: '7',
+          title: 'Storytelling in Copy',
+          description: 'Use narrative techniques to make your copy more compelling and memorable.',
+          category: 'Storytelling',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['storytelling', 'narrative', 'engagement'],
+          status: 'available'
+        },
+        {
+          id: '8',
+          title: 'Call-to-Action Mastery',
+          description: 'Create compelling CTAs that drive immediate action from your audience.',
+          category: 'CTA',
+          difficulty: 'Beginner',
+          estimatedTime: '1-2 hours',
+          tags: ['cta', 'action', 'conversion'],
+          status: 'available'
+        }
+      ]
+
+      // Filter by search term if provided
+      const filteredCopywritings = searchTerm 
+        ? mockCopywritings.filter(copy => 
+            copy.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            copy.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            copy.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          )
+        : mockCopywritings
+
+      setCopywritings(filteredCopywritings)
     } catch (err: any) {
       console.error('Failed to load copywriting frameworks:', err)
-      
-      if (err.status === 429) {
-        console.warn('Rate limited - using fallback mode for copywriting')
-        setCopywritings([])
-      } else {
-        setError('Failed to load copywriting frameworks. Please try again.')
-      }
+      setError('Failed to load copywriting frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true)

@@ -315,7 +315,10 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       {/* Fixed Bottom Section */}
       <div className="flex-shrink-0 p-2 border-t border-gray-200 space-y-1 relative">
         {/* Upgrade Button */}
-        <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+        <button 
+          onClick={() => router.push('/dashboard/settings')}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group"
+        >
           <Crown className="w-5 h-5 flex-shrink-0 text-yellow-600" />
           {isHovered && <span>Upgrade</span>}
         </button>
@@ -342,7 +345,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
           {showAccountMenu && isHovered && (
             <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
               <Link
-                href="/settings"
+                href="/dashboard/settings"
                 className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 onClick={() => setShowAccountMenu(false)}
               >

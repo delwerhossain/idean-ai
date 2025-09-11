@@ -54,7 +54,8 @@ export default function BusinessContextStep({
     }
     
     if (savedMentorApproval && !mentorApproval) {
-      onMentorApprovalChange(JSON.parse(savedMentorApproval))
+      // Handle mentor approval as a string value (not JSON)
+      onMentorApprovalChange(savedMentorApproval === 'approved' || savedMentorApproval === 'true')
     }
   }, [])
 

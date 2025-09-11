@@ -52,23 +52,89 @@ export default function BrandingLabPage() {
       setLoading(true)
       setError(null)
 
-      const response = await ideanApi.brandingLab.getAll({
-        limit: 50,
-        search: searchTerm
-      })
+      // TODO: Replace with actual API call when backend is ready
+      // const response = await ideanApi.brandingLab.getAll({
+      //   limit: 50,
+      //   search: searchTerm
+      // })
 
-      if (response.data) {
-        setBrandingLabs(response.data.data || [])
-      }
+      // Mock data for now - will be replaced with real API
+      const mockBrandingLabs: BrandingLab[] = [
+        {
+          id: '1',
+          title: 'Brand Identity Framework',
+          description: 'Create a comprehensive brand identity including logo, colors, typography, and visual guidelines.',
+          category: 'Identity',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['branding', 'identity', 'visual'],
+          status: 'available'
+        },
+        {
+          id: '2',
+          title: 'Brand Voice & Messaging',
+          description: 'Develop your brand personality, tone of voice, and core messaging framework.',
+          category: 'Messaging',
+          difficulty: 'Beginner',
+          estimatedTime: '1-2 hours',
+          tags: ['messaging', 'voice', 'communication'],
+          status: 'available'
+        },
+        {
+          id: '3',
+          title: 'Brand Story Development',
+          description: 'Craft compelling brand narratives that connect with your target audience.',
+          category: 'Storytelling',
+          difficulty: 'Advanced',
+          estimatedTime: '3-4 hours',
+          tags: ['storytelling', 'narrative', 'connection'],
+          status: 'available'
+        },
+        {
+          id: '4',
+          title: 'Brand Positioning Strategy',
+          description: 'Position your brand uniquely in the market using proven positioning frameworks.',
+          category: 'Strategy',
+          difficulty: 'Advanced',
+          estimatedTime: '2-3 hours',
+          tags: ['positioning', 'strategy', 'competition'],
+          status: 'available'
+        },
+        {
+          id: '5',
+          title: 'Logo Design Principles',
+          description: 'Learn the fundamentals of effective logo design and create memorable brand marks.',
+          category: 'Design',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['logo', 'design', 'visual'],
+          status: 'available'
+        },
+        {
+          id: '6',
+          title: 'Brand Guidelines Creation',
+          description: 'Develop comprehensive brand guidelines to ensure consistent brand application.',
+          category: 'Guidelines',
+          difficulty: 'Intermediate',
+          estimatedTime: '1-2 hours',
+          tags: ['guidelines', 'consistency', 'standards'],
+          status: 'available'
+        }
+      ]
+
+      // Filter by search term if provided
+      const filteredLabs = searchTerm 
+        ? mockBrandingLabs.filter(lab => 
+            lab.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lab.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lab.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          )
+        : mockBrandingLabs
+
+      setBrandingLabs(filteredLabs)
     } catch (err: any) {
       console.error('Failed to load branding labs:', err)
-      
-      if (err.status === 429) {
-        console.warn('Rate limited - using fallback mode for branding labs')
-        setBrandingLabs([])
-      } else {
-        setError('Failed to load branding frameworks. Please try again.')
-      }
+      setError('Failed to load branding frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true)

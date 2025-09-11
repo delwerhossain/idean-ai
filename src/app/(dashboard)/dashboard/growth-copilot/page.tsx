@@ -52,24 +52,109 @@ export default function GrowthCopilotPage() {
       setLoading(true)
       setError(null)
 
-      const response = await ideanApi.growthCopilot.getAll({
-        limit: 50,
-        search: searchTerm
-      })
+      // TODO: Replace with actual API call when backend is ready
+      // const response = await ideanApi.growthCopilot.getAll({
+      //   limit: 50,
+      //   search: searchTerm
+      // })
 
-      if (response.data) {
-        setGrowthCopilots(response.data.data || [])
-      }
+      // Mock data for now - will be replaced with real API
+      const mockGrowthCopilots: any[] = [
+        {
+          id: '1',
+          title: 'Customer Value Journey',
+          description: 'Map the complete customer journey from awareness to advocacy using proven frameworks.',
+          category: 'Strategy',
+          difficulty: 'Intermediate',
+          estimatedTime: '3-4 hours',
+          tags: ['customer', 'journey', 'value'],
+          status: 'available'
+        },
+        {
+          id: '2',
+          title: 'Blue Ocean Strategy',
+          description: 'Discover uncontested market spaces and create new demand using Blue Ocean principles.',
+          category: 'Strategy',
+          difficulty: 'Advanced',
+          estimatedTime: '4-5 hours',
+          tags: ['blue-ocean', 'strategy', 'innovation'],
+          status: 'available'
+        },
+        {
+          id: '3',
+          title: 'Growth Heist Framework',
+          description: 'Implement systematic growth hacking strategies to accelerate business growth.',
+          category: 'Growth Hacking',
+          difficulty: 'Advanced',
+          estimatedTime: '3-4 hours',
+          tags: ['growth', 'hacking', 'acceleration'],
+          status: 'available'
+        },
+        {
+          id: '4',
+          title: 'Niche Fortune Strategy',
+          description: 'Identify and dominate profitable niche markets with strategic positioning.',
+          category: 'Market Strategy',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['niche', 'market', 'positioning'],
+          status: 'available'
+        },
+        {
+          id: '5',
+          title: 'Funnel Architecture',
+          description: 'Design and optimize high-converting sales funnels for maximum revenue.',
+          category: 'Sales Funnels',
+          difficulty: 'Intermediate',
+          estimatedTime: '3-4 hours',
+          tags: ['funnel', 'conversion', 'sales'],
+          status: 'available'
+        },
+        {
+          id: '6',
+          title: 'Conversion Psychology',
+          description: 'Apply psychological principles to improve conversion rates and customer behavior.',
+          category: 'Psychology',
+          difficulty: 'Advanced',
+          estimatedTime: '2-3 hours',
+          tags: ['psychology', 'conversion', 'behavior'],
+          status: 'available'
+        },
+        {
+          id: '7',
+          title: 'Viral Marketing Mechanics',
+          description: 'Create viral marketing campaigns that spread organically and drive exponential growth.',
+          category: 'Viral Marketing',
+          difficulty: 'Advanced',
+          estimatedTime: '3-4 hours',
+          tags: ['viral', 'marketing', 'growth'],
+          status: 'available'
+        },
+        {
+          id: '8',
+          title: 'Retention & Loyalty Systems',
+          description: 'Build systems to retain customers and create long-term brand loyalty.',
+          category: 'Retention',
+          difficulty: 'Intermediate',
+          estimatedTime: '2-3 hours',
+          tags: ['retention', 'loyalty', 'systems'],
+          status: 'available'
+        }
+      ]
+
+      // Filter by search term if provided
+      const filteredGrowthCopilots = searchTerm 
+        ? mockGrowthCopilots.filter(growth => 
+            growth.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            growth.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            growth.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          )
+        : mockGrowthCopilots
+
+      setGrowthCopilots(filteredGrowthCopilots)
     } catch (err: any) {
       console.error('Failed to load growth copilots:', err)
-      
-      // Don't show error for rate limiting
-      if (err.status === 429) {
-        console.warn('Rate limited - using fallback mode for growth copilots')
-        setGrowthCopilots([]) // Show empty state gracefully
-      } else {
-        setError('Failed to load growth frameworks. Please try again.')
-      }
+      setError('Failed to load growth frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true) // Mark as loaded to prevent retries
