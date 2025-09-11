@@ -160,8 +160,10 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       {/* Fixed Header */}
       <div className="flex-shrink-0 p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">iD</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+            <div className="w-4 h-4 bg-white rounded-sm flex items-center justify-center">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            </div>
           </div>
           {isHovered && (
             <>
