@@ -21,6 +21,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { useBusiness } from '@/lib/contexts/BusinessContext'
+import UpgradeModal from '@/components/modals/UpgradeModal'
 
 interface SidebarProps {
   className?: string
@@ -95,9 +96,17 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const [switchingBusiness, setSwitchingBusiness] = useState<string | null>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [currentPlan, setCurrentPlan] = useState('free')
   
   // Use business context
   const { currentBusiness, businesses, loading: loadingBusinesses, switchBusiness } = useBusiness()
+
+  // Load current plan from localStorage
+  useEffect(() => {
+    const savedPlan = localStorage.getItem('currentPlan') || 'free'
+    setCurrentPlan(savedPlan)
+  }, [])
 
   const handleBusinessSwitch = async (businessId: string) => {
     try {
@@ -316,7 +325,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       <div className="flex-shrink-0 p-2 border-t border-gray-200 space-y-1 relative">
         {/* Upgrade Button */}
         <button 
-          onClick={() => router.push('/dashboard/settings')}
+          onClick={() => setShowUpgradeModal(true)}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group"
         >
           <Crown className="w-5 h-5 flex-shrink-0 text-yellow-600" />
@@ -364,6 +373,13 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
           )}
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentPlan={currentPlan}
+      />
     </div>
   )
 }
