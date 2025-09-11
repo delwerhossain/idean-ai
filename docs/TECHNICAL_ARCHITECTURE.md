@@ -172,7 +172,7 @@ performance_metrics (
 
 ### Authentication & Authorization
 - **JWT Tokens**: Secure, stateless authentication
-- **Role-Based Access**: Fine-grained permissions
+- **Role-Based Access**: Fine-grained permissions (admin , user )
 - **Session Management**: Secure session handling
 - **Password Security**: Bcrypt hashing
 

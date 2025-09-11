@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/idean-all
 
 # next.js
 /.next/
