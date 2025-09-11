@@ -37,12 +37,21 @@ export default function TemplatesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    loadTemplates()
-  }, [selectedCategory])
+    if (!hasLoaded && !loading) {
+      loadTemplates()
+    }
+    
+    return () => {
+      setLoading(false)
+    }
+  }, [selectedCategory, hasLoaded, loading])
 
   const loadTemplates = async () => {
+    if (loading || hasLoaded) return
+    
     try {
       setLoading(true)
       setError(null)
@@ -63,15 +72,23 @@ export default function TemplatesPage() {
       if (response.data) {
         setTemplates(response.data.data || [])
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load templates:', err)
-      setError('Failed to load templates. Please try again.')
+      
+      if (err.status === 429) {
+        console.warn('Rate limited - using fallback mode for templates')
+        setTemplates([])
+      } else {
+        setError('Failed to load templates. Please try again.')
+      }
     } finally {
       setLoading(false)
+      setHasLoaded(true)
     }
   }
 
   const handleSearch = () => {
+    setHasLoaded(false)
     loadTemplates()
   }
 

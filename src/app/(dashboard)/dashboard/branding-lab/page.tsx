@@ -33,12 +33,21 @@ export default function BrandingLabPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBrandingLab, setSelectedBrandingLab] = useState<BrandingLab | null>(null)
   const [isExecuting, setIsExecuting] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    loadBrandingLabs()
-  }, [])
+    if (!hasLoaded && !loading) {
+      loadBrandingLabs()
+    }
+    
+    return () => {
+      setLoading(false)
+    }
+  }, [hasLoaded, loading])
 
   const loadBrandingLabs = async () => {
+    if (loading || hasLoaded) return
+    
     try {
       setLoading(true)
       setError(null)
@@ -51,15 +60,23 @@ export default function BrandingLabPage() {
       if (response.data) {
         setBrandingLabs(response.data.data || [])
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load branding labs:', err)
-      setError('Failed to load branding frameworks. Please try again.')
+      
+      if (err.status === 429) {
+        console.warn('Rate limited - using fallback mode for branding labs')
+        setBrandingLabs([])
+      } else {
+        setError('Failed to load branding frameworks. Please try again.')
+      }
     } finally {
       setLoading(false)
+      setHasLoaded(true)
     }
   }
 
   const handleSearch = () => {
+    setHasLoaded(false)
     loadBrandingLabs()
   }
 

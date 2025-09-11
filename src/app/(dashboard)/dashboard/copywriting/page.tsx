@@ -34,12 +34,21 @@ export default function CopywritingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCopywriting, setSelectedCopywriting] = useState<Copywriting | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    loadCopywritings()
-  }, [])
+    if (!hasLoaded && !loading) {
+      loadCopywritings()
+    }
+    
+    return () => {
+      setLoading(false)
+    }
+  }, [hasLoaded, loading])
 
   const loadCopywritings = async () => {
+    if (loading || hasLoaded) return
+    
     try {
       setLoading(true)
       setError(null)
@@ -52,15 +61,23 @@ export default function CopywritingPage() {
       if (response.data) {
         setCopywritings(response.data.data || [])
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load copywriting frameworks:', err)
-      setError('Failed to load copywriting frameworks. Please try again.')
+      
+      if (err.status === 429) {
+        console.warn('Rate limited - using fallback mode for copywriting')
+        setCopywritings([])
+      } else {
+        setError('Failed to load copywriting frameworks. Please try again.')
+      }
     } finally {
       setLoading(false)
+      setHasLoaded(true)
     }
   }
 
   const handleSearch = () => {
+    setHasLoaded(false)
     loadCopywritings()
   }
 
