@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession, signIn } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Globe, Loader2 } from 'lucide-react'
 import BasicInfoStep from '@/components/onboarding/BasicInfoStep'
@@ -39,7 +39,7 @@ const STEPS = {
 }
 
 export default function OnboardingPage() {
-  const { data: session, update } = useSession()
+  const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(0)
   const [language, setLanguage] = useState<'en' | 'bn'>('en')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
   }
 
   const handleFinish = async () => {
-    if (!session?.user) {
+    if (!user) {
       setError('You must be signed in to complete onboarding')
       return
     }
@@ -327,8 +327,8 @@ export default function OnboardingPage() {
           </div>
         )}
         
-        {/* Backend Status Indicator */}
-        {!session?.backendToken && (
+        {/* Backend Status Indicator - Only show if needed */}
+        {false && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800 text-sm">
               ⚠️ Backend not connected. Some features may not work properly.

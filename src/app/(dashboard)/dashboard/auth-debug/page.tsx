@@ -1,14 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
+import { getStoredBackendToken, getCurrentFirebaseUser } from '@/lib/firebase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { RefreshCcw, LogIn, LogOut, Copy } from 'lucide-react'
 
 export default function AuthDebugPage() {
-  const { data: session, status, update } = useSession()
+  const { user, firebaseUser, loading, signInWithGoogle, logout } = useAuth()
   const [backendTest, setBackendTest] = useState<any>(null)
   const [isTestingBackend, setIsTestingBackend] = useState(false)
 
@@ -28,7 +29,7 @@ export default function AuthDebugPage() {
         try {
           const authResponse = await fetch(`${backendUrl}/api/v1/auth/verify`, {
             headers: {
-              'Authorization': `Bearer ${session.backendToken}`,
+              'Authorization': `Bearer ${getStoredBackendToken()}`,
               'Content-Type': 'application/json'
             }
           })
@@ -100,13 +101,13 @@ export default function AuthDebugPage() {
         <CardContent>
           <div className="flex gap-2 mb-4">
             {status === 'unauthenticated' ? (
-              <Button onClick={() => signIn()}>
+              <Button onClick={signInWithGoogle}>
                 <LogIn className="w-4 h-4 mr-2" />
                 Sign In
               </Button>
             ) : (
               <>
-                <Button onClick={() => signOut()}>
+                <Button onClick={logout}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </Button>
@@ -123,24 +124,24 @@ export default function AuthDebugPage() {
               <div>
                 <h3 className="font-medium text-sm text-gray-700 mb-2">User Info:</h3>
                 <div className="bg-gray-50 p-3 rounded text-sm">
-                  <div>Email: {session.user?.email}</div>
-                  <div>Name: {session.user?.name}</div>
-                  <div>Role: {session.user?.role}</div>
-                  <div>Business ID: {session.user?.businessId || 'None'}</div>
-                  <div>Provider: {session.user?.provider}</div>
+                  <div>Email: {user?.email}</div>
+                  <div>Name: {user?.name}</div>
+                  <div>Role: {user?.role}</div>
+                  <div>Business ID: {user?.businessId || 'None'}</div>
+                  <div>Provider: {user?.provider}</div>
                 </div>
               </div>
               
               <div>
                 <h3 className="font-medium text-sm text-gray-700 mb-2">Backend Token:</h3>
                 <div className="bg-gray-50 p-3 rounded text-sm">
-                  {session.backendToken ? (
+                  {getStoredBackendToken() ? (
                     <div className="flex items-center gap-2">
                       <span className="text-green-600">✓ Present</span>
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => copyToClipboard(session.backendToken)}
+                        onClick={() => copyToClipboard(getStoredBackendToken())}
                       >
                         <Copy className="w-3 h-3" />
                       </Button>

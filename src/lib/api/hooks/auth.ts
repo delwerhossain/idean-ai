@@ -1,7 +1,7 @@
 // React hooks for authentication API calls
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { signOut, useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import AuthService from '@/lib/api/services/auth'
 import type { User, UserCreateRequest, UserUpdateRequest } from '@/types/api'
 
@@ -15,12 +15,12 @@ export const authKeys = {
  * Hook to get current user data from backend
  */
 export function useUser() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   
   return useQuery({
     queryKey: authKeys.user,
     queryFn: () => AuthService.getCurrentUser(),
-    enabled: !!session?.user,
+    enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error: any) => {
       // Don't retry on 401 errors (unauthorized)
@@ -85,8 +85,9 @@ export function useDeleteUser() {
       // Clear all cached data
       queryClient.clear()
       
-      // Sign out and redirect
-      await signOut({ redirect: false })
+      // Sign out using Firebase auth
+      const { logout } = useAuth()
+      await logout()
       router.push('/')
     },
     onError: (error) => {
@@ -163,12 +164,12 @@ export function useChangePassword() {
  * Hook to get user sessions
  */
 export function useSessions() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   
   return useQuery({
     queryKey: authKeys.sessions,
     queryFn: () => AuthService.getSessions(),
-    enabled: !!session?.user,
+    enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
 }
@@ -207,20 +208,19 @@ export function useRevokeAllSessions() {
  * Hook to handle complete logout (client + backend)
  */
 export function useLogout() {
+  const { logout } = useAuth()
   const queryClient = useQueryClient()
   const router = useRouter()
   
   return useMutation({
     mutationFn: async () => {
-      // No need to call backend logout as Firebase handles token invalidation
+      // Firebase handles token invalidation
+      await logout()
       return Promise.resolve()
     },
     onSuccess: async () => {
       // Clear all React Query cache
       queryClient.clear()
-      
-      // Sign out from NextAuth
-      await signOut({ redirect: false })
       
       // Redirect to home
       router.push('/')
@@ -228,7 +228,7 @@ export function useLogout() {
     onError: (error) => {
       console.error('Logout failed:', error)
       // Still redirect on error
-      signOut({ redirect: false }).then(() => router.push('/'))
+      router.push('/')
     },
   })
 }

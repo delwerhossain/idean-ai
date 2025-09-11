@@ -1,10 +1,8 @@
-import { auth } from '@/lib/auth/config'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export default auth((req) => {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const token = req.auth
 
   // Public routes that don't require authentication
   const publicRoutes = ['/', '/login', '/register', '/auth/error', '/forgot-password', '/reset-password', '/verify-email']
@@ -17,43 +15,10 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
-  // If not authenticated, redirect to login
-  if (!token) {
-    return NextResponse.redirect(new URL('/login', req.url))
-  }
-
-  // Role-based route protection with updated roles (user, admin, owner)
-  const userRole = token?.user?.role as string
-
-  // Owner-only routes
-  const ownerRoutes = ['/admin/billing', '/admin/business', '/admin/users', '/admin/settings/billing']
-  if (ownerRoutes.some(route => pathname.startsWith(route)) && userRole !== 'owner') {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
-  }
-
-  // Admin routes (Owner + Admin access)
-  const adminRoutes = ['/admin/team', '/admin/settings', '/admin/templates', '/admin/analytics']
-  if (adminRoutes.some(route => pathname.startsWith(route)) && !['owner', 'admin'].includes(userRole)) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
-  }
-
-  // Business setup required routes - redirect to onboarding if no business
-  // Note: Temporarily disabled businessId check for frontend-only setup
-  // In production with backend, uncomment the businessId check
-  const businessRequiredRoutes = ['/dashboard', '/tools', '/generate-document']
-  if (businessRequiredRoutes.some(route => pathname.startsWith(route)) && 
-      false && // Disabled: !token.user?.businessId && 
-      pathname !== '/dashboard/onboarding') {
-    return NextResponse.redirect(new URL('/dashboard/onboarding', req.url))
-  }
-
-  // Redirect authenticated users from auth pages
-  if (['/login', '/register'].includes(pathname) && token) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
-  }
-
+  // For now, allow all routes through since Firebase auth is handled client-side
+  // In production, you could check for auth cookies or tokens here
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: [

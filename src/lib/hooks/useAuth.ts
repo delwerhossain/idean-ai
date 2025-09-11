@@ -1,14 +1,14 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useAuth as useFirebaseAuth } from '@/contexts/AuthContext'
 import { AuthSession } from '@/types/auth'
 
 export function useAuth() {
-  const { data: session, status } = useSession()
+  const { user, loading } = useFirebaseAuth()
 
   const hasRole = (requiredRoles: string[]) => {
-    if (!session?.user?.role) return false
-    return requiredRoles.includes(session.user.role)
+    if (!user?.role) return false
+    return requiredRoles.includes(user.role)
   }
 
   const canAccess = (feature: string) => {
@@ -41,16 +41,16 @@ export function useAuth() {
     return hasRole(permissions[feature as keyof typeof permissions] || [])
   }
 
-  const isOwner = () => session?.user?.role === 'owner'
-  const isAdmin = () => session?.user?.role === 'admin' || session?.user?.role === 'owner'
-  const isUser = () => ['user', 'admin', 'owner'].includes(session?.user?.role || '')
-  const isMember = () => !!session?.user?.role
+  const isOwner = () => user?.role === 'owner'
+  const isAdmin = () => user?.role === 'admin' || user?.role === 'owner'
+  const isUser = () => ['user', 'admin', 'owner'].includes(user?.role || '')
+  const isMember = () => !!user?.role
 
   return {
-    session: session as AuthSession | null,
-    isLoading: status === 'loading',
-    isAuthenticated: status === 'authenticated',
-    user: session?.user,
+    session: null, // For backward compatibility
+    isLoading: loading,
+    isAuthenticated: !!user,
+    user: user,
     hasRole,
     canAccess,
     isOwner,

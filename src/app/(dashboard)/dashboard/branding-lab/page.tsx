@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -26,7 +26,7 @@ import {
 import { ideanApi, BrandingLab } from '@/lib/api/idean-api'
 
 export default function BrandingLabPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [brandingLabs, setBrandingLabs] = useState<BrandingLab[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

@@ -1,7 +1,6 @@
 'use client'
 
-import { signOut } from 'next-auth/react'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { LogOut, User, Building, Crown, Shield, Users } from 'lucide-react'
 
 export function UserProfile() {
-  const { user, isOwner, isAdmin } = useAuth()
+  const { user, logout } = useAuth()
 
   if (!user) return null
 
@@ -32,7 +31,7 @@ export function UserProfile() {
   }
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/' })
+    logout()
   }
 
   return (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -25,7 +25,7 @@ import {
 import { ideanApi, GrowthCopilot } from '@/lib/api/idean-api'
 
 export default function GrowthCopilotPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [growthCopilots, setGrowthCopilots] = useState<GrowthCopilot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

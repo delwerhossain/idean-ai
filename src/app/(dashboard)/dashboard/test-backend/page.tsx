@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
+import { getStoredBackendToken } from '@/lib/firebase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +18,7 @@ interface TestResult {
 }
 
 export default function TestBackendPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [tests, setTests] = useState<TestResult[]>([
     { name: 'Backend Health Check', status: 'pending' },
     { name: 'Authentication Status', status: 'pending' },
@@ -60,13 +61,13 @@ export default function TestBackendPage() {
     // Test 2: Authentication Status
     updateTest(1, {
       status: session?.user ? 'success' : 'error',
-      message: session?.user ? `Signed in as ${session.user.email}` : 'Not authenticated',
-      data: session?.user || null
+      message: user ? `Signed in as ${user.email}` : 'Not authenticated',
+      data: user || null
     })
 
     // Test 3: Session Verification
     const start3 = Date.now()
-    if (session?.backendToken) {
+    if (getStoredBackendToken()) {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/verify`, {
           headers: {
@@ -106,7 +107,7 @@ export default function TestBackendPage() {
 
     // Test 4: User Data Fetch
     const start4 = Date.now()
-    if (session?.backendToken) {
+    if (getStoredBackendToken()) {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me`, {
           headers: {
@@ -146,7 +147,7 @@ export default function TestBackendPage() {
 
     // Test 5: Business API Test
     const start5 = Date.now()
-    if (session?.backendToken) {
+    if (getStoredBackendToken()) {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/businesses`, {
           headers: {
@@ -315,7 +316,7 @@ export default function TestBackendPage() {
               <strong>Session Status:</strong> {session ? 'Authenticated' : 'Not authenticated'}
             </div>
             <div>
-              <strong>Backend Token:</strong> {session?.backendToken ? 'Present' : 'Missing'}
+              <strong>Backend Token:</strong> {getStoredBackendToken() ? 'Present' : 'Missing'}
             </div>
           </div>
         </CardContent>

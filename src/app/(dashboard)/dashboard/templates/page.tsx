@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -30,7 +30,7 @@ import {
 import { ideanApi, Template } from '@/lib/api/idean-api'
 
 export default function TemplatesPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -162,13 +162,13 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
-            ✅ Backend connected - Full template management available
+            ✅ Connected as {user.name} - Full template management available
           </div>
         ) : (
           <div className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-md inline-block">
-            ⚡ Demo mode - Connect backend for template creation
+            ⚡ Demo mode - Please sign in for template creation
           </div>
         )}
       </div>

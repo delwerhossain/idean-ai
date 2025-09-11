@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { 
   FileText,
@@ -90,7 +90,7 @@ const navigationItems: NavigationItem[] = [
 
 export default function Sidebar({ className = '', onNewCompany }: SidebarProps) {
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const { user, logout } = useAuth()
   const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [showCompanySwitcher, setShowCompanySwitcher] = useState(false)
@@ -122,7 +122,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
 
   // Filter navigation items based on user role
   const getFilteredNavigationItems = () => {
-    const userRole = session?.user?.role || 'user'
+    const userRole = user?.role || 'user'
     
     return navigationItems.filter(item => {
       // Check if user role has access to this item

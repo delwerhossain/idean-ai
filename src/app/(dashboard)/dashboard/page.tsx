@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -62,7 +62,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -70,15 +70,15 @@ export default function DashboardPage() {
   const [selectedQuickAction, setSelectedQuickAction] = useState<string | null>(null)
 
   useEffect(() => {
-    if (status === 'loading') return
+    if (authLoading) return
     
-    if (!session?.user) {
+    if (!user) {
       window.location.href = '/login'
       return
     }
 
     loadDashboardData()
-  }, [session, status])
+  }, [user, authLoading])
 
   const loadDashboardData = async () => {
     try {
@@ -124,7 +124,7 @@ export default function DashboardPage() {
             readiness_checklist: '{}',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            userId: session?.user?.id || 'unknown'
+            userId: user?.id || 'unknown'
           }
         }
       }

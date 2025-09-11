@@ -1,5 +1,4 @@
-import { getSession } from 'next-auth/react'
-import { jwtTokenManager } from '@/lib/auth/jwt-utils'
+import { getCurrentFirebaseUser, getCurrentFirebaseToken, getStoredBackendToken, getStoredUser } from '@/lib/firebase'
 import { 
   APIResponse, 
   APIError as APIErrorType, 
@@ -43,30 +42,32 @@ class APIClient {
     }
   }
 
-  // Get authentication headers with JWT token from NextAuth session
+  // Get authentication headers with JWT token from Firebase Auth
   private async getAuthHeaders(): Promise<Record<string, string>> {
-    const session = await getSession()
-    if (!session?.user) {
+    const firebaseUser = getCurrentFirebaseUser()
+    const storedUser = getStoredUser()
+    
+    if (!firebaseUser || !storedUser) {
       throw new APIError('Not authenticated', 401, ERROR_CODES.UNAUTHORIZED)
     }
 
     try {
-      // Get backend JWT token from NextAuth session
-      const backendToken = (session as any).backendToken || (session as any).accessToken
+      // Get backend JWT token from localStorage (set during login)
+      const backendToken = getStoredBackendToken()
       
       if (!backendToken) {
-        console.warn('Backend token not found in session, user may need to re-authenticate')
-        throw new APIError('Backend token not found in session', 401, ERROR_CODES.UNAUTHORIZED)
+        console.warn('Backend token not found in storage, user may need to re-authenticate')
+        throw new APIError('Backend token not found in storage', 401, ERROR_CODES.UNAUTHORIZED)
       }
       
       return {
         'Authorization': `Bearer ${backendToken}`,
         'Content-Type': 'application/json',
-        'X-User-ID': session.user.id,
-        'X-User-Role': session.user.role,
-        'X-Business-ID': session.user.businessId || '',
-        'X-Firebase-UID': session.user.firebaseUid || session.user.id,
-        'X-Provider': session.user.provider || 'email',
+        'X-User-ID': storedUser.id,
+        'X-User-Role': storedUser.role,
+        'X-Business-ID': storedUser.businessId || '',
+        'X-Firebase-UID': firebaseUser.uid,
+        'X-Provider': storedUser.provider || 'google',
       }
     } catch (error) {
       console.error('Error getting authentication headers:', error)
@@ -253,8 +254,10 @@ class APIClient {
     additionalData?: Record<string, string>,
     onProgress?: (progress: number) => void
   ): Promise<T> {
-    const session = await getSession()
-    if (!session?.user) {
+    const firebaseUser = getCurrentFirebaseUser()
+    const storedUser = getStoredUser()
+    
+    if (!firebaseUser || !storedUser) {
       throw new APIError('Not authenticated', 401, ERROR_CODES.UNAUTHORIZED)
     }
 
@@ -267,8 +270,8 @@ class APIClient {
       })
     }
 
-    // Get backend JWT token from NextAuth session
-    const backendToken = (session as any).backendToken || (session as any).accessToken
+    // Get backend JWT token from localStorage
+    const backendToken = getStoredBackendToken()
     if (!backendToken) {
       throw new APIError('Backend token not found', 401, ERROR_CODES.UNAUTHORIZED)
     }

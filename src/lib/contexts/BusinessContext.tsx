@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Business, ideanApi } from '@/lib/api/idean-api'
 
 interface BusinessContextType {
@@ -21,24 +21,24 @@ interface BusinessProviderProps {
 }
 
 export function BusinessProvider({ children }: BusinessProviderProps) {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [currentBusiness, setCurrentBusinessState] = useState<Business | null>(null)
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  // Load businesses on session change - but only once and only if we haven't loaded before
+  // Load businesses on user change - but only once and only if we haven't loaded before
   useEffect(() => {
-    if (session?.user && !hasLoaded && !loading) {
+    if (user && !hasLoaded && !loading) {
       loadBusinesses()
-    } else if (!session?.user) {
+    } else if (!user) {
       // Clear state when user is not authenticated
       setCurrentBusinessState(null)
       setBusinesses([])
       setHasLoaded(false)
     }
-  }, [session?.user, hasLoaded, loading])
+  }, [user, hasLoaded, loading])
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -57,7 +57,7 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   }, [])
 
   const loadBusinesses = async () => {
-    if (!session?.user || loading || hasLoaded) return
+    if (!user || loading || hasLoaded) return
 
     try {
       setLoading(true)
