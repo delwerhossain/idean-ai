@@ -149,7 +149,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
 
   return (
     <div 
-      className={`${isHovered ? 'w-64' : 'w-16'} transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col h-screen ${className} relative z-50`}
+      className={`${isHovered ? 'w-72' : 'w-16'} transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col h-screen ${className} relative z-50`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false)
@@ -307,9 +307,9 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {isHovered && (
                   <>
-                    <span className="flex-1">{item.label}</span>
+                    <span className="flex-1 whitespace-nowrap">{item.label}</span>
                     {item.badge && (
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium">
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium flex-shrink-0">
                         {item.badge}
                       </span>
                     )}
