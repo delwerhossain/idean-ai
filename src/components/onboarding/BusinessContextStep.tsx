@@ -57,7 +57,7 @@ export default function BusinessContextStep({
       // Handle mentor approval as a string value (not JSON)
       onMentorApprovalChange(savedMentorApproval === 'approved' || savedMentorApproval === 'true')
     }
-  }, [])
+  }, [businessContext, mentorApproval, onBusinessContextChange, onMentorApprovalChange])
 
   // Optional: Auto-save to backend when data changes (for future use)
   useEffect(() => {

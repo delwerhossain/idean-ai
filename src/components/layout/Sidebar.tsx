@@ -149,7 +149,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
 
   return (
     <div 
-      className={`${isHovered ? 'w-64' : 'w-16'} transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col h-screen ${className} relative z-50`}
+      className={`${isHovered ? 'w-72' : 'w-16'} transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col h-screen ${className} relative z-50`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false)
@@ -160,8 +160,10 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
       {/* Fixed Header */}
       <div className="flex-shrink-0 p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">iD</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+            <div className="w-4 h-4 bg-white rounded-sm flex items-center justify-center">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            </div>
           </div>
           {isHovered && (
             <>
@@ -307,9 +309,9 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {isHovered && (
                   <>
-                    <span className="flex-1">{item.label}</span>
+                    <span className="flex-1 whitespace-nowrap">{item.label}</span>
                     {item.badge && (
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium">
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium flex-shrink-0">
                         {item.badge}
                       </span>
                     )}

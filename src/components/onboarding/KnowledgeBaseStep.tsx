@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { Upload, FileText, X, AlertCircle } from 'lucide-react'
+import { Upload, FileText, X, AlertCircle, Info } from 'lucide-react'
 
 interface KnowledgeBaseStepProps {
   knowledgeBase: File[]
@@ -61,8 +61,8 @@ export default function KnowledgeBaseStep({ knowledgeBase, onKnowledgeBaseChange
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {language === 'en' ? 'Upload Business Documents' : 'ব্যবসায়িক ডকুমেন্ট আপলোড করুন'}
         </h3>
-        <p className="text-gray-600">
-          {language === 'en' ? 'Upload up to 4 PDF documents (maximum 30 pages each) that contain important information about your business. This helps iDEAN AI understand your business better and create more relevant content.' : 'আপনার ব্যবসার গুরুত্বপূর্ণ তথ্য সম্বলিত সর্বোচ্চ 4টি PDF ডকুমেন্ট (প্রতিটি সর্বোচ্চ 30 পাতা) আপলোড করুন। এটি iDEAN AI কে আপনার ব্যবসা আরো ভালোভাবে বুঝতে এবং আরো প্রাসঙ্গিক কন্টেন্ট তৈরি করতে সাহায্য করে।'}
+        <p className="text-gray-500 text-sm max-w-md mx-auto">
+          {language === 'en' ? 'Up to 4 PDF documents (max 30 pages each)' : 'সর্বোচ্চ ৪টি PDF ডকুমেন্ট (প্রতিটি ৩০ পাতা)'}
         </p>
       </div>
 
