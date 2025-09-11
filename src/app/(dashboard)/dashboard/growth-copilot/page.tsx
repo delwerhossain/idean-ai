@@ -245,7 +245,7 @@ export default function GrowthCopilotPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
             ✅ Backend connected - Full AI capabilities available
           </div>

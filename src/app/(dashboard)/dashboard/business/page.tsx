@@ -210,7 +210,7 @@ export default function BusinessPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
             ✅ Backend connected - Full business management available
           </div>

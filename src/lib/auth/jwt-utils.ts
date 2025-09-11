@@ -1,5 +1,5 @@
 import { auth as firebaseAuth } from '@/lib/firebase/client'
-import { getSession, signOut } from 'next-auth/react'
+import { getStoredBackendToken } from '@/lib/firebase'
 
 /**
  * JWT Token utilities for authentication with backend
@@ -24,23 +24,28 @@ export class JWTTokenManager {
    */
   async getValidToken(): Promise<string> {
     try {
-      const session = await getSession()
+      // First try to get backend token from localStorage
+      const backendToken = getStoredBackendToken()
+      if (backendToken) {
+        // Check if token is close to expiring (Firebase tokens are valid for 1 hour)
+        const tokenPayload = this.parseJWT(backendToken)
+        const now = Math.floor(Date.now() / 1000)
+        const timeUntilExpiry = tokenPayload.exp - now
+
+        // If token expires in less than 5 minutes, refresh it
+        if (timeUntilExpiry < 300) {
+          return await this.refreshToken()
+        }
+
+        return backendToken
+      }
       
-      if (!session?.firebaseToken) {
-        throw new Error('No authentication token available')
+      // If no stored token, get fresh token from Firebase
+      if (!firebaseAuth.currentUser) {
+        throw new Error('No authenticated user')
       }
-
-      // Check if token is close to expiring (Firebase tokens are valid for 1 hour)
-      const tokenPayload = this.parseJWT(session.firebaseToken)
-      const now = Math.floor(Date.now() / 1000)
-      const timeUntilExpiry = tokenPayload.exp - now
-
-      // If token expires in less than 5 minutes, refresh it
-      if (timeUntilExpiry < 300) {
-        return await this.refreshToken()
-      }
-
-      return session.firebaseToken
+      
+      return await firebaseAuth.currentUser.getIdToken()
     } catch (error) {
       console.error('Error getting valid token:', error)
       throw error

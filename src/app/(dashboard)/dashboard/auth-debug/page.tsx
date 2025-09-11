@@ -24,8 +24,8 @@ export default function AuthDebugPage() {
       
       let backendAuthTest = null
       
-      // Test 2: Try backend authentication if we have a session
-      if (session?.backendToken) {
+      // Test 2: Try backend authentication if we have a user
+      if (user && getStoredBackendToken()) {
         try {
           const authResponse = await fetch(`${backendUrl}/api/v1/auth/verify`, {
             headers: {
@@ -62,10 +62,12 @@ export default function AuthDebugPage() {
 
   const forceSessionUpdate = async () => {
     try {
-      await update()
-      console.log('Session update triggered')
+      // Firebase Auth doesn't need session updates like NextAuth
+      // Force a re-render by updating the backend test
+      await testBackendConnection()
+      console.log('Firebase auth state refreshed')
     } catch (error) {
-      console.error('Session update failed:', error)
+      console.error('Auth refresh failed:', error)
     }
   }
 
@@ -80,7 +82,7 @@ export default function AuthDebugPage() {
           Authentication Debug
         </h1>
         <p className="text-gray-600">
-          Debug NextAuth session and backend token integration
+          Debug Firebase authentication and backend token integration
         </p>
       </div>
 
@@ -88,19 +90,19 @@ export default function AuthDebugPage() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            NextAuth Session Status
+            Firebase Auth Status
             <Badge className={
-              status === 'authenticated' ? 'bg-green-100 text-green-800' :
-              status === 'loading' ? 'bg-yellow-100 text-yellow-800' :
+              user ? 'bg-green-100 text-green-800' :
+              loading ? 'bg-yellow-100 text-yellow-800' :
               'bg-red-100 text-red-800'
             }>
-              {status}
+              {loading ? 'loading' : user ? 'authenticated' : 'unauthenticated'}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 mb-4">
-            {status === 'unauthenticated' ? (
+            {!user ? (
               <Button onClick={signInWithGoogle}>
                 <LogIn className="w-4 h-4 mr-2" />
                 Sign In
@@ -119,7 +121,7 @@ export default function AuthDebugPage() {
             )}
           </div>
           
-          {session && (
+          {user && (
             <div className="space-y-4">
               <div>
                 <h3 className="font-medium text-sm text-gray-700 mb-2">User Info:</h3>
@@ -153,11 +155,11 @@ export default function AuthDebugPage() {
               </div>
               
               <div>
-                <h3 className="font-medium text-sm text-gray-700 mb-2">Full Session Data:</h3>
+                <h3 className="font-medium text-sm text-gray-700 mb-2">Full User Data:</h3>
                 <details className="bg-gray-50 rounded">
-                  <summary className="p-3 cursor-pointer text-sm">Show Raw Session</summary>
+                  <summary className="p-3 cursor-pointer text-sm">Show Raw User Data</summary>
                   <pre className="p-3 text-xs overflow-x-auto">
-                    {JSON.stringify(session, null, 2)}
+                    {JSON.stringify({ user, firebaseUser }, null, 2)}
                   </pre>
                 </details>
               </div>
