@@ -69,7 +69,8 @@
       "Bash(pnpm x:*)",
       "Bash(cmd //c:*)",
       "Bash(git pull:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": [],

@@ -37,14 +37,10 @@ export default function CopywritingPage() {
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    if (!hasLoaded && !loading) {
+    if (!hasLoaded) {
       loadCopywritings()
     }
-    
-    return () => {
-      setLoading(false)
-    }
-  }, [hasLoaded, loading])
+  }, [hasLoaded])
 
   const loadCopywritings = async () => {
     if (loading || hasLoaded) return
@@ -164,7 +160,6 @@ export default function CopywritingPage() {
 
   const handleSearch = () => {
     setHasLoaded(false)
-    loadCopywritings()
   }
 
   const predefinedFrameworks = [

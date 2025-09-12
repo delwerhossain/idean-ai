@@ -36,14 +36,10 @@ export default function BrandingLabPage() {
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    if (!hasLoaded && !loading) {
+    if (!hasLoaded) {
       loadBrandingLabs()
     }
-    
-    return () => {
-      setLoading(false)
-    }
-  }, [hasLoaded, loading])
+  }, [hasLoaded])
 
   const loadBrandingLabs = async () => {
     if (loading || hasLoaded) return
@@ -143,7 +139,6 @@ export default function BrandingLabPage() {
 
   const handleSearch = () => {
     setHasLoaded(false)
-    loadBrandingLabs()
   }
 
   const predefinedFrameworks = [

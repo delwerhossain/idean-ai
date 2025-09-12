@@ -10,13 +10,31 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+console.log('Firebase Config:', {
+  apiKey: firebaseConfig.apiKey ? 'Present' : 'Missing',
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  storageBucket: firebaseConfig.storageBucket,
+  messagingSenderId: firebaseConfig.messagingSenderId,
+  appId: firebaseConfig.appId
+});
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
+console.log('Firebase initialized successfully');
+
 // Configure Google provider
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
+
+// Set custom parameters for better UX
+googleProvider.setCustomParameters({
+  prompt: 'select_account',
+});
+
+console.log('Google provider configured with scopes:', googleProvider);
 
 // Utility functions for Firebase Auth
 export const getCurrentFirebaseUser = (): FirebaseUser | null => {

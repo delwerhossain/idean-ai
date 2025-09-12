@@ -1,9 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle, Upload, FileText } from 'lucide-react'
+import { ideanApi } from '@/lib/api/idean-api'
+import { useCurrentBusiness } from '@/lib/contexts/BusinessContext'
+import { apiUtils } from '@/lib/api/client'
 
 interface BusinessContextStepProps {
   businessContext: string
@@ -43,33 +47,50 @@ export default function BusinessContextStep({
 }: BusinessContextStepProps) {
   const characterCount = businessContext.length
   const maxCharacters = 500
+  const { business: currentBusiness, businessId } = useCurrentBusiness()
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadedDocName, setUploadedDocName] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Load data from localStorage on component mount
+  // Load initial data from backend (replace localStorage)
   useEffect(() => {
-    const savedBusinessContext = localStorage.getItem('businessContext')
-    const savedMentorApproval = localStorage.getItem('mentorApproval')
-    
-    if (savedBusinessContext && !businessContext) {
-      onBusinessContextChange(savedBusinessContext)
+    let cancelled = false
+    const load = async () => {
+      try {
+        const biz = currentBusiness || (await ideanApi.business.getMine())
+        const data: any = (biz as any).data || biz
+        if (!data || cancelled) return
+        if (!businessContext && data.business_context) {
+          onBusinessContextChange(data.business_context)
+        }
+        if (!mentorApproval && data.mentor_approval) {
+          onMentorApprovalChange(data.mentor_approval === 'approved')
+        }
+      } catch (err) {
+        console.warn('Failed to load business context from API:', err)
+      }
     }
-    
-    if (savedMentorApproval && !mentorApproval) {
-      // Handle mentor approval as a string value (not JSON)
-      onMentorApprovalChange(savedMentorApproval === 'approved' || savedMentorApproval === 'true')
-    }
-  }, [businessContext, mentorApproval, onBusinessContextChange, onMentorApprovalChange])
+    load()
+    return () => { cancelled = true }
+  }, [currentBusiness])
 
-  // Optional: Auto-save to backend when data changes (for future use)
+  // Auto-save to backend when values change (debounced)
   useEffect(() => {
-    if (businessContext || mentorApproval) {
-      // Debounce the save operation
-      const timeoutId = setTimeout(() => {
-        saveToBackendWhenReady()
-      }, 1000)
-      
-      return () => clearTimeout(timeoutId)
-    }
-  }, [businessContext, mentorApproval])
+    const timeoutId = setTimeout(async () => {
+      try {
+        const id = businessId || ((await ideanApi.business.getMine()) as any)?.data?.id
+        if (!id) return
+        await ideanApi.business.update(id, {
+          business_context: businessContext || '',
+          mentor_approval: mentorApproval ? 'approved' : 'pending',
+        })
+      } catch (err) {
+        console.warn('Failed to save business context to API:', err)
+      }
+    }, 800)
+    return () => clearTimeout(timeoutId)
+  }, [businessContext, mentorApproval, businessId])
 
   const addPromptExample = (example: string) => {
     const currentContext = businessContext.trim()
@@ -83,63 +104,50 @@ export default function BusinessContextStep({
   }
 
   const generateBusinessSummary = () => {
-    const businessName = localStorage.getItem('businessName') || 'Your Business'
-    const industry = localStorage.getItem('industry') || 'General'
-    
+    const businessName = currentBusiness?.business_name || 'Your Business'
+    const industry = currentBusiness?.industry_tag || 'General'
     const summary = `${businessName} operates in the ${industry} industry. ${businessContext || 'We provide quality services to our customers and aim to grow our business through effective marketing and customer satisfaction.'}`
-    
     return summary
   }
 
-  // Save data to localStorage for future backend integration and immediate use
-  const saveToLocalStorage = (key: string, value: any) => {
-    try {
-      localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value))
-    } catch (error) {
-      console.warn('Failed to save to localStorage:', error)
-    }
-  }
-
-  // Handle business context changes with localStorage backup
+  // Handle business context changes
   const handleBusinessContextChange = (value: string) => {
     onBusinessContextChange(value)
-    saveToLocalStorage('businessContext', value)
   }
 
-  // Handle mentor approval changes with localStorage backup
+  // Handle mentor approval changes
   const handleMentorApprovalChange = (value: boolean) => {
     onMentorApprovalChange(value)
-    saveToLocalStorage('mentorApproval', value)
   }
 
-  // Optional: Prepare data for future backend integration
-  const prepareBusinessData = () => {
-    return {
-      businessName: localStorage.getItem('businessName') || '',
-      industry: localStorage.getItem('industry') || '',
-      businessContext: businessContext || '',
-      mentorApproval: mentorApproval || false,
-      businessSummary: generateBusinessSummary(),
-      timestamp: new Date().toISOString()
+  // Single PDF upload (3MB max) to business knowledge base
+  const onSelectPdf = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = (e.target.files && e.target.files[0]) || null
+    if (!file) return
+
+    const { isValid, errors } = apiUtils.validateFile(file, 3 * 1024 * 1024, ['application/pdf'])
+    if (!isValid) {
+      alert(errors.join('\n'))
+      e.target.value = ''
+      return
     }
-  }
 
-  // Future backend integration placeholder (currently just logs)
-  const saveToBackendWhenReady = async () => {
     try {
-      const businessData = prepareBusinessData()
-      
-      // TODO: Uncomment when backend API is ready
-      // const response = await ideanApi.business.create(businessData)
-      // console.log('Business data saved to backend:', response)
-      
-      // For now, just log the data structure that would be sent
-      console.log('Business data prepared for future backend:', businessData)
-      
-      return true
-    } catch (error) {
-      console.warn('Backend not ready, using localStorage fallback:', error)
-      return false
+      setUploading(true)
+      setUploadProgress(0)
+      const id = businessId || ((await ideanApi.business.getMine()) as any)?.data?.id || ((await ideanApi.business.getMine()) as any)?.id
+      if (!id) throw new Error('Business not found for upload')
+
+      const result = await ideanApi.documents.upload(file, id, (p) => setUploadProgress(p))
+      setUploadedDocName(file.name)
+      console.log('Document uploaded successfully:', result)
+    } catch (err) {
+      console.error('PDF upload failed:', err)
+      alert('Failed to upload PDF. Please try again.')
+    } finally {
+      setUploading(false)
+      setUploadProgress(0)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
 
@@ -246,6 +254,53 @@ export default function BusinessContextStep({
             </p>
           </div>
         )}
+
+        {/* Single PDF Upload (3MB max) */}
+        <div className="border-t pt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload one business PDF (max 3MB)
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              onChange={onSelectPdf}
+              disabled={uploading}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-2"
+              variant="outline"
+            >
+              <Upload className="w-4 h-4" />
+              {uploading ? 'Uploading...' : 'Upload PDF'}
+            </Button>
+            {uploadedDocName && (
+              <div className="text-sm text-gray-600 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-gray-400" />
+                <span>Uploaded: {uploadedDocName}</span>
+              </div>
+            )}
+          </div>
+          {uploading && (
+            <div className="mt-2">
+              <div className="h-2 bg-gray-200 rounded">
+                <div
+                  className="h-2 bg-blue-500 rounded"
+                  style={{ width: `${Math.round(uploadProgress)}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{Math.round(uploadProgress)}%</p>
+            </div>
+          )}
+          <p className="text-xs text-gray-500 mt-2">
+            The business knowledge base uploads now. Copywriting templates can be fetched later.
+          </p>
+        </div>
 
         {/* Mentor Approval Section */}
         <div className="border-t pt-4">

@@ -35,15 +35,10 @@ export default function GrowthCopilotPage() {
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    if (!hasLoaded && !loading) {
+    if (!hasLoaded) {
       loadGrowthCopilots()
     }
-    
-    // Cleanup function to prevent state updates if component unmounts
-    return () => {
-      setLoading(false)
-    }
-  }, [hasLoaded, loading])
+  }, [hasLoaded])
 
   const loadGrowthCopilots = async () => {
     if (loading || hasLoaded) return // Prevent multiple calls
@@ -163,7 +158,6 @@ export default function GrowthCopilotPage() {
 
   const handleSearch = () => {
     setHasLoaded(false) // Reset to allow new search
-    loadGrowthCopilots()
   }
 
   const predefinedFrameworks = [

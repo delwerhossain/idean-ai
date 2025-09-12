@@ -80,8 +80,8 @@ export class JWTTokenManager {
       // Force refresh Firebase token
       const newToken = await firebaseAuth.currentUser.getIdToken(true)
       
-      // Store the new token in localStorage
-      localStorage.setItem('backendToken', newToken)
+      // Store the new token in localStorage (align with reader key)
+      localStorage.setItem('authToken', newToken)
       
       return newToken
     } catch (error) {
@@ -89,7 +89,7 @@ export class JWTTokenManager {
       
       // If token refresh fails, user may need to re-authenticate
       // Clear stored tokens and redirect to login
-      localStorage.removeItem('backendToken')
+      localStorage.removeItem('authToken')
       window.location.href = '/login'
       throw new Error('Authentication session expired. Please sign in again.')
     }

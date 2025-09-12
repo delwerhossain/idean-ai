@@ -40,14 +40,10 @@ export default function TemplatesPage() {
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    if (!hasLoaded && !loading) {
+    if (!hasLoaded) {
       loadTemplates()
     }
-    
-    return () => {
-      setLoading(false)
-    }
-  }, [selectedCategory, hasLoaded, loading])
+  }, [selectedCategory, hasLoaded])
 
   const loadTemplates = async () => {
     if (loading || hasLoaded) return
@@ -78,6 +74,10 @@ export default function TemplatesPage() {
       if (err.status === 429) {
         console.warn('Rate limited - using fallback mode for templates')
         setTemplates([])
+      } else if (err.status === 404 || err.message.includes('fetch')) {
+        console.warn('Backend unavailable - using fallback mode for templates')
+        // Provide mock data when backend is unavailable
+        setTemplates([])
       } else {
         setError('Failed to load templates. Please try again.')
       }
@@ -89,7 +89,6 @@ export default function TemplatesPage() {
 
   const handleSearch = () => {
     setHasLoaded(false)
-    loadTemplates()
   }
 
   const getCategoryIcon = (template: Template) => {
@@ -193,14 +192,20 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'all' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => {
+              setSelectedCategory('all')
+              setHasLoaded(false)
+            }}
           >
             All
           </Button>
           <Button
             variant={selectedCategory === 'brandinglab' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('brandinglab')}
+            onClick={() => {
+              setSelectedCategory('brandinglab')
+              setHasLoaded(false)
+            }}
           >
             <Palette className="w-3 h-3 mr-1" />
             Branding
@@ -208,7 +213,10 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'growthcopilot' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('growthcopilot')}
+            onClick={() => {
+              setSelectedCategory('growthcopilot')
+              setHasLoaded(false)
+            }}
           >
             <TrendingUp className="w-3 h-3 mr-1" />
             Growth
@@ -216,7 +224,10 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'copywriting' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('copywriting')}
+            onClick={() => {
+              setSelectedCategory('copywriting')
+              setHasLoaded(false)
+            }}
           >
             <PenTool className="w-3 h-3 mr-1" />
             Copy

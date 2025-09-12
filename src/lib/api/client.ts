@@ -1,4 +1,4 @@
-import { getCurrentFirebaseUser, getCurrentFirebaseToken, getStoredBackendToken, getStoredUser } from '@/lib/firebase'
+import { getStoredBackendToken, getCurrentFirebaseUser, getStoredUser } from '@/lib/firebase'
 import { 
   APIResponse, 
   APIError as APIErrorType, 
@@ -34,7 +34,7 @@ class APIClient {
 
   constructor(config: Partial<APIClientConfig> = {}) {
     this.config = {
-      baseUrl: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001') + '/api/v1',
+      baseUrl: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'),
       timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
       retryAttempts: 3,
       retryDelay: 1000,
@@ -44,30 +44,18 @@ class APIClient {
 
   // Get authentication headers with JWT token from Firebase Auth
   private async getAuthHeaders(): Promise<Record<string, string>> {
-    const firebaseUser = getCurrentFirebaseUser()
-    const storedUser = getStoredUser()
-    
-    if (!firebaseUser || !storedUser) {
-      throw new APIError('Not authenticated', 401, ERROR_CODES.UNAUTHORIZED)
-    }
-
     try {
-      // Get backend JWT token from localStorage (set during login)
+      // Use only backend JWT in Authorization header as per Swagger
       const backendToken = getStoredBackendToken()
-      
       if (!backendToken) {
         console.warn('Backend token not found in storage, user may need to re-authenticate')
         throw new APIError('Backend token not found in storage', 401, ERROR_CODES.UNAUTHORIZED)
       }
-      
+
       return {
-        'Authorization': `Bearer ${backendToken}`,
+        Authorization: `Bearer ${backendToken}`,
         'Content-Type': 'application/json',
-        'X-User-ID': storedUser.id,
-        'X-User-Role': storedUser.role,
-        'X-Business-ID': storedUser.businessId || '',
-        'X-Firebase-UID': firebaseUser.uid,
-        'X-Provider': storedUser.provider || 'google',
+        Accept: 'application/json',
       }
     } catch (error) {
       console.error('Error getting authentication headers:', error)
@@ -153,6 +141,11 @@ class APIClient {
   ): Promise<T> {
     const headers = await this.getAuthHeaders()
     const url = `${this.config.baseUrl}${endpoint}`
+
+    // For multipart form data, don't set content-type (let browser handle it)
+    if (options.body instanceof FormData) {
+      delete headers['Content-Type']
+    }
 
     const requestFn = () => fetch(url, {
       ...options,
@@ -262,7 +255,12 @@ class APIClient {
     }
 
     const formData = new FormData()
-    formData.append('file', file)
+    // Backend expects 'documents' field name for business document uploads
+    if (endpoint.includes('/businesses/') && endpoint.includes('/documents')) {
+      formData.append('documents', file)
+    } else {
+      formData.append('file', file)
+    }
 
     if (additionalData) {
       Object.entries(additionalData).forEach(([key, value]) => {
@@ -380,7 +378,7 @@ class APIClient {
   async healthCheck(): Promise<{ status: string; timestamp: string; environment: string }> {
     try {
       // Use fetch directly for health check (no auth required)
-      const response = await fetch(this.config.baseUrl.replace('/api/v1', '/health'), {
+      const response = await fetch(`${this.config.baseUrl}/health`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(5000),
