@@ -4,7 +4,7 @@ import { useAuth as useFirebaseAuth } from '@/contexts/AuthContext'
 import { AuthSession } from '@/types/auth'
 
 export function useAuth() {
-  const { user, loading } = useFirebaseAuth()
+  const { user, loading, authLoading, isHydrated } = useFirebaseAuth()
 
   const hasRole = (requiredRoles: string[]) => {
     if (!user?.role) return false
@@ -48,8 +48,8 @@ export function useAuth() {
 
   return {
     session: null, // For backward compatibility
-    isLoading: loading,
-    isAuthenticated: !!user,
+    isLoading: authLoading || !isHydrated, // Wait for both auth state and hydration
+    isAuthenticated: !!user && isHydrated,
     user: user,
     hasRole,
     canAccess,

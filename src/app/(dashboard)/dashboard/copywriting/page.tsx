@@ -25,6 +25,7 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
+import { GenerationModal } from '@/components/copywriting/GenerationModal'
 
 export default function CopywritingPage() {
   const { user } = useAuth()
@@ -35,6 +36,8 @@ export default function CopywritingPage() {
   const [selectedCopywriting, setSelectedCopywriting] = useState<Copywriting | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [hasLoaded, setHasLoaded] = useState(false)
+  const [showGenerationModal, setShowGenerationModal] = useState(false)
+  const [selectedFramework, setSelectedFramework] = useState<any>(null)
 
   useEffect(() => {
     if (!hasLoaded) {
@@ -43,7 +46,7 @@ export default function CopywritingPage() {
   }, [hasLoaded])
 
   const loadCopywritings = async () => {
-    if (loading || hasLoaded) return
+    if (hasLoaded) return
     
     try {
       setLoading(true)
@@ -160,6 +163,18 @@ export default function CopywritingPage() {
 
   const handleSearch = () => {
     setHasLoaded(false)
+  }
+
+  const handleFrameworkClick = (framework: any) => {
+    setSelectedFramework(framework)
+    setSelectedCopywriting(null)
+    setShowGenerationModal(true)
+  }
+
+  const handleCopywritingClick = (copywriting: Copywriting) => {
+    setSelectedCopywriting(copywriting)
+    setSelectedFramework(null)
+    setShowGenerationModal(true)
   }
 
   const predefinedFrameworks = [
@@ -308,7 +323,11 @@ export default function CopywritingPage() {
             {predefinedFrameworks.filter(f => f.category === 'Psychology' || f.category === 'Sales').map((framework) => {
               const Icon = framework.icon
               return (
-                <div key={framework.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                <div 
+                  key={framework.id} 
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => handleFrameworkClick(framework)}
+                >
                   <div className={`w-8 h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-4 h-4 text-white" />
                   </div>
@@ -335,7 +354,11 @@ export default function CopywritingPage() {
             {predefinedFrameworks.filter(f => f.category === 'Content' || f.category === 'Social').map((framework) => {
               const Icon = framework.icon
               return (
-                <div key={framework.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                <div 
+                  key={framework.id} 
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => handleFrameworkClick(framework)}
+                >
                   <div className={`w-8 h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-4 h-4 text-white" />
                   </div>
@@ -362,7 +385,11 @@ export default function CopywritingPage() {
             {predefinedFrameworks.filter(f => f.category === 'Email' || f.category === 'Advertising').map((framework) => {
               const Icon = framework.icon
               return (
-                <div key={framework.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                <div 
+                  key={framework.id} 
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => handleFrameworkClick(framework)}
+                >
                   <div className={`w-8 h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-4 h-4 text-white" />
                   </div>
@@ -410,7 +437,7 @@ export default function CopywritingPage() {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    onClick={() => setSelectedCopywriting(copywriting)}
+                    onClick={() => handleCopywritingClick(copywriting)}
                   >
                     Generate Copy
                   </Button>
@@ -473,11 +500,22 @@ export default function CopywritingPage() {
               <span>• A/B testing templates</span>
             </div>
           </div>
-          <Button className="bg-orange-600 hover:bg-orange-700">
+          <Button 
+            className="bg-orange-600 hover:bg-orange-700"
+            onClick={() => setShowGenerationModal(true)}
+          >
             Generate Your First Copy
           </Button>
         </div>
       </Card>
+
+      {/* Generation Modal */}
+      <GenerationModal
+        isOpen={showGenerationModal}
+        onClose={() => setShowGenerationModal(false)}
+        framework={selectedFramework}
+        copywriting={selectedCopywriting}
+      />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import Sidebar from './Sidebar'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import TestUserPanel from '@/components/dev/TestUserPanel'
+import { AuthStateDebug } from '@/components/debug/AuthStateDebug'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -20,6 +21,7 @@ export default function DashboardLayout({ children, className = '', onNewCompany
           {children}
         </main>
         <TestUserPanel />
+        <AuthStateDebug showInProduction={true} />
       </div>
     </ProtectedRoute>
   )

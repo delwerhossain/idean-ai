@@ -161,10 +161,10 @@ export const ideanApi = {
   // Copywriting API (Content Generation)
   copywriting: {
     getAll: (params?: PaginationParams) =>
-      apiClient.safeGet<PaginatedResponse<Copywriting>>('/api/v1/copywritings', params, true),
+      apiClient.safeGet<PaginatedResponse<Copywriting>>('/api/v1/copywriting', params, true),
 
     getById: (id: string) =>
-      apiClient.safeGet<Copywriting>(`/api/v1/copywritings/${id}`, undefined, false),
+      apiClient.safeGet<Copywriting>(`/api/v1/copywriting/${id}`, undefined, false),
 
     create: (data: {
       name: string
@@ -173,17 +173,28 @@ export const ideanApi = {
       dropdown?: string[]
       system_prompt: string
       user_starting_prompt?: string
-    }) => apiClient.post<Copywriting>('/api/v1/copywritings', data),
+    }) => apiClient.post<Copywriting>('/api/v1/copywriting', data),
 
     update: (id: string, data: Partial<Copywriting>) =>
-      apiClient.put<Copywriting>(`/api/v1/copywritings/${id}`, data),
+      apiClient.put<Copywriting>(`/api/v1/copywriting/${id}`, data),
 
     delete: (id: string) =>
-      apiClient.delete(`/api/v1/copywritings/${id}`),
+      apiClient.delete(`/api/v1/copywriting/${id}`),
 
-    // Generate copy using AI
-    generate: (id: string, inputs: Record<string, any>) =>
-      apiClient.post<{ content: string }>(`/api/v1/copywritings/${id}/generate`, inputs),
+    // Generate copy using AI with proper backend structure
+    generate: (id: string, payload: {
+      userInputs: Record<string, any>
+      userSelections?: Record<string, any>
+      userPrompt?: string
+      businessContext?: boolean
+      generationOptions?: {
+        temperature?: number
+        maxTokens?: number
+        topP?: number
+        saveDocument?: boolean
+      }
+    }) =>
+      apiClient.post<{ content: string }>(`/api/v1/copywriting/${id}/generate`, payload),
   },
 
   // Templates API (Reusable Frameworks)

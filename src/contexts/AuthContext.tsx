@@ -22,6 +22,7 @@ interface AuthContextType {
   isNewUser: boolean;
   setIsNewUser: (value: boolean) => void;
   createBusiness: (data: CreateBusinessData) => Promise<void>;
+  isHydrated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,8 +45,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(false); // For sign-in operations
   const [authLoading, setAuthLoading] = useState(true); // For initial auth state checking
   const [isNewUser, setIsNewUser] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    // Mark as hydrated when we're on the client
+    setIsHydrated(true);
+    
     console.log('AuthContext: Setting up auth state listener');
     console.log('Auth object:', auth);
     
@@ -63,6 +68,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkRedirectResult();
     
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('Firebase auth state changed:', firebaseUser ? 'User logged in' : 'User logged out');
+      
       try {
         setFirebaseUser(firebaseUser);
         
@@ -130,12 +137,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           }
         } else {
-          setUser(null);
-          setIsNewUser(false);
+          // User is logged out, check if we have stored data to restore session (only on client)
+          if (typeof window !== 'undefined') {
+            const storedUser = localStorage.getItem('user');
+            const storedToken = localStorage.getItem('authToken');
           
-          // Clear stored data
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('user');
+          if (storedUser && storedToken) {
+            try {
+              const parsedUser = JSON.parse(storedUser);
+              console.log('Restoring user session from localStorage:', parsedUser.email);
+              setUser(parsedUser);
+              setIsNewUser(false);
+              return; // Don't clear data if we're restoring session
+            } catch (error) {
+              console.error('Failed to parse stored user:', error);
+              // Fall through to clear invalid data
+            }
+          }
+          
+            // No stored data or invalid data, clear everything
+            setUser(null);
+            setIsNewUser(false);
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+          } else {
+            // Server-side rendering, just clear state
+            setUser(null);
+            setIsNewUser(false);
+          }
         }
       } catch (error) {
         console.error('Auth state change error:', error);
@@ -143,20 +172,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthLoading(false);
       }
     });
-
-    // Check for stored user data on initial load
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('authToken');
-    
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to parse stored user:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken');
-      }
-    }
 
     return () => unsubscribe();
   }, []);
@@ -326,6 +341,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isNewUser,
     setIsNewUser,
     createBusiness,
+    isHydrated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

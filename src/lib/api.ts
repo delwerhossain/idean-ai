@@ -51,7 +51,20 @@ class APIClient {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        
+        // Handle token expiration
+        if (response.status === 401) {
+          console.warn('Token expired or invalid, clearing auth data');
+          // Clear expired token
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+          }
+        }
+        
+        const error = new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        (error as any).status = response.status;
+        throw error;
       }
 
       return await response.json();
