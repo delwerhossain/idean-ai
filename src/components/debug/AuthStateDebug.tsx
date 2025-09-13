@@ -11,10 +11,14 @@ export function AuthStateDebug({ showInProduction = false }: AuthStateDebugProps
   const { user, firebaseUser, loading, authLoading, isNewUser, isHydrated } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [storageData, setStorageData] = useState<any>(null)
+  // hidden option to show in production for testing
+  const [ hide, setHide ] = useState(false)
+
 
   useEffect(() => {
     setMounted(true)
-    
+  
+
     // Check localStorage data
     if (typeof window !== 'undefined') {
       const storedUser = localStorage.getItem('user')
@@ -27,6 +31,7 @@ export function AuthStateDebug({ showInProduction = false }: AuthStateDebugProps
         tokenLength: storedToken?.length || 0
       })
     }
+
   }, [])
 
   // Only show in development unless explicitly enabled for production
@@ -39,7 +44,7 @@ export function AuthStateDebug({ showInProduction = false }: AuthStateDebugProps
   }
 
   return (
-    <div className="fixed bottom-4 left-4 bg-black bg-opacity-80 text-white p-4 rounded-lg text-xs max-w-sm z-50">
+    <div className="hidden fixed bottom-4 left-4 bg-black bg-opacity-80 text-white p-4 rounded-lg text-xs max-w-sm z-50">
       <div className="font-bold mb-2">🔍 Auth State Debug</div>
       <div className="space-y-1">
         <div>

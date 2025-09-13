@@ -47,6 +47,7 @@ class APIClient {
     try {
       // Use only backend JWT in Authorization header as per Swagger
       const backendToken = getStoredBackendToken()
+
       if (!backendToken) {
         console.warn('Backend token not found in storage, user may need to re-authenticate')
         throw new APIError('Backend token not found in storage', 401, ERROR_CODES.UNAUTHORIZED)
@@ -106,7 +107,8 @@ class APIClient {
       )
     }
 
-    return data.data || data
+    // Backend returns data directly without wrapping, so just return data
+    return data
   }
 
   // Retry mechanism for failed requests
@@ -293,7 +295,7 @@ class APIClient {
         try {
           if (xhr.status >= 200 && xhr.status < 300) {
             const response = JSON.parse(xhr.responseText)
-            resolve(response.data || response)
+            resolve(response)
           } else {
             const errorData = JSON.parse(xhr.responseText)
             reject(new APIError(

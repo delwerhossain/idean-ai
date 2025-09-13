@@ -70,7 +70,8 @@
       "Bash(cmd //c:*)",
       "Bash(git pull:*)",
       "Bash(sed:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(pnpm:*)"
     ],
     "deny": [],
     "ask": [],

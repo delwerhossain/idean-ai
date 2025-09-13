@@ -22,10 +22,10 @@ import {
   Share2,
   FileText,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  CloudCog
 } from 'lucide-react'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
-import { GenerationModal } from '@/components/copywriting/GenerationModal'
 
 export default function CopywritingPage() {
   const { user } = useAuth()
@@ -33,11 +33,7 @@ export default function CopywritingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCopywriting, setSelectedCopywriting] = useState<Copywriting | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
   const [hasLoaded, setHasLoaded] = useState(false)
-  const [showGenerationModal, setShowGenerationModal] = useState(false)
-  const [selectedFramework, setSelectedFramework] = useState<any>(null)
 
   useEffect(() => {
     if (!hasLoaded) {
@@ -52,106 +48,24 @@ export default function CopywritingPage() {
       setLoading(true)
       setError(null)
 
-      // TODO: Replace with actual API call when backend is ready
-      // const response = await ideanApi.copywriting.getAll({
-      //   limit: 50,
-      //   search: searchTerm
-      // })
+      // Load real copywriting data from backend
+      try {
+        const response = await ideanApi.copywriting.getAll({
+          limit: 50,
+          search: searchTerm
+        })
 
-      // Mock data for now - will be replaced with real API
-      const mockCopywritings: any[] = [
-        {
-          id: '1',
-          title: 'AIDA Copywriting Formula',
-          description: 'Master the classic Attention, Interest, Desire, Action framework for compelling copy.',
-          category: 'Formulas',
-          difficulty: 'Beginner',
-          estimatedTime: '1-2 hours',
-          tags: ['aida', 'formula', 'basics'],
-          status: 'available'
-        },
-        {
-          id: '2',
-          title: 'Problem-Agitate-Solution (PAS)',
-          description: 'Learn to identify problems, agitate emotions, and present solutions effectively.',
-          category: 'Formulas',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['pas', 'problem', 'solution'],
-          status: 'available'
-        },
-        {
-          id: '3',
-          title: 'Email Marketing Sequences',
-          description: 'Create high-converting email sequences that nurture leads and drive sales.',
-          category: 'Email',
-          difficulty: 'Advanced',
-          estimatedTime: '3-4 hours',
-          tags: ['email', 'sequences', 'nurturing'],
-          status: 'available'
-        },
-        {
-          id: '4',
-          title: 'Sales Page Headlines',
-          description: 'Craft irresistible headlines that grab attention and drive conversions.',
-          category: 'Headlines',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['headlines', 'sales', 'attention'],
-          status: 'available'
-        },
-        {
-          id: '5',
-          title: 'Social Media Copy',
-          description: 'Write engaging social media copy that builds community and drives engagement.',
-          category: 'Social',
-          difficulty: 'Beginner',
-          estimatedTime: '1-2 hours',
-          tags: ['social', 'engagement', 'community'],
-          status: 'available'
-        },
-        {
-          id: '6',
-          title: 'Ad Copy Optimization',
-          description: 'Optimize your ad copy for maximum click-through rates and conversions.',
-          category: 'Advertising',
-          difficulty: 'Advanced',
-          estimatedTime: '2-4 hours',
-          tags: ['ads', 'optimization', 'conversion'],
-          status: 'available'
-        },
-        {
-          id: '7',
-          title: 'Storytelling in Copy',
-          description: 'Use narrative techniques to make your copy more compelling and memorable.',
-          category: 'Storytelling',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['storytelling', 'narrative', 'engagement'],
-          status: 'available'
-        },
-        {
-          id: '8',
-          title: 'Call-to-Action Mastery',
-          description: 'Create compelling CTAs that drive immediate action from your audience.',
-          category: 'CTA',
-          difficulty: 'Beginner',
-          estimatedTime: '1-2 hours',
-          tags: ['cta', 'action', 'conversion'],
-          status: 'available'
-        }
-      ]
+        // Backend returns copyWritings array directly
+        const copywritingData = response.copyWritings || []
+        console.log('Fetched copywriting data:', copywritingData)
+        setCopywritings(copywritingData)
+        console.log('✅ Loaded copywriting data from backend:', copywritingData)
 
-      // Filter by search term if provided
-      const filteredCopywritings = searchTerm 
-        ? mockCopywritings.filter(copy => 
-            copy.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            copy.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            copy.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-          )
-        : mockCopywritings
-
-      setCopywritings(filteredCopywritings)
+      } catch (apiError) {
+        console.log('⚠️  Backend copywriting data not available, using predefined frameworks only')
+        // No copywriting data available - that's fine, use predefined frameworks
+        setCopywritings([])
+      }
     } catch (err: any) {
       console.error('Failed to load copywriting frameworks:', err)
       setError('Failed to load copywriting frameworks. Please try again.')
@@ -166,16 +80,15 @@ export default function CopywritingPage() {
   }
 
   const handleFrameworkClick = (framework: any) => {
-    setSelectedFramework(framework)
-    setSelectedCopywriting(null)
-    setShowGenerationModal(true)
+    // Navigate to the generation page with the framework ID
+    window.open(`/dashboard/copywriting/${framework.id}`, '_blank')
   }
 
   const handleCopywritingClick = (copywriting: Copywriting) => {
-    setSelectedCopywriting(copywriting)
-    setSelectedFramework(null)
-    setShowGenerationModal(true)
+    // Navigate to the generation page with the real copywriting framework ID
+    window.open(`/dashboard/copywriting/${copywriting.id}`, '_blank')
   }
+
 
   const predefinedFrameworks = [
     {
@@ -408,7 +321,7 @@ export default function CopywritingPage() {
       {/* Custom Frameworks from Backend */}
       {copywritings.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Copywriting Frameworks</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4"> Custom Copywriting Frameworks</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {copywritings.map((copywriting) => (
               <Card key={copywriting.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
@@ -434,8 +347,8 @@ export default function CopywritingPage() {
                       <span>{copywriting.input_fields.length} inputs</span>
                     )}
                   </div>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => handleCopywritingClick(copywriting)}
                   >
@@ -500,22 +413,22 @@ export default function CopywritingPage() {
               <span>• A/B testing templates</span>
             </div>
           </div>
-          <Button 
+          <Button
             className="bg-orange-600 hover:bg-orange-700"
-            onClick={() => setShowGenerationModal(true)}
+            onClick={() => {
+              if (copywritings.length > 0) {
+                handleCopywritingClick(copywritings[0])
+              } else {
+                // Fallback to first predefined framework if no backend data
+                handleFrameworkClick(predefinedFrameworks[0])
+              }
+            }}
           >
             Generate Your First Copy
           </Button>
         </div>
       </Card>
 
-      {/* Generation Modal */}
-      <GenerationModal
-        isOpen={showGenerationModal}
-        onClose={() => setShowGenerationModal(false)}
-        framework={selectedFramework}
-        copywriting={selectedCopywriting}
-      />
     </div>
   )
 }

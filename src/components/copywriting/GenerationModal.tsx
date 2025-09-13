@@ -166,7 +166,7 @@ export function GenerationModal({ isOpen, onClose, framework, copywriting }: Gen
             saveDocument: generationOptions.saveDocument
           }
         }
-        
+
         const response = await ideanApi.copywriting.generate(copywriting.id, apiPayload)
 
         setGenerationResult({
@@ -180,11 +180,11 @@ export function GenerationModal({ isOpen, onClose, framework, copywriting }: Gen
           }
         })
       } else {
-        // Use predefined framework (mock generation for now)
+        // Use predefined framework (mock generation - no backend call needed)
         await new Promise(resolve => setTimeout(resolve, 3000)) // Simulate AI generation
 
         const mockContent = generateMockContent(selectedFramework, inputs, generationOptions)
-        
+
         setGenerationResult({
           content: mockContent,
           metadata: {
@@ -192,7 +192,7 @@ export function GenerationModal({ isOpen, onClose, framework, copywriting }: Gen
             inputs,
             timestamp: new Date().toISOString(),
             tokensUsed: Math.floor(Math.random() * 500) + 200,
-            model: 'gpt-4'
+            model: 'mock-generation'
           }
         })
       }
@@ -201,6 +201,7 @@ export function GenerationModal({ isOpen, onClose, framework, copywriting }: Gen
     } catch (err: any) {
       console.error('Generation failed:', err)
       setError(err.message || 'Failed to generate content. Please try again.')
+      setCurrentStep(2) // Go back to settings step on error
     } finally {
       setIsGenerating(false)
     }

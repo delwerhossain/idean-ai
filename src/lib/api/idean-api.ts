@@ -128,6 +128,21 @@ export const ideanApi = {
     // Execute a growth strategy framework
     execute: (id: string, inputs: Record<string, any>) =>
       apiClient.post<{ result: string }>(`/api/v1/growthcopilots/${id}/execute`, inputs),
+
+    // Generate growth strategy content using AI
+    generate: (id: string, payload: {
+      userInputs: Record<string, any>
+      userSelections?: Record<string, any>
+      userPrompt?: string
+      businessContext?: boolean
+      generationOptions?: {
+        temperature?: number
+        maxTokens?: number
+        topP?: number
+        saveDocument?: boolean
+      }
+    }) =>
+      apiClient.post<{ content: string }>(`/api/v1/growthcopilots/${id}/generate`, payload),
   },
 
   // Branding Lab API (Brand Strategy)
@@ -156,12 +171,27 @@ export const ideanApi = {
     // Execute a branding framework
     execute: (id: string, inputs: Record<string, any>) =>
       apiClient.post<{ result: string }>(`/api/v1/brandinglabs/${id}/execute`, inputs),
+
+    // Generate branding content using AI
+    generate: (id: string, payload: {
+      userInputs: Record<string, any>
+      userSelections?: Record<string, any>
+      userPrompt?: string
+      businessContext?: boolean
+      generationOptions?: {
+        temperature?: number
+        maxTokens?: number
+        topP?: number
+        saveDocument?: boolean
+      }
+    }) =>
+      apiClient.post<{ content: string }>(`/api/v1/brandinglabs/${id}/generate`, payload),
   },
 
   // Copywriting API (Content Generation)
   copywriting: {
     getAll: (params?: PaginationParams) =>
-      apiClient.safeGet<PaginatedResponse<Copywriting>>('/api/v1/copywriting', params, true),
+      apiClient.safeGet<{ copyWritings: Copywriting[] }>('/api/v1/copywriting', params, true),
 
     getById: (id: string) =>
       apiClient.safeGet<Copywriting>(`/api/v1/copywriting/${id}`, undefined, false),
