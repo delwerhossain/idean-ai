@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FileText, Edit, Wand2, Loader2 } from 'lucide-react'
+import { FileText, Edit, Wand2, Download, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -18,6 +18,7 @@ interface GenerationEditorProps {
   currentStep: 'input' | 'generating' | 'editing'
   framework: Framework
   onRegenerateSection?: (sectionText: string) => void
+  onContentChange?: (content: string) => void
 }
 
 export function GenerationEditor({
@@ -25,63 +26,73 @@ export function GenerationEditor({
   isGenerating,
   currentStep,
   framework,
-  onRegenerateSection
+  onRegenerateSection,
+  onContentChange
 }: GenerationEditorProps) {
   const [editorContent, setEditorContent] = useState(content)
-  const [selectedText, setSelectedText] = useState('')
 
   useEffect(() => {
     setEditorContent(content)
   }, [content])
 
-  // Parse generated content into structured sections
-  const parseGeneratedContent = (text: string) => {
-    if (!text) return []
-
-    const sections = []
-    const lines = text.split('\n').filter(line => line.trim())
-
-    let currentSection: any = null
-
-    lines.forEach((line, index) => {
-      const trimmedLine = line.trim()
-
-      // Check if line starts with emoji (section header)
-      const emojiMatch = trimmedLine.match(/^([📸💬📌📝🎯✨])\s*(.+)/)
-
-      if (emojiMatch) {
-        // Save previous section
-        if (currentSection) {
-          sections.push(currentSection)
-        }
-
-        // Start new section
-        currentSection = {
-          emoji: emojiMatch[1],
-          title: emojiMatch[2],
-          content: []
-        }
-      } else if (currentSection && trimmedLine) {
-        currentSection.content.push(trimmedLine)
-      } else if (!currentSection && trimmedLine) {
-        // Handle content without section headers
-        sections.push({
-          emoji: '📝',
-          title: 'Generated Content',
-          content: [trimmedLine]
-        })
-      }
-    })
-
-    // Add the last section
-    if (currentSection) {
-      sections.push(currentSection)
-    }
-
-    return sections
+  const handleContentEdit = (newContent: string) => {
+    setEditorContent(newContent)
+    onContentChange?.(newContent)
   }
 
-  const sections = parseGeneratedContent(editorContent)
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(editorContent)
+  }
+
+  const handleExportMarkdown = () => {
+    const blob = new Blob([editorContent], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${framework.name.toLowerCase().replace(/\s+/g, '-')}-content.md`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank')
+    const printContent = `
+      <html>
+      <head>
+        <title>${framework.name} - Generated Content</title>
+        <style>
+          body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            line-height: 1.6;
+            color: #333;
+          }
+          h1, h2, h3 { color: #111; margin-bottom: 1rem; }
+          p { margin-bottom: 1rem; }
+          .header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eee; }
+          .content { white-space: pre-wrap; }
+          @media print { body { margin: 0; padding: 1rem; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>${framework.name} - Generated Content</h1>
+          <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>Word count:</strong> ${editorContent.split(' ').filter(w => w.trim()).length} words</p>
+        </div>
+        <div class="content">${editorContent.replace(/\n/g, '<br>')}</div>
+      </body>
+      </html>
+    `
+    if (printWindow) {
+      printWindow.document.write(printContent)
+      printWindow.document.close()
+      printWindow.focus()
+      setTimeout(() => printWindow.print(), 500)
+    }
+  }
 
   if (currentStep === 'input') {
     return (
@@ -98,7 +109,7 @@ export function GenerationEditor({
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
             <Edit className="w-4 h-4" />
-            <span>Rich text editor ready</span>
+            <span>Editor ready</span>
           </div>
         </div>
       </div>
@@ -116,7 +127,7 @@ export function GenerationEditor({
             Generating Your Content
           </h3>
           <p className="text-gray-600 mb-6">
-            Our AI is crafting your {framework.name.toLowerCase()} using the latest marketing frameworks and your specific requirements.
+            AI is crafting your {framework.name.toLowerCase()} using the latest marketing frameworks and your specific requirements.
           </p>
           <div className="flex items-center justify-center gap-2">
             <LoadingSpinner size="sm" />
@@ -140,7 +151,7 @@ export function GenerationEditor({
           <p className="text-gray-600 mb-6">
             Something went wrong during generation. Please try again with your inputs.
           </p>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => window.location.reload()}>
             <Wand2 className="w-4 h-4 mr-2" />
             Try Again
           </Button>
@@ -149,118 +160,83 @@ export function GenerationEditor({
     )
   }
 
+  const wordCount = editorContent.split(' ').filter(w => w.trim()).length
+  const charCount = editorContent.length
+
   return (
-    <div className="h-full bg-white overflow-auto">
-      <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Generated Content Display */}
-        <div className="space-y-8">
-          {sections.length > 0 ? (
-            sections.map((section, index) => (
-              <Card key={index} className="p-6 hover:shadow-md transition-shadow group">
-                <div className="flex items-start gap-4">
-                  <div className="text-2xl">{section.emoji}</div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                      {section.title}
-                    </h3>
-                    <div className="space-y-3">
-                      {section.content.map((paragraph: string, pIndex: number) => {
-                        // Style different types of content
-                        if (paragraph.toLowerCase().startsWith('hook:')) {
-                          return (
-                            <p key={pIndex} className="font-semibold text-purple-700 text-lg">
-                              {paragraph}
-                            </p>
-                          )
-                        }
-                        if (paragraph.toLowerCase().startsWith('cta:')) {
-                          return (
-                            <p key={pIndex} className="font-medium text-blue-600 bg-blue-50 px-4 py-2 rounded-lg">
-                              {paragraph}
-                            </p>
-                          )
-                        }
-                        if (paragraph.toLowerCase().includes('headline') || paragraph.toLowerCase().includes('title')) {
-                          return (
-                            <h4 key={pIndex} className="text-xl font-bold text-gray-900">
-                              {paragraph}
-                            </h4>
-                          )
-                        }
-                        return (
-                          <p key={pIndex} className="text-gray-700 leading-relaxed">
-                            {paragraph}
-                          </p>
-                        )
-                      })}
-                    </div>
-
-                    {/* Section Actions */}
-                    <div className="mt-4 pt-4 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onRegenerateSection?.(section.content.join(' '))}
-                        >
-                          <Wand2 className="w-3 h-3 mr-1" />
-                          Regenerate Section
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="w-3 h-3 mr-1" />
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))
-          ) : (
-            // Fallback for unstructured content
-            <Card className="p-6">
+    <div className="h-full bg-white flex flex-col">
+      {/* Content Display */}
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+          <Card className="p-6">
+            <div className="space-y-4">
+              {/* Content */}
               <div className="prose max-w-none">
-                {editorContent.split('\n').map((paragraph, index) => {
-                  if (!paragraph.trim()) return null
-                  return (
-                    <p key={index} className="text-gray-700 leading-relaxed mb-4">
-                      {paragraph}
-                    </p>
-                  )
-                })}
+                <textarea
+                  className="w-full min-h-[500px] p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm leading-relaxed"
+                  value={editorContent}
+                  onChange={(e) => handleContentEdit(e.target.value)}
+                  placeholder="Generated content will appear here..."
+                />
               </div>
-            </Card>
-          )}
-        </div>
-
-        {/* Content Actions */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              Content generated • {sections.length} sections
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Edit className="w-4 h-4 mr-2" />
-                Edit All
+          </Card>
+        </div>
+      </div>
+
+      {/* Action Bar */}
+      <div className="border-t bg-white p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Stats */}
+            <div className="text-sm text-gray-500">
+              <span className="font-medium">Content Statistics:</span>
+              <span className="ml-2">{wordCount} words • {charCount} characters</span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyToClipboard}
+                className="flex-1 sm:flex-none"
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
               </Button>
-              <Button variant="outline" size="sm">
-                <Wand2 className="w-4 h-4 mr-2" />
-                Regenerate All
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportMarkdown}
+                className="flex-1 sm:flex-none"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                className="flex-1 sm:flex-none"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Print
+              </Button>
+              {onRegenerateSection && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onRegenerateSection(editorContent)}
+                  disabled={isGenerating}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Regenerate
+                </Button>
+              )}
             </div>
           </div>
-        </div>
-
-        {/* Rich Text Editor Placeholder */}
-        <div className="mt-8 p-4 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500">
-          <FileText className="w-8 h-8 mx-auto mb-2" />
-          <p className="text-sm">
-            Rich text editor will be integrated here using TipTap
-          </p>
-          <p className="text-xs text-gray-400 mt-1">
-            Coming soon: Full editing capabilities with formatting, export options, and collaborative features
-          </p>
         </div>
       </div>
     </div>

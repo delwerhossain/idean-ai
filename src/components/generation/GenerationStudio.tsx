@@ -130,14 +130,27 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
             throw new Error('Unsupported generation type')
         }
 
+        // Handle the API response format from the JSON file
+        const apiResponse = response.data || response
+        const generatedContent = apiResponse.generatedContent || apiResponse.content || 'Generated content will appear here.'
+
+        console.log('API Response:', apiResponse) // Debug logging
+
         setGenerationResult({
-          content: response.data?.generatedContent || response.generatedContent || response.content || 'Generated content will appear here.',
+          content: generatedContent,
           metadata: {
             framework: framework.name,
             inputs,
             timestamp: new Date().toISOString(),
-            tokensUsed: response.data?.generationMetadata?.usage?.total_tokens || response.usage?.total_tokens || 0,
-            model: response.data?.generationMetadata?.model || response.model || 'gpt-4'
+            tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
+            model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4',
+            // Full API response data
+            apiResponse,
+            copyWriting: apiResponse.copyWriting,
+            businessContext: apiResponse.businessContext,
+            inputsUsed: apiResponse.inputsUsed,
+            generationMetadata: apiResponse.generationMetadata,
+            savedDocument: apiResponse.savedDocument
           }
         })
       }
@@ -258,20 +271,133 @@ ${inputs.ctaText || 'Take action now!'}
   }
 
   const handleRegenerateSection = async (sectionText: string) => {
-    // Implementation for regenerating specific sections
-    // This will be called from the editor when user selects text and clicks regenerate
+    if (!framework || !sectionText.trim()) return
+
+    try {
+      setIsGenerating(true)
+      setError(null)
+
+      // Create a focused regeneration prompt
+      const regenerationPrompt = `Please regenerate this section while maintaining the same style and structure: "${sectionText}"`
+
+      const apiPayload = {
+        userInputs: { ...inputs, regenerationFocus: sectionText },
+        userSelections: {
+          tone: generationOptions.tone,
+          length: 'short', // Keep regenerated sections concise
+          audience: generationOptions.audience
+        },
+        userPrompt: regenerationPrompt,
+        businessContext: generationOptions.includeBusinessContext,
+        generationOptions: {
+          temperature: 0.8, // Slightly higher for variation
+          maxTokens: 500, // Shorter for section regeneration
+          topP: 0.9,
+          saveDocument: false // Don't save individual sections
+        }
+      }
+
+      // Use the same API endpoint but with focused content
+      let response
+      switch (type) {
+        case 'copywriting':
+          response = await ideanApi.copywriting.generate(framework.id, apiPayload)
+          break
+        case 'growth-copilot':
+          response = await ideanApi.growthCopilot.generate(framework.id, apiPayload)
+          break
+        case 'branding-lab':
+          response = await ideanApi.brandingLab.generate(framework.id, apiPayload)
+          break
+        default:
+          throw new Error('Unsupported generation type')
+      }
+
+      const newSectionContent = response.data?.generatedContent || response.generatedContent
+
+      if (newSectionContent && generationResult) {
+        // Replace the section in the current content
+        const updatedContent = generationResult.content.replace(sectionText, newSectionContent)
+
+        setGenerationResult({
+          ...generationResult,
+          content: updatedContent
+        })
+      }
+    } catch (err: any) {
+      console.error('Section regeneration failed:', err)
+      setError(`Failed to regenerate section: ${err.message}`)
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const handleExport = async (format: 'pdf' | 'markdown' | 'docx' | 'html') => {
-    // Implementation for exporting generated content
     if (!generationResult?.content) return
 
     try {
-      // For now, copy to clipboard
-      await navigator.clipboard.writeText(generationResult.content)
-      // TODO: Implement actual PDF/DOCX export
+      const content = generationResult.content
+      const filename = `${framework.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}`
+
+      switch (format) {
+        case 'markdown':
+          const blob = new Blob([content], { type: 'text/markdown' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${filename}.md`
+          a.click()
+          URL.revokeObjectURL(url)
+          break
+
+        case 'html':
+          const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <title>${framework.name} - Generated Content</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
+    h1, h2, h3 { color: #333; }
+    .metadata { background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="metadata">
+    <h2>Generated Content</h2>
+    <p><strong>Framework:</strong> ${framework.name}</p>
+    <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+    ${generationResult.metadata?.tokensUsed ? `<p><strong>Tokens:</strong> ${generationResult.metadata.tokensUsed}</p>` : ''}
+  </div>
+  <div class="content">
+    ${content.replace(/\n/g, '<br>').replace(/#{1,3}\s+(.+)/g, '<h3>$1</h3>')}
+  </div>
+</body>
+</html>`
+
+          const htmlBlob = new Blob([htmlContent], { type: 'text/html' })
+          const htmlUrl = URL.createObjectURL(htmlBlob)
+          const htmlLink = document.createElement('a')
+          htmlLink.href = htmlUrl
+          htmlLink.download = `${filename}.html`
+          htmlLink.click()
+          URL.revokeObjectURL(htmlUrl)
+          break
+
+        default:
+          // Copy to clipboard as fallback
+          await navigator.clipboard.writeText(content)
+          console.log('Content copied to clipboard')
+      }
     } catch (err) {
       console.error('Export failed:', err)
+      // Fallback to clipboard
+      try {
+        await navigator.clipboard.writeText(generationResult.content)
+        console.log('Copied to clipboard as fallback')
+      } catch (clipboardErr) {
+        console.error('Clipboard fallback also failed:', clipboardErr)
+      }
     }
   }
 
@@ -316,6 +442,14 @@ ${inputs.ctaText || 'Take action now!'}
             currentStep={currentStep}
             framework={framework}
             onRegenerateSection={handleRegenerateSection}
+            onContentChange={(newContent) => {
+              if (generationResult) {
+                setGenerationResult({
+                  ...generationResult,
+                  content: newContent
+                })
+              }
+            }}
           />
         </div>
 
