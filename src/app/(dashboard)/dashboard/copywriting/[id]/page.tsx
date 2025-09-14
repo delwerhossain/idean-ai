@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, AlertCircle, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
@@ -77,6 +77,36 @@ export default function CopywritingGenerationPage() {
             ],
             system_prompt: 'You are an expert viral content creator. Create engaging, shareable content that maximizes reach and engagement using proven viral mechanics.',
             user_starting_prompt: 'Let\'s create viral content that captures attention and drives massive engagement.'
+          },
+          'ad-copy': {
+            id: 'ad-copy',
+            name: 'Facebook Ad Copy',
+            description: 'High-converting Facebook ad copy that drives clicks and conversions',
+            input_fields: [
+              'productName:string',
+              'targetAudience:string',
+              'adGoal:string',
+              'keyBenefit:string',
+              'callToAction:string',
+              'additionalInstructions:text'
+            ],
+            system_prompt: 'You are an expert Facebook ads copywriter. Create compelling ad copy that captures attention, builds interest, and drives conversions.',
+            user_starting_prompt: 'Let\'s create high-converting Facebook ad copy that drives results.'
+          },
+          'email-sequences': {
+            id: 'email-sequences',
+            name: 'Email Marketing Sequences',
+            description: 'Automated email sequences that nurture leads and drive conversions',
+            input_fields: [
+              'campaignGoal:string',
+              'targetAudience:string',
+              'productService:string',
+              'sequenceType:string',
+              'brandTone:string',
+              'additionalInstructions:text'
+            ],
+            system_prompt: 'You are an expert email marketer. Create effective email sequences that build relationships, provide value, and convert subscribers into customers.',
+            user_starting_prompt: 'Let\'s build an email sequence that nurtures leads and drives conversions.'
           }
         }
 
@@ -118,10 +148,14 @@ export default function CopywritingGenerationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
+          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Zap className="w-8 h-8 text-purple-600" />
+          </div>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Loading copywriting framework...</p>
+          <p className="mt-4 text-gray-700 font-medium">Loading copywriting framework...</p>
+          <p className="text-sm text-gray-500 mt-2">Setting up your AI-powered content studio</p>
         </div>
       </div>
     )
@@ -129,61 +163,79 @@ export default function CopywritingGenerationPage() {
 
   if (error || !copywriting) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-8 max-w-md text-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+        <Card className="p-8 max-w-lg text-center shadow-lg">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ArrowLeft className="w-8 h-8 text-red-600" />
+            <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Framework Not Found
           </h1>
-          <p className="text-gray-600 mb-6">
-            {error || 'The copywriting framework you\'re looking for doesn\'t exist.'}
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            {error || 'The copywriting framework you\'re looking for doesn\'t exist or may have been moved.'}
           </p>
-          <Button onClick={() => router.push('/dashboard/copywriting')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Copywriting
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={() => router.push('/dashboard/copywriting')}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Copywriting
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
         </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Minimal Header with Framework Info */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => router.push('/dashboard/copywriting')}
-              className="w-fit"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/50"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
+            <div className="hidden sm:block w-px h-6 bg-gray-300" />
+            <div>
+              <h1 className="font-semibold text-gray-900 text-sm sm:text-base">
                 {copywriting.name}
               </h1>
               {copywriting.description && (
-                <p className="text-gray-600 mt-1 text-sm sm:text-base line-clamp-2">
+                <p className="text-xs sm:text-sm text-gray-600 mt-0.5 max-w-md truncate">
                   {copywriting.description}
                 </p>
               )}
             </div>
           </div>
+          <div className="hidden md:flex items-center gap-2 text-xs text-gray-500">
+            <Zap className="w-3 h-3" />
+            AI-Powered Content Studio
+          </div>
         </div>
       </div>
 
-      {/* Generation Studio */}
-      <GenerationStudio
-        type="copywriting"
-        framework={copywriting}
-        onBack={() => router.push('/dashboard/copywriting')}
-      />
+      {/* Generation Studio - Full Height */}
+      <div className="h-[calc(100vh-73px)]">
+        <GenerationStudio
+          type="copywriting"
+          framework={copywriting}
+          onBack={() => router.push('/dashboard/copywriting')}
+        />
+      </div>
     </div>
   )
 }
