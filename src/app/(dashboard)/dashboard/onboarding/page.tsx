@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, Globe, Loader2 } from 'lucide-react'
@@ -44,6 +44,7 @@ export default function OnboardingPage() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isExistingUser, setIsExistingUser] = useState(false)
   const [data, setData] = useState<OnboardingData>({
     userName: '',
     businessName: '',
@@ -55,6 +56,33 @@ export default function OnboardingPage() {
   })
   
   const currentSteps = STEPS[language]
+
+  // Check if user already has businesses (for additional business creation)
+  useEffect(() => {
+    const checkExistingBusiness = async () => {
+      if (!user) return
+
+      try {
+        const userResponse = await ideanApi.user.getMe()
+        if (userResponse.business) {
+          console.log('👤 Existing user detected with business:', userResponse.business.business_name)
+          setIsExistingUser(true)
+          // Pre-fill user name if available
+          if (userResponse.name && !data.userName) {
+            updateData('userName', userResponse.name)
+          }
+        } else {
+          console.log('🆕 New user - first business creation')
+          setIsExistingUser(false)
+        }
+      } catch (error) {
+        console.log('ℹ️ Could not check existing business status:', error)
+        setIsExistingUser(false)
+      }
+    }
+
+    checkExistingBusiness()
+  }, [user])
 
   const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
@@ -93,76 +121,182 @@ export default function OnboardingPage() {
       setError('You must be signed in to complete onboarding')
       return
     }
-    
+
     setIsSubmitting(true)
     setError(null)
-    
+
+    // Prepare business data for API (moved outside try block for proper scope)
+    const businessData = {
+      business_name: data.businessName.trim(),
+      website_url: data.website.trim() || `https://${data.businessName.toLowerCase().replace(/\s+/g, '')}.com`,
+      industry_tag: data.industry,
+      business_context: data.businessContext.trim() || 'No additional context provided',
+      language: language,
+      mentor_approval: data.mentorApproval ? 'approved' : 'pending',
+      module_select: 'standard' as const,
+      readiness_checklist: 'completed'
+    }
+
     try {
-      // Simple localStorage-based onboarding completion
-      const localBusinessData = {
-        business_name: data.businessName.trim(),
-        website_url: data.website.trim() || `https://${data.businessName.toLowerCase().replace(/\s+/g, '')}.com`,
-        industry_tag: data.industry,
-        business_context: data.businessContext.trim() || 'No additional context provided',
-        language: language,
-        mentor_approval: data.mentorApproval ? 'approved' : 'pending',
-        module_select: 'standard' as const,
-        timestamp: new Date().toISOString(),
-        knowledgeBase: data.knowledgeBase.length
+
+      if (isExistingUser) {
+        console.log('🏢 Creating additional business for existing user:', businessData.business_name)
+      } else {
+        console.log('🆕 Creating first business for new user:', businessData.business_name)
       }
-      
-      // Generate a local business ID for offline use
-      const localBusinessId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
-      // Save all data to localStorage
-      localStorage.setItem('onboardingCompleted', 'true')
-      localStorage.setItem('hasCompletedOnboarding', 'true')
-      localStorage.setItem('businessName', localBusinessData.business_name)
-      localStorage.setItem('industry', localBusinessData.industry_tag)
-      localStorage.setItem('businessContext', localBusinessData.business_context)
-      localStorage.setItem('mentorApproval', localBusinessData.mentor_approval)
-      localStorage.setItem('businessId', localBusinessId)
-      localStorage.setItem('currentBusinessData', JSON.stringify(localBusinessData))
-      
-      // Create a local business object for immediate use
-      const business = {
-        id: localBusinessId,
-        business_name: localBusinessData.business_name,
-        website_url: localBusinessData.website_url,
-        industry_tag: localBusinessData.industry_tag,
-        business_context: localBusinessData.business_context,
-        user_role: 'owner',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+
+      // Debug: Check API URL and authentication
+      console.log('🌐 API URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001')
+      console.log('🔐 User authenticated:', !!user)
+
+      let createdBusiness
+
+      // Choose appropriate API method based on user type and documents
+      if (data.knowledgeBase.length > 0) {
+        // Create business with document upload
+        console.log(`📄 Uploading ${data.knowledgeBase.length} document(s)`)
+
+        if (isExistingUser) {
+          // Use additional business creation method for existing users
+          const response = await ideanApi.business.createAdditionalWithDocument(
+            businessData,
+            data.knowledgeBase[0] // Upload first document
+          )
+          console.log('📋 API Response (additional business with documents):', response)
+          createdBusiness = response.business
+        } else {
+          // Use regular method for new users
+          const response = await ideanApi.business.createWithDocument(
+            businessData,
+            data.knowledgeBase[0] // Upload first document
+          )
+          console.log('📋 API Response (first business with documents):', response)
+          createdBusiness = response.business
+        }
+
+        console.log('✅ Business created with documents:', createdBusiness)
+      } else {
+        // Create business without documents
+        if (isExistingUser) {
+          // Use additional business creation method for existing users
+          const response = await ideanApi.business.createAdditional(businessData)
+          console.log('📋 API Response (additional business):', response)
+          createdBusiness = response.business
+        } else {
+          // Use regular method for new users
+          const response = await ideanApi.business.create(businessData)
+          console.log('📋 API Response (first business):', response)
+          createdBusiness = response.business
+        }
+
+        console.log('✅ Business created:', createdBusiness)
       }
-      
-      localStorage.setItem('currentBusiness', JSON.stringify(business))
-      
-      // Clear any new user flags
-      localStorage.removeItem('isNewUser')
-      
-      console.log('🎉 Onboarding completed successfully with localStorage!')
-      console.log('📊 Business data saved:', business)
-      
-      // TODO: When backend API is ready, add the following to sync data:
-      /*
-      try {
-        await ideanApi.business.create(localBusinessData)
-        console.log('✅ Data synced to backend')
-      } catch (error) {
-        console.log('⚠️ Backend sync failed, continuing with localStorage')
+
+      if (!createdBusiness) {
+        throw new Error('Business creation failed - no business data returned')
       }
-      */
-      
-      // Small delay to ensure localStorage is written
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
+
+      // Update localStorage as cache
+      if (!isExistingUser) {
+        // Only set these for first-time users
+        localStorage.setItem('onboardingCompleted', 'true')
+        localStorage.setItem('hasCompletedOnboarding', 'true')
+        localStorage.removeItem('isNewUser')
+      }
+
+      // Always update current business info
+      localStorage.setItem('businessName', createdBusiness.business_name)
+      localStorage.setItem('industry', createdBusiness.industry_tag)
+      localStorage.setItem('businessId', createdBusiness.id)
+      localStorage.setItem('currentBusiness', JSON.stringify(createdBusiness))
+
+      // Clear onboarding data
+      localStorage.removeItem('onboardingData')
+
+      if (isExistingUser) {
+        console.log('🎉 Additional business created successfully!')
+        console.log('📊 New business added for existing user:', createdBusiness)
+      } else {
+        console.log('🎉 First business created successfully!')
+        console.log('📊 User onboarding completed:', createdBusiness)
+      }
+
+      // Emit business creation event for BusinessContext to pick up
+      if (typeof window !== 'undefined') {
+        console.log('🎯 Onboarding: Emitting businessCreated event:', {
+          businessId: createdBusiness.id,
+          businessName: createdBusiness.business_name,
+          isExistingUser
+        })
+
+        window.dispatchEvent(new CustomEvent('businessCreated', {
+          detail: createdBusiness
+        }))
+
+        // Also emit business switch event for existing users
+        if (isExistingUser) {
+          console.log('🔄 Onboarding: Emitting businessSwitched event for existing user')
+          window.dispatchEvent(new CustomEvent('businessSwitched', {
+            detail: {
+              newBusiness: createdBusiness
+            }
+          }))
+        }
+      }
+
+      // Small delay to ensure localStorage is written and events are dispatched
+      await new Promise(resolve => setTimeout(resolve, 200))
+
       // Redirect to dashboard
       window.location.href = '/dashboard'
-      
+
     } catch (error: any) {
-      console.error('❌ Onboarding completion failed:', error)
-      setError('Failed to complete onboarding. Please try again.')
+      console.error('❌ Business creation failed:', error)
+
+      // Handle specific API errors
+      let errorMessage = 'Failed to create your business. Please try again.'
+
+      if (error.status === 400) {
+        errorMessage = 'Please check your business information and try again.'
+      } else if (error.status === 401) {
+        errorMessage = 'Authentication failed. Please sign in again.'
+      } else if (error.status === 403) {
+        errorMessage = 'Permission denied. Please check your account permissions.'
+      } else if (error.status === 429) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.'
+      } else if (error.status === 500) {
+        errorMessage = 'Server error. Please try again later.'
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Network error. Please check your connection and try again.'
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. Please try again.'
+      }
+
+      setError(errorMessage)
+
+      // Log detailed error for debugging
+      console.log('🔍 Detailed error information:', {
+        status: error.status,
+        message: error.message,
+        name: error.name,
+        data: error.data,
+        stack: error.stack?.split('\n').slice(0, 5) // First 5 lines of stack
+      })
+
+      // Log user authentication status
+      if (user) {
+        console.log('👤 User info:', {
+          uid: user.uid,
+          email: user.email,
+          emailVerified: user.emailVerified
+        })
+      } else {
+        console.log('❌ No user found - this should not happen!')
+      }
+
+      // Log the business data we tried to send
+      console.log('📋 Business data sent:', businessData)
+
     } finally {
       setIsSubmitting(false)
     }
@@ -248,9 +382,17 @@ export default function OnboardingPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              {currentSteps[currentStep].title}
+              {isExistingUser ?
+                (language === 'en' ? `Create New Business: ${currentSteps[currentStep].title}` : `নতুন ব্যবসা তৈরি করুন: ${currentSteps[currentStep].title}`) :
+                currentSteps[currentStep].title
+              }
             </h1>
-            <p className="text-gray-500 text-base">{currentSteps[currentStep].description}</p>
+            <p className="text-gray-500 text-base">
+              {isExistingUser ?
+                (language === 'en' ? `Add another business to your account: ${currentSteps[currentStep].description}` : `আপনার অ্যাকাউন্টে আরেকটি ব্যবসা যোগ করুন: ${currentSteps[currentStep].description}`) :
+                currentSteps[currentStep].description
+              }
+            </p>
           </div>
         </div>
 

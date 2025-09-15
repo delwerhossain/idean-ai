@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import { PaginationParams, PaginatedResponse } from '@/types/api'
+import { PaginationParams, PaginatedResponse, User } from '@/types/api'
 
 // Types for iDEAN AI specific entities
 export interface GrowthCopilot {
@@ -381,6 +381,87 @@ export const ideanApi = {
     // Get my business (current user's business)
     getMine: () =>
       apiClient.get<Business>('/api/v1/businesses/me'),
+
+    // Create additional business for existing user (wrapper for better UX)
+    createAdditional: (data: {
+      business_name: string
+      website_url: string
+      industry_tag: string
+      business_context?: string
+      language: string
+      mentor_approval: string
+      module_select: 'standard' | 'pro'
+      readiness_checklist: string
+    }) => {
+      console.log('📝 Creating additional business for existing user:', data.business_name)
+      return apiClient.post<{business: Business}>('/api/v1/businesses', {
+        ...data,
+        business_documents: [],
+        adds_history: []
+      })
+    },
+
+    // Create additional business with documents for existing user
+    createAdditionalWithDocument: (data: {
+      business_name: string
+      website_url: string
+      industry_tag: string
+      business_context?: string
+      language: string
+      mentor_approval: string
+      module_select: 'standard' | 'pro'
+      readiness_checklist: string
+    }, document?: File, onProgress?: (progress: number) => void) => {
+      console.log('📝 Creating additional business with document for existing user:', data.business_name)
+
+      if (document) {
+        const formData = new FormData()
+        formData.append('business_name', data.business_name)
+        formData.append('website_url', data.website_url)
+        formData.append('industry_tag', data.industry_tag)
+        formData.append('language', data.language)
+        formData.append('mentor_approval', data.mentor_approval)
+        formData.append('module_select', data.module_select)
+        formData.append('readiness_checklist', data.readiness_checklist)
+        formData.append('business_documents', '[]')
+        formData.append('adds_history', '[]')
+        if (data.business_context) {
+          formData.append('business_context', data.business_context)
+        }
+        formData.append('documents', document)
+
+        return apiClient.request<{business: Business; documentsUploaded: number}>('/api/v1/businesses', {
+          method: 'POST',
+          body: formData,
+          headers: {} // Let browser set content-type for multipart
+        })
+      } else {
+        return apiClient.post<{business: Business}>('/api/v1/businesses', {
+          ...data,
+          business_documents: [],
+          adds_history: []
+        })
+      }
+    },
+  },
+
+  // User API
+  user: {
+    // Get current user profile (with business information)
+    getMe: () =>
+      apiClient.get<User>('/api/v1/users/me'),
+
+    // Update current user profile
+    updateMe: (data: { name?: string; photoURL?: string }) =>
+      apiClient.put<User>('/api/v1/users/me', data),
+
+    // Get user by ID
+    getById: (id: string) =>
+      apiClient.get<User>(`/api/v1/users/${id}`),
+
+    // Get all users (admin only)
+    getAll: (params?: PaginationParams) =>
+      apiClient.getPaginated<User>('/api/v1/users', params),
   },
 
   // Payments API

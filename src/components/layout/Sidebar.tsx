@@ -102,6 +102,16 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
   // Use business context
   const { currentBusiness, businesses, loading: loadingBusinesses, switchBusiness } = useBusiness()
 
+  // Debug logging for business context changes
+  useEffect(() => {
+    console.log('📊 Sidebar: Business context updated:', {
+      currentBusiness: currentBusiness?.business_name,
+      businessCount: businesses.length,
+      businesses: businesses.map(b => ({ id: b.id, name: b.business_name })),
+      loading: loadingBusinesses
+    })
+  }, [currentBusiness, businesses, loadingBusinesses])
+
   // Load current plan from localStorage
   useEffect(() => {
     const savedPlan = localStorage.getItem('currentPlan') || 'free'

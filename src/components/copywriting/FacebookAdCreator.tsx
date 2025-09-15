@@ -30,7 +30,7 @@ import {
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ideanApi } from '@/lib/api/idean-api'
-import { useCurrentBusiness } from '@/lib/contexts/BusinessContext'
+import { useBusinessDataContext, useBusinessSwitchListener } from '@/lib/contexts/BusinessContext'
 
 interface FacebookAdCreatorProps {
   businessId?: string
@@ -101,18 +101,32 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null)
   const [generationProgress, setGenerationProgress] = useState(0)
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const { business } = useCurrentBusiness()
+  const businessData = useBusinessDataContext()
 
   useEffect(() => {
     // Pre-fill with business context if available
-    if (business) {
+    if (businessData.currentBusiness) {
       setStepData(prev => ({
         ...prev,
-        language: business.language || 'en',
-        targetAudience: business.business_context?.split('.')[0] || '',
+        language: businessData.currentBusiness.language || 'en',
+        targetAudience: businessData.currentBusiness.business_context?.split('.')[0] || '',
       }))
     }
-  }, [business])
+  }, [businessData.currentBusiness])
+
+  // Reset form data when business changes
+  useBusinessSwitchListener(({ newBusiness }) => {
+    console.log('🔄 Business switched in FacebookAdCreator, resetting form data')
+    setStepData(prev => ({
+      ...prev,
+      language: newBusiness.language || 'en',
+      targetAudience: newBusiness.business_context?.split('.')[0] || '',
+    }))
+    // Clear generated content to avoid confusion
+    setGeneratedContent(null)
+    setGenerationProgress(0)
+    setCurrentStep(0)
+  })
 
   const updateStepData = (field: keyof AdStepData, value: string) => {
     setStepData(prev => ({ ...prev, [field]: value }))
@@ -164,8 +178,8 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
         call_to_action: stepData.callToAction,
         tone: stepData.tone,
         language: stepData.language,
-        business_context: business?.business_context || '',
-        industry: business?.industry_tag || ''
+        business_context: businessData.currentBusiness?.business_context || '',
+        industry: businessData.currentBusiness?.industry_tag || ''
       }
 
       const response = await ideanApi.copywriting.generate(templateId, inputs)

@@ -36,7 +36,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ideanApi } from '@/lib/api/idean-api'
-import { useCurrentBusiness } from '@/lib/contexts/BusinessContext'
+import { useBusinessDataContext, useBusinessSwitchListener } from '@/lib/contexts/BusinessContext'
 
 interface SocialMediaPostCreatorProps {
   businessId?: string
@@ -127,17 +127,30 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
   const [customHashtag, setCustomHashtag] = useState('')
   const [activeVariation, setActiveVariation] = useState(0)
-  const { business } = useCurrentBusiness()
+  const businessData = useBusinessDataContext()
 
   useEffect(() => {
-    if (business) {
+    if (businessData.currentBusiness) {
       setPostData(prev => ({
         ...prev,
-        language: business.language || 'en',
-        audience: business.business_context?.split('.')[0] || '',
+        language: businessData.currentBusiness.language || 'en',
+        audience: businessData.currentBusiness.business_context?.split('.')[0] || '',
       }))
     }
-  }, [business])
+  }, [businessData.currentBusiness])
+
+  // Reset form data when business changes
+  useBusinessSwitchListener(({ newBusiness }) => {
+    console.log('🔄 Business switched in SocialMediaPostCreator, resetting form data')
+    setPostData(prev => ({
+      ...prev,
+      language: newBusiness.language || 'en',
+      audience: newBusiness.business_context?.split('.')[0] || '',
+    }))
+    // Clear generated posts to avoid confusion
+    setGeneratedPosts([])
+    setActiveVariation(0)
+  })
 
   const updatePostData = (field: keyof PostData, value: any) => {
     setPostData(prev => ({ ...prev, [field]: value }))
@@ -189,8 +202,8 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
         call_to_action: postData.callToAction,
         hashtags: postData.hashtags.join(' '),
         language: postData.language,
-        business_context: business?.business_context || '',
-        industry: business?.industry_tag || ''
+        business_context: businessData.currentBusiness?.business_context || '',
+        industry: businessData.currentBusiness?.industry_tag || ''
       }
 
       const response = await ideanApi.copywriting.generate(templateId, inputs)
@@ -251,8 +264,8 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
 
   const generateRelevantHashtags = (): string[] => {
     const businessHashtags = TRENDING_HASHTAGS.business.slice(0, 3)
-    const industryHashtags = business?.industry_tag ? 
-      [`#${business.industry_tag.replace(/\s+/g, '')}`, `#${business.industry_tag.split(' ')[0]}`] : []
+    const industryHashtags = businessData.currentBusiness?.industry_tag ?
+      [`#${businessData.currentBusiness.industry_tag.replace(/\s+/g, '')}`, `#${businessData.currentBusiness.industry_tag.split(' ')[0]}`] : []
     
     return [...postData.hashtags, ...businessHashtags, ...industryHashtags].slice(0, 10)
   }
@@ -708,12 +721,12 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <span className="text-white font-semibold text-sm">
-                      {business?.business_name?.charAt(0) || 'B'}
+                      {businessData.currentBusiness?.business_name?.charAt(0) || 'B'}
                     </span>
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">
-                      {business?.business_name || 'Your Business'}
+                      {businessData.currentBusiness?.business_name || 'Your Business'}
                     </div>
                     <div className="text-sm text-gray-500">2 hours ago</div>
                   </div>

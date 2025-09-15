@@ -85,54 +85,32 @@ export default function DashboardPage() {
       setLoading(true)
       setError(null)
 
-      // First check localStorage for business data
-      const savedBusiness = localStorage.getItem('currentBusiness')
-      const businessName = localStorage.getItem('businessName') || 'Your Business'
-      const industry = localStorage.getItem('industry') || 'General'
-      
-      // Check if user is new (for future backend integration)
-      const isNewUser = localStorage.getItem('isNewUser') === 'true'
-      const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted') === 'true'
-      
-      // If new user or no onboarding completed, redirect to onboarding
-      if (isNewUser || !hasCompletedOnboarding) {
-        router.push('/dashboard/onboarding')
-        return
-      }
-      
-      // TODO: Replace with actual API calls when backend is ready
-      // const [businessResponse, analyticsResponse] = await Promise.allSettled([
-      //   ideanApi.business.getMine(),
-      //   ideanApi.analytics.getDashboard()
-      // ])
+      console.log('📊 Loading dashboard data...')
+
+      // Load user and analytics data from API
+      const [userResponse, analyticsResponse] = await Promise.allSettled([
+        ideanApi.user.getMe(),
+        ideanApi.analytics.getDashboard()
+      ])
 
       let business: Business | undefined
-      
-      // Fallback business data from localStorage
-      if (savedBusiness) {
-        try {
-          business = JSON.parse(savedBusiness)
-        } catch {
-          business = {
-            id: 'local',
-            business_name: businessName,
-            website_url: '',
-            industry_tag: industry,
-            language: 'en',
-            mentor_approval: 'pending',
-            module_select: 'standard',
-            readiness_checklist: '{}',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            userId: user?.id || 'unknown'
-          }
-        }
-      }
 
-      // TODO: Handle business data from API when available
-      // if (businessResponse.status === 'fulfilled' && businessResponse.value.data) {
-      //   business = businessResponse.value.data
-      // }
+      // Handle business data from user API
+      if (userResponse.status === 'fulfilled' && userResponse.value.business) {
+        business = userResponse.value.business
+        console.log('✅ Business data loaded:', business?.business_name)
+      } else if (userResponse.status === 'rejected') {
+        console.warn('⚠️ User data failed to load:', userResponse.reason?.message)
+
+        // If user not found (404), redirect should be handled by layout
+        if (userResponse.reason?.status === 404 || userResponse.reason?.status === 400) {
+          console.log('📋 User not found, layout should handle redirect')
+          return
+        }
+      } else if (userResponse.status === 'fulfilled' && !userResponse.value.business) {
+        console.log('📋 User has no business, layout should handle redirect')
+        return
+      }
 
       let analytics: DashboardData['analytics'] = {
         totalTemplates: 0,
@@ -159,14 +137,19 @@ export default function DashboardPage() {
         }
       }
 
-      // TODO: Handle analytics data from API when available
-      // if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
-      //   analytics = { ...analytics, ...analyticsResponse.value.data }
-      // }
+      // Handle analytics data from API
+      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
+        analytics = { ...analytics, ...analyticsResponse.value.data as any }
+        console.log('📈 Analytics data loaded')
+      } else if (analyticsResponse.status === 'rejected') {
+        console.warn('⚠️ Analytics data failed to load, using defaults:', analyticsResponse.reason?.message)
+      }
 
       setDashboardData({ business, analytics })
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err)
+      console.log('🎉 Dashboard data loaded successfully')
+
+    } catch (err: any) {
+      console.error('❌ Failed to load dashboard data:', err)
       setError('Failed to load dashboard data. Please try again.')
     } finally {
       setLoading(false)
@@ -251,8 +234,8 @@ export default function DashboardPage() {
   if (!dashboardData) return null
 
   const dailyInsight = getDailyInsight()
-  const businessName = dashboardData.business?.business_name || localStorage.getItem('businessName') || 'Your Business'
-  const industry = dashboardData.business?.industry_tag || localStorage.getItem('industry') || 'General'
+  const businessName = dashboardData.business?.business_name || 'Your Business'
+  const industry = dashboardData.business?.industry_tag || 'General'
   const currentTime = new Date().getHours()
   const greeting = currentTime < 12 ? 'Good morning' : currentTime < 17 ? 'Good afternoon' : 'Good evening'
 

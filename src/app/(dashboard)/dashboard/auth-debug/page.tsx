@@ -143,7 +143,7 @@ export default function AuthDebugPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => copyToClipboard(getStoredBackendToken())}
+                        onClick={() => copyToClipboard(getStoredBackendToken() || '')}
                       >
                         <Copy className="w-3 h-3" />
                       </Button>

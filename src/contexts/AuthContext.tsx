@@ -17,12 +17,14 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   authLoading: boolean;
+  isHydrating: boolean;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isNewUser: boolean;
   setIsNewUser: (value: boolean) => void;
   createBusiness: (data: CreateBusinessData) => Promise<void>;
   isHydrated: boolean;
+  isAuthReady: boolean; // Combined state for full authentication readiness
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,16 +46,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false); // For sign-in operations
   const [authLoading, setAuthLoading] = useState(true); // For initial auth state checking
+  const [isHydrating, setIsHydrating] = useState(true); // For localStorage restoration
   const [isNewUser, setIsNewUser] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+
+  // Combined state for complete authentication readiness
+  const isAuthReady = !authLoading && !isHydrating && isHydrated;
 
   useEffect(() => {
     // Mark as hydrated when we're on the client
     setIsHydrated(true);
-    
+
     console.log('AuthContext: Setting up auth state listener');
     console.log('Auth object:', auth);
-    
+
+    // Early localStorage check to restore user session immediately
+    const checkStoredAuth = () => {
+      if (typeof window !== 'undefined') {
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('authToken');
+
+        if (storedUser && storedToken) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            console.log('⚡ Early restore: Found stored auth, restoring user session:', parsedUser.email);
+            setUser(parsedUser);
+            setIsNewUser(false);
+            setIsHydrating(false); // Mark hydration complete early
+            return true; // User restored successfully
+          } catch (error) {
+            console.error('Failed to parse stored user during early restore:', error);
+            localStorage.removeItem('user');
+            localStorage.removeItem('authToken');
+          }
+        }
+
+        console.log('⚡ Early restore: No valid stored auth found');
+        setIsHydrating(false); // Mark hydration complete even if no user
+      }
+      return false;
+    };
+
+    const hasStoredAuth = checkStoredAuth();
+
     // Check for redirect result first
     const checkRedirectResult = async () => {
       try {
@@ -137,34 +172,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           }
         } else {
-          // User is logged out, check if we have stored data to restore session (only on client)
-          if (typeof window !== 'undefined') {
-            const storedUser = localStorage.getItem('user');
-            const storedToken = localStorage.getItem('authToken');
-          
-          if (storedUser && storedToken) {
-            try {
-              const parsedUser = JSON.parse(storedUser);
-              console.log('Restoring user session from localStorage:', parsedUser.email);
-              setUser(parsedUser);
-              setIsNewUser(false);
-              return; // Don't clear data if we're restoring session
-            } catch (error) {
-              console.error('Failed to parse stored user:', error);
-              // Fall through to clear invalid data
+          // User is logged out from Firebase, but check if we already restored from localStorage early
+          if (!hasStoredAuth) {
+            // No early restoration and no Firebase user, clear everything
+            setUser(null);
+            setIsNewUser(false);
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('user');
             }
           }
-          
-            // No stored data or invalid data, clear everything
-            setUser(null);
-            setIsNewUser(false);
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('user');
-          } else {
-            // Server-side rendering, just clear state
-            setUser(null);
-            setIsNewUser(false);
-          }
+          // If hasStoredAuth is true, we already set the user state during early restore
+          // so don't clear it here - wait for backend validation if needed
         }
       } catch (error) {
         console.error('Auth state change error:', error);
@@ -336,12 +355,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     loading,
     authLoading,
+    isHydrating,
     signInWithGoogle,
     logout,
     isNewUser,
     setIsNewUser,
     createBusiness,
     isHydrated,
+    isAuthReady,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
