@@ -1,6 +1,7 @@
 'use client'
 
 import JSZip from 'jszip'
+// @ts-expect-error missing types for file-saver module
 import { saveAs } from 'file-saver'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
@@ -237,15 +238,15 @@ export async function copyDocumentToClipboard(document: DocumentState): Promise<
     }
   } catch (error) {
     // Final fallback using textarea method
-    const textArea = document.createElement('textarea')
+    const textArea = window.document.createElement('textarea')
     textArea.value = htmlToMarkdown(content)
     textArea.style.position = 'fixed'
     textArea.style.left = '-999999px'
     textArea.style.top = '-999999px'
-    document.body.appendChild(textArea)
+    window.document.body.appendChild(textArea)
     textArea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textArea)
+    window.document.execCommand('copy')
+    window.document.body.removeChild(textArea)
   }
 }
 
@@ -265,7 +266,7 @@ export async function exportDocumentAsPDF(document: DocumentState): Promise<void
   const content = document.editedContent || document.content
   
   // Create temporary element for PDF generation
-  const element = document.createElement('div')
+  const element = window.document.createElement('div')
   element.innerHTML = content
   element.style.position = 'absolute'
   element.style.left = '-9999px'
@@ -278,11 +279,10 @@ export async function exportDocumentAsPDF(document: DocumentState): Promise<void
   element.style.color = '#333333'
   element.style.backgroundColor = 'white'
   
-  document.body.appendChild(element)
+  window.document.body.appendChild(element)
 
   try {
     const canvas = await html2canvas(element, {
-      quality: 1.0,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
@@ -319,7 +319,7 @@ export async function exportDocumentAsPDF(document: DocumentState): Promise<void
     const filename = `${document.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`
     pdf.save(filename)
   } finally {
-    document.body.removeChild(element)
+    window.document.body.removeChild(element)
   }
 }
 
@@ -485,7 +485,7 @@ export async function exportCombinedDocument(
     saveAs(blob, `${baseFilename}.html`)
   } else if (format === 'pdf') {
     // Create temporary element for combined PDF
-    const element = document.createElement('div')
+    const element = window.document.createElement('div')
     element.innerHTML = combinedContent
     element.style.position = 'absolute'
     element.style.left = '-9999px'
@@ -498,7 +498,7 @@ export async function exportCombinedDocument(
     element.style.color = '#333333'
     element.style.backgroundColor = 'white'
     
-    document.body.appendChild(element)
+    window.document.body.appendChild(element)
 
     try {
       const canvas = await html2canvas(element, {
@@ -538,7 +538,7 @@ export async function exportCombinedDocument(
 
       pdf.save(`${baseFilename}.pdf`)
     } finally {
-      document.body.removeChild(element)
+      window.document.body.removeChild(element)
     }
   }
 }
