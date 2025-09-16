@@ -213,7 +213,7 @@ export default function OnboardingPage() {
               <div
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index < currentStep
-                    ? 'bg-green-500 ring-2 ring-green-100'
+                    ? 'bg-blue-500 ring-2 ring-blue-100'
                     : index === currentStep
                     ? 'bg-black ring-2 ring-gray-100 scale-125'
                     : 'bg-gray-200'
@@ -222,7 +222,7 @@ export default function OnboardingPage() {
               {index < currentSteps.length - 1 && (
                 <div
                   className={`w-8 h-px mx-1 transition-colors duration-300 ${
-                    index < currentStep ? 'bg-green-300' : 'bg-gray-200'
+                    index < currentStep ? 'bg-blue-300' : 'bg-gray-200'
                   }`}
                 />
               )}
