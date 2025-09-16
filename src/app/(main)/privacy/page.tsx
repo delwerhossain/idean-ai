@@ -98,7 +98,7 @@ export default function PrivacyPolicy() {
 
       <footer className="mt-16 border-t border-gray-200 py-8">
         <div className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-500">
-          <p>
+          <p className="max-w-sm mx-auto">
             Private & secure. See our{' '}
             <Link href="/privacy" className="underline hover:text-gray-700">
               privacy policy

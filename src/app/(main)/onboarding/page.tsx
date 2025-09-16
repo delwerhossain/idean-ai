@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Loader2, Globe } from 'lucide-react'
 import Link from 'next/link'
 import BasicInfoStep from '@/components/onboarding/BasicInfoStep'
 import WebsiteStep from '@/components/onboarding/WebsiteStep'
@@ -22,17 +22,27 @@ interface OnboardingData {
   mentorApproval: boolean
 }
 
-const STEPS = [
-  { title: 'Basic Info', description: 'Name and business details' },
-  { title: 'Website', description: 'Your business website (optional)' },
-  { title: 'Industry', description: 'Your business category' },
-  { title: 'Documents', description: 'Upload business documents (optional)' },
-  { title: 'Context', description: 'Additional business information' }
-]
+const STEPS = {
+  en: [
+    { title: 'Basic Info', description: 'Name and business details' },
+    { title: 'Website', description: 'Your business website (optional)' },
+    { title: 'Industry', description: 'Your business category' },
+    { title: 'Documents', description: 'Upload business documents (optional)' },
+    { title: 'Context', description: 'Additional business information' }
+  ],
+  bn: [
+    { title: 'প্রাথমিক তথ্য', description: 'নাম এবং ব্যবসার বিবরণ' },
+    { title: 'ওয়েবসাইট', description: 'আপনার ব্যবসার ওয়েবসাইট (ঐচ্ছিক)' },
+    { title: 'ইন্ডাস্ট্রি', description: 'আপনার ব্যবসার ক্যাটাগরি' },
+    { title: 'ডকুমেন্ট', description: 'ব্যবসায়িক ডকুমেন্ট আপলোড (ঐচ্ছিক)' },
+    { title: 'প্রসঙ্গ', description: 'অতিরিক্ত ব্যবসায়িক তথ্য' }
+  ]
+}
 
 export default function OnboardingPage() {
   const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(0)
+  const [language, setLanguage] = useState<'en' | 'bn'>('en')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<OnboardingData>({
@@ -58,17 +68,23 @@ export default function OnboardingPage() {
     }
   }, [])
 
+  const currentSteps = STEPS[language]
+
   const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
       const newData = { ...prev, [field]: value }
-      // Save to localStorage for persistence
-      localStorage.setItem('onboardingData', JSON.stringify(newData))
+      // Save to localStorage for persistence (excluding files which can't be serialized)
+      const { knowledgeBase, ...serializableData } = newData
+      localStorage.setItem('onboardingData', JSON.stringify({
+        ...serializableData,
+        hasFiles: (knowledgeBase && knowledgeBase.length > 0)
+      }))
       return newData
     })
   }
 
   const nextStep = () => {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < currentSteps.length - 1) {
       setCurrentStep(currentStep + 1)
     }
   }
@@ -106,7 +122,7 @@ export default function OnboardingPage() {
             businessName={data.businessName}
             onUserNameChange={(value) => updateData('userName', value)}
             onBusinessNameChange={(value) => updateData('businessName', value)}
-            language="en"
+            language={language}
           />
         )
       case 1:
@@ -114,7 +130,7 @@ export default function OnboardingPage() {
           <WebsiteStep
             website={data.website}
             onWebsiteChange={(value) => updateData('website', value)}
-            language="en"
+            language={language}
           />
         )
       case 2:
@@ -122,7 +138,7 @@ export default function OnboardingPage() {
           <IndustryStep
             industry={data.industry}
             onIndustryChange={(value) => updateData('industry', value)}
-            language="en"
+            language={language}
           />
         )
       case 3:
@@ -130,7 +146,7 @@ export default function OnboardingPage() {
           <KnowledgeBaseStep
             knowledgeBase={data.knowledgeBase}
             onKnowledgeBaseChange={(value) => updateData('knowledgeBase', value)}
-            language="en"
+            language={language}
           />
         )
       case 4:
@@ -140,7 +156,7 @@ export default function OnboardingPage() {
             mentorApproval={data.mentorApproval}
             onBusinessContextChange={(value) => updateData('businessContext', value)}
             onMentorApprovalChange={(value) => updateData('mentorApproval', value)}
-            language="en"
+            language={language}
           />
         )
       default:
@@ -158,28 +174,41 @@ export default function OnboardingPage() {
           </div>
           <span className="text-xl font-semibold text-gray-900">iDEAN AI</span>
         </Link>
-        <Link
-          href="/login"
-          className="text-sm text-gray-600 hover:text-gray-900 font-medium"
-        >
-          Login
-        </Link>
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLanguage(language === 'en' ? 'bn' : 'en')}
+            className="flex items-center space-x-1 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-full px-3 py-2"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {language === 'en' ? 'বাং' : 'EN'}
+            </span>
+          </Button>
+          <Link
+            href="/login"
+            className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+          >
+            {language === 'en' ? 'Login' : 'লগিন'}
+          </Link>
+        </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Title */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
-            {STEPS[currentStep].title}
+            {currentSteps[currentStep].title}
           </h1>
           <p className="text-gray-500 text-base">
-            {STEPS[currentStep].description}
+            {currentSteps[currentStep].description}
           </p>
         </div>
 
         {/* Progress */}
         <div className="flex items-center justify-center space-x-3 mb-8">
-          {STEPS.map((_, index) => (
+          {currentSteps.map((_, index) => (
             <div key={index} className="flex items-center">
               <div
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
@@ -190,7 +219,7 @@ export default function OnboardingPage() {
                     : 'bg-gray-200'
                 }`}
               />
-              {index < STEPS.length - 1 && (
+              {index < currentSteps.length - 1 && (
                 <div
                   className={`w-8 h-px mx-1 transition-colors duration-300 ${
                     index < currentStep ? 'bg-green-300' : 'bg-gray-200'
@@ -224,10 +253,10 @@ export default function OnboardingPage() {
             className="px-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            {language === 'en' ? 'Back' : 'পূর্ববর্তী'}
           </Button>
 
-          {currentStep === STEPS.length - 1 ? (
+          {currentStep === currentSteps.length - 1 ? (
             <Button
               onClick={handleFinish}
               disabled={!isStepValid() || isSubmitting}
@@ -236,11 +265,11 @@ export default function OnboardingPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
+                  {language === 'en' ? 'Creating...' : 'তৈরি করা হচ্ছে...'}
                 </>
               ) : (
                 <>
-                  Complete
+                  {language === 'en' ? 'Complete' : 'সম্পূর্ণ'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
@@ -251,7 +280,7 @@ export default function OnboardingPage() {
               disabled={!isStepValid() || isSubmitting}
               className="bg-black hover:bg-gray-800 px-6 disabled:opacity-50"
             >
-              Continue
+              {language === 'en' ? 'Continue' : 'চালিয়ে যান'}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
@@ -259,8 +288,8 @@ export default function OnboardingPage() {
       </div>
 
       {/* Privacy Footer */}
-      <div className="fixed bottom-16 left-0 right-0 text-center text-sm text-gray-500 pb-4">
-        <p>
+      <div className="fixed bottom-16 left-0 right-0 px-4 text-center text-sm text-gray-500 pb-4">
+        <p className="max-w-sm mx-auto">
           Private & secure. See our{' '}
           <Link href="/privacy" className="underline hover:text-gray-700">
             privacy policy

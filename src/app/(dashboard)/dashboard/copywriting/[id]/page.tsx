@@ -78,7 +78,7 @@ export default function CopywritingGenerationPage() {
             system_prompt: 'You are an expert viral content creator. Create engaging, shareable content that maximizes reach and engagement using proven viral mechanics.',
             user_starting_prompt: 'Let\'s create viral content that captures attention and drives massive engagement.'
           },
-          'ad-copy': {
+          /* 'ad-copy': {
             id: 'ad-copy',
             name: 'Facebook Ad Copy',
             description: 'High-converting Facebook ad copy that drives clicks and conversions',
@@ -92,8 +92,8 @@ export default function CopywritingGenerationPage() {
             ],
             system_prompt: 'You are an expert Facebook ads copywriter. Create compelling ad copy that captures attention, builds interest, and drives conversions.',
             user_starting_prompt: 'Let\'s create high-converting Facebook ad copy that drives results.'
-          },
-          'email-sequences': {
+          }, */
+          /* 'email-sequences': {
             id: 'email-sequences',
             name: 'Email Marketing Sequences',
             description: 'Automated email sequences that nurture leads and drive conversions',
@@ -107,7 +107,7 @@ export default function CopywritingGenerationPage() {
             ],
             system_prompt: 'You are an expert email marketer. Create effective email sequences that build relationships, provide value, and convert subscribers into customers.',
             user_starting_prompt: 'Let\'s build an email sequence that nurtures leads and drives conversions.'
-          }
+          } */
         }
 
         // Check for predefined framework first

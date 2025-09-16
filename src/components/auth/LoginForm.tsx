@@ -44,6 +44,7 @@ export function LoginForm() {
     setError('')
     try {
       await signInWithGoogle()
+      // The useEffect will handle the redirect once user state updates
     } catch (error: any) {
       console.error('Google sign-in error:', error)
       setError('Failed to sign in with Google. Please try again.')
@@ -53,17 +54,15 @@ export function LoginForm() {
   // Redirect based on user state and onboarding completion
   useEffect(() => {
     if (user) {
-      // Check if user has completed onboarding (has business data)
-      const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding')
+      // Check if user has business data
       const userHasBusiness = user.business || user.businessId
 
-      if (hasCompletedOnboarding || userHasBusiness) {
-        // User has completed onboarding, go to dashboard
-        router.push('/dashboard')
+      if (userHasBusiness) {
+        // User has completed onboarding, go to dashboard immediately
+        router.replace('/dashboard')
       } else {
         // New user or user without business, need onboarding
-        localStorage.setItem('isNewUser', 'false') // They have an account but need onboarding
-        router.push('/dashboard/onboarding')
+        router.replace('/dashboard/onboarding')
       }
     }
   }, [user, router])
