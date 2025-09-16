@@ -502,7 +502,6 @@ export async function exportCombinedDocument(
 
     try {
       const canvas = await html2canvas(element, {
-        quality: 1.0,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
