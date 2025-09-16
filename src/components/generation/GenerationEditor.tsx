@@ -1,12 +1,19 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { FileText, Edit, Wand2, Copy, Eye, Download } from 'lucide-react'
+import { FileText, Edit, Wand2, Copy, Eye, Download, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import ReactMarkdown from 'react-markdown'
-import { useReactToPrint } from 'react-to-print'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 interface Framework {
   id: string
@@ -21,6 +28,9 @@ interface GenerationEditorProps {
   framework: Framework
   onRegenerateSection?: (sectionText: string) => void
   onContentChange?: (content: string) => void
+  onRegenerateAll?: () => void
+  hasContent?: boolean
+  onExport?: (format: 'pdf' | 'markdown' | 'docx' | 'html') => void
 }
 
 export function GenerationEditor({
@@ -29,7 +39,10 @@ export function GenerationEditor({
   currentStep,
   framework,
   onRegenerateSection,
-  onContentChange
+  onContentChange,
+  onRegenerateAll,
+  hasContent = false,
+  onExport
 }: GenerationEditorProps) {
   const [editorContent, setEditorContent] = useState(content)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
@@ -54,116 +67,95 @@ export function GenerationEditor({
 
   // Export handlers
   const handleExportMarkdown = () => {
-    if (!editorContent.trim()) return
+    if (!editorContent.trim()) {
+      console.warn('No content to export')
+      return
+    }
 
-    const blob = new Blob([editorContent], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${framework.name.toLowerCase().replace(/\s+/g, '-')}-content.md`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    try {
+      // Create formatted markdown content with metadata
+      const markdownContent = `# ${framework.name}
+
+*Generated on: ${new Date().toLocaleString()}*
+*Word count: ${editorContent.split(' ').filter(w => w.trim()).length} words*
+
+---
+
+${editorContent}`
+
+      const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${framework.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.md`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      console.log('Markdown export completed successfully')
+    } catch (error) {
+      console.error('Failed to export markdown:', error)
+      alert('Failed to export markdown file. Please try again.')
+    }
   }
 
-  const handleExportHTML = () => {
-    if (!editorContent.trim()) return
+  const handleExportPDF = async () => {
+    if (!editorContent.trim()) {
+      console.warn('No content to export')
+      return
+    }
 
-    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${framework.name} - Generated Content</title>
-    <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            line-height: 1.6;
-            color: #333;
-            background: #fff;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            color: #111;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        h1 { font-size: 2.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem; }
-        h2 { font-size: 2rem; }
-        h3 { font-size: 1.5rem; }
-        p { margin-bottom: 1rem; }
-        ul, ol { margin-bottom: 1rem; padding-left: 2rem; }
-        li { margin-bottom: 0.5rem; }
-        blockquote {
-            border-left: 4px solid #e5e7eb;
-            margin: 1.5rem 0;
-            padding: 1rem 1.5rem;
-            background: #f9fafb;
-            font-style: italic;
-        }
-        code {
-            background: #f3f4f6;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-family: 'Courier New', monospace;
-        }
-        pre {
-            background: #f3f4f6;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 2px solid #eee;
-        }
-        .meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-        }
-        @media print {
-            body { margin: 0; padding: 1rem; }
-            .header { margin-bottom: 2rem; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>${framework.name}</h1>
-        <div class="meta">
-            <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
-            <p><strong>Word count:</strong> ${editorContent.split(' ').filter(w => w.trim()).length} words</p>
-        </div>
-    </div>
-    <div class="content">
-        ${editorContent.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>').replace(/^(.*)$/, '<p>$1</p>')}
-    </div>
-</body>
-</html>`
+    try {
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      })
 
-    const blob = new Blob([htmlContent], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${framework.name.toLowerCase().replace(/\s+/g, '-')}-content.html`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+      // Add title and metadata
+      pdf.setFontSize(20)
+      pdf.setFont('helvetica', 'bold')
+      pdf.text(framework.name, 20, 30)
+
+      pdf.setFontSize(10)
+      pdf.setFont('helvetica', 'normal')
+      pdf.setTextColor(100)
+      pdf.text(`Generated on: ${new Date().toLocaleString()}`, 20, 40)
+      pdf.text(`Word count: ${editorContent.split(' ').filter(w => w.trim()).length} words`, 20, 46)
+
+      // Add separator line
+      pdf.setDrawColor(200, 200, 200)
+      pdf.line(20, 50, 190, 50)
+
+      // Add content
+      pdf.setFontSize(11)
+      pdf.setTextColor(0)
+      pdf.setFont('helvetica', 'normal')
+
+      const lines = pdf.splitTextToSize(editorContent, 170)
+      let yPosition = 60
+      const pageHeight = pdf.internal.pageSize.height
+      const lineHeight = 6
+
+      for (let i = 0; i < lines.length; i++) {
+        if (yPosition + lineHeight > pageHeight - 20) {
+          pdf.addPage()
+          yPosition = 20
+        }
+        pdf.text(lines[i], 20, yPosition)
+        yPosition += lineHeight
+      }
+
+      // Save the PDF
+      pdf.save(`${framework.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`)
+
+      console.log('PDF export completed successfully')
+    } catch (error) {
+      console.error('Failed to export PDF:', error)
+      alert('Failed to export PDF file. Please try again.')
+    }
   }
-
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `${framework.name} - Generated Content`,
-  })
 
   const handleExport = (format: 'pdf' | 'markdown' | 'docx' | 'html') => {
     if (!editorContent.trim()) {
@@ -171,20 +163,21 @@ export function GenerationEditor({
       return
     }
 
+    // Use external export handler if provided, otherwise use internal methods
+    if (onExport) {
+      onExport(format)
+      return
+    }
+
     switch (format) {
       case 'markdown':
         handleExportMarkdown()
         break
-      case 'html':
-        handleExportHTML()
-        break
       case 'pdf':
-        handlePrint()
+        handleExportPDF()
         break
-      case 'docx':
-        // For now, export as HTML (DOCX would require additional library)
-        handleExportHTML()
-        break
+      default:
+        console.warn(`Export format ${format} not supported`)
     }
   }
 
@@ -288,46 +281,46 @@ export function GenerationEditor({
             {wordCount} words • {charCount} characters
           </div>
 
-          {/* Right: Export Options */}
-          <div className="flex items-center gap-2">
+          {/* Right Side - Actions */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Regenerate Button */}
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleExport('markdown')}
-              className="px-3"
+              onClick={onRegenerateAll}
+              disabled={isGenerating || !hasContent}
+              className="gap-1 sm:gap-2 px-2 sm:px-3"
             >
-              <Download className="w-3 h-3 mr-1" />
-              MD
+              <Wand2 className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Regenerate</span>
+              <span className="sm:hidden">Regen</span>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport('html')}
-              className="px-3"
-            >
-              <Download className="w-3 h-3 mr-1" />
-              HTML
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport('pdf')}
-              className="px-3"
-            >
-              <Download className="w-3 h-3 mr-1" />
-              PDF
-            </Button>
-            {onRegenerateSection && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onRegenerateSection(editorContent)}
-                disabled={isGenerating}
-              >
-                <Wand2 className="w-4 h-4 mr-2" />
-                {isGenerating ? 'Generating...' : 'Regenerate'}
-              </Button>
-            )}
+
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!hasContent}
+                  className="gap-1 sm:gap-2 px-2 sm:px-3"
+                >
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Export</span>
+                  <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('markdown')}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export as Markdown
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

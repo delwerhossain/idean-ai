@@ -110,25 +110,17 @@ export function GenerationInputPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-white">
+      <div className="px-3 sm:px-6 py-3 border-b border-gray-200 bg-white">
+        {/* Back Button and Framework Info */}
         <div className="flex items-center gap-3 mb-2">
           {onBack && (
-            <Button variant="ghost" size="sm" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4" />
+            <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
             </Button>
           )}
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-gray-900">{framework.name}</h2>
-            {framework.user_starting_prompt && (
-              <p className="text-sm text-gray-600 mt-1">{framework.user_starting_prompt}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Step Indicator */}
+          <div className="hidden sm:block w-px h-6 bg-gray-300" />
+             {/* Step Indicator */}
         <div className="flex items-center gap-2 text-sm">
           <div className={`w-2 h-2 rounded-full ${currentStep === 'input' ? 'bg-purple-500' : 'bg-gray-300'}`} />
           <span className={currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'}>
@@ -143,6 +135,9 @@ export function GenerationInputPanel({
             Review & Edit
           </span>
         </div>
+        </div>
+
+     
       </div>
 
       {/* Tabs */}
@@ -205,7 +200,7 @@ export function GenerationInputPanel({
                 <div key={fieldName} className="space-y-2">
                   <Label htmlFor={fieldName} className="text-sm font-medium text-gray-700">
                     {getFieldLabel(fieldName)}
-                    {framework.input_fields?.indexOf(field) < 3 && (
+                    {framework.input_fields?.indexOf(field) !== undefined && framework.input_fields.indexOf(field) < 3 && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
                   </Label>
@@ -376,3 +371,5 @@ export function GenerationInputPanel({
     </div>
   )
 }
+
+

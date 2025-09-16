@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { GenerationInputPanel } from './GenerationInputPanel'
 import { GenerationEditor } from './GenerationEditor'
-import { GenerationToolbar } from './GenerationToolbar'
-import { GenerationStatusBar } from './GenerationStatusBar'
 import { ideanApi } from '@/lib/api/idean-api'
 
 interface Framework {
@@ -143,14 +141,7 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
             inputs,
             timestamp: new Date().toISOString(),
             tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
-            model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4',
-            // Full API response data
-            apiResponse,
-            copyWriting: apiResponse.copyWriting,
-            businessContext: apiResponse.businessContext,
-            inputsUsed: apiResponse.inputsUsed,
-            generationMetadata: apiResponse.generationMetadata,
-            savedDocument: apiResponse.savedDocument
+            model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4'
           }
         })
       }
@@ -402,7 +393,7 @@ ${inputs.ctaText || 'Take action now!'}
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)]">
+    <div className="flex flex-col lg:flex-row h-full w-full">
       {/* Left Panel - Input Form (40% on desktop, hidden when editing on mobile) */}
       <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col ${
         currentStep === 'editing' ? 'hidden lg:flex' : 'flex'
@@ -425,16 +416,7 @@ ${inputs.ctaText || 'Take action now!'}
       <div className={`flex flex-col bg-gray-50 ${
         currentStep === 'editing' ? 'flex-1' : 'flex-1 hidden lg:flex'
       }`}>
-        {/* Toolbar */}
-        <GenerationToolbar
-          isGenerating={isGenerating}
-          hasContent={!!generationResult?.content}
-          onExport={handleExport}
-          onRegenerateAll={() => handleGenerate()}
-          onBackToInput={currentStep === 'editing' ? () => setCurrentStep('input') : undefined}
-        />
-
-        {/* Editor Content */}
+        {/* Editor Content - Now handles its own toolbar and status */}
         <div className="flex-1 overflow-hidden">
           <GenerationEditor
             content={generationResult?.content || ''}
@@ -442,6 +424,9 @@ ${inputs.ctaText || 'Take action now!'}
             currentStep={currentStep}
             framework={framework}
             onRegenerateSection={handleRegenerateSection}
+            onRegenerateAll={() => handleGenerate()}
+            hasContent={!!generationResult?.content}
+            onExport={handleExport}
             onContentChange={(newContent) => {
               if (generationResult) {
                 setGenerationResult({
@@ -452,15 +437,6 @@ ${inputs.ctaText || 'Take action now!'}
             }}
           />
         </div>
-
-        {/* Status Bar */}
-        <GenerationStatusBar
-          wordCount={generationResult?.content?.split(' ').length || 0}
-          tokensUsed={generationResult?.metadata?.tokensUsed || 0}
-          model={generationResult?.metadata?.model || ''}
-          isGenerating={isGenerating}
-          onExport={handleExport}
-        />
       </div>
     </div>
   )

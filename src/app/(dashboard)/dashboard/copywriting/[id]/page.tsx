@@ -113,7 +113,12 @@ export default function CopywritingGenerationPage() {
         // Check for predefined framework first
         if (predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks]) {
           console.log('Loading predefined framework:', copywritingId)
-          setCopywriting(predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks])
+          const framework = predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks]
+          setCopywriting({
+            ...framework,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          })
           return
         }
 
@@ -125,8 +130,8 @@ export default function CopywritingGenerationPage() {
 
         // Try to load from backend
         const response = await ideanApi.copywriting.getById(copywritingId)
-        console.log('Copywriting framework loaded from backend:', response.data)
-        setCopywriting(response.data)
+        console.log('Copywriting framework loaded from backend:', response)
+        setCopywriting(response)
       } catch (err: any) {
         console.error('Failed to load copywriting framework:', err)
 
@@ -195,41 +200,9 @@ export default function CopywritingGenerationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Minimal Header with Framework Info */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 sm:px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard/copywriting')}
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/50"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div className="hidden sm:block w-px h-6 bg-gray-300" />
-            <div>
-              <h1 className="font-semibold text-gray-900 text-sm sm:text-base">
-                {copywriting.name}
-              </h1>
-              {copywriting.description && (
-                <p className="text-xs sm:text-sm text-gray-600 mt-0.5 max-w-md truncate">
-                  {copywriting.description}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="hidden md:flex items-center gap-2 text-xs text-gray-500">
-            <Zap className="w-3 h-3" />
-            AI-Powered Content Studio
-          </div>
-        </div>
-      </div>
-
-      {/* Generation Studio - Full Height */}
-      <div className="h-[calc(100vh-73px)]">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50">
+       {/* Generation Studio - Responsive Height with proper spacing */}
+      <div className="h-screen w-full flex flex-col">
         <GenerationStudio
           type="copywriting"
           framework={copywriting}

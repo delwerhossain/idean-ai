@@ -269,7 +269,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
                 )}
 
                 {/* Actions */}
-                <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100 mt-2">
+                {/* <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-gray-100 mt-2">
                   Actions
                 </div>
                 <button 
@@ -278,7 +278,7 @@ export default function Sidebar({ className = '', onNewCompany }: SidebarProps) 
                 >
                   <Plus className="w-4 h-4" />
                   Create New Business
-                </button>
+                </button> */}
 
                 {/* No Business Message */}
                 {!currentBusiness && businesses.length === 0 && !loadingBusinesses && (
