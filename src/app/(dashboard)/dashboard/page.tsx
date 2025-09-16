@@ -240,7 +240,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
                 <Brain className="w-6 h-6 text-blue-600" />
               </div>
               <div>
@@ -257,12 +257,12 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <dailyInsight.icon className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">{dailyInsight.title}</h3>
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Today&apos;s Focus</span>
+                  <span className="text-xs bg-gray-100 text-idean-navy px-2 py-1 rounded-full font-medium">Today&apos;s Focus</span>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">{dailyInsight.message}</p>
                 <Button 
                   onClick={() => router.push(dailyInsight.href)}
-                  className="bg-blue-600 text-white hover:bg-blue-700 text-sm"
+                  className="bg-idean-navy text-idean-white hover:bg-idean-navy-dark text-sm"
                   size="sm"
                 >
                   {dailyInsight.action}
@@ -295,7 +295,7 @@ export default function DashboardPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <TrendingUp className="w-7 h-7 text-white" />
             </div>
-            <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Strategy DNA</span>
+            <span className="text-xs bg-gray-100 text-idean-navy px-3 py-1 rounded-full font-medium">Strategy DNA</span>
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Growth Co-Pilot</h3>
           <p className="text-gray-600 text-sm mb-4 leading-relaxed">
@@ -314,7 +314,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Button className="w-full group-hover:bg-blue-600 group-hover:text-white" variant="outline">
+          <Button className="w-full group-hover:bg-idean-navy group-hover:text-idean-white" variant="outline">
             Start Strategic Planning
             <Rocket className="w-4 h-4 ml-2" />
           </Button>
@@ -327,7 +327,7 @@ export default function DashboardPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Palette className="w-7 h-7 text-white" />
             </div>
-            <span className="text-xs bg-teal-100 text-teal-700 px-3 py-1 rounded-full font-medium">Brand DNA</span>
+            <span className="text-xs bg-gray-100 text-idean-navy px-3 py-1 rounded-full font-medium">Brand DNA</span>
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Branding Lab</h3>
           <p className="text-gray-600 text-sm mb-4 leading-relaxed">
@@ -346,7 +346,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Button className="w-full group-hover:bg-blue-600 group-hover:text-white" variant="outline">
+          <Button className="w-full group-hover:bg-idean-navy group-hover:text-idean-white" variant="outline">
             Build Your Brand
             <Crown className="w-4 h-4 ml-2" />
           </Button>
@@ -378,7 +378,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Button className="w-full group-hover:bg-blue-600 group-hover:text-white" variant="outline">
+          <Button className="w-full group-hover:bg-idean-navy group-hover:text-idean-white" variant="outline">
             Generate Content
             <Sparkles className="w-4 h-4 ml-2" />
           </Button>
@@ -502,7 +502,7 @@ export default function DashboardPage() {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Clock className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
@@ -517,7 +517,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             {dashboardData.analytics.frameworks.recent.map((framework, index) => (
               <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-idean-navy rounded-lg flex items-center justify-center">
                   <Star className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1">
@@ -549,7 +549,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
               <Zap className="w-6 h-6 text-blue-600" />
             </div>
             <span className="text-2xl font-bold text-gray-900">
@@ -559,7 +559,7 @@ export default function DashboardPage() {
           <h3 className="font-medium text-gray-900 mb-1">AI Credits Used</h3>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
             <div 
-              className="bg-blue-500 h-2 rounded-full" 
+              className="bg-idean-navy h-2 rounded-full" 
               style={{ width: `${(dashboardData.analytics.usage.aiCredits.used / dashboardData.analytics.usage.aiCredits.total) * 100}%` }}
             ></div>
           </div>
@@ -579,7 +579,7 @@ export default function DashboardPage() {
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
               <Building className="w-6 h-6 text-purple-600" />
             </div>
             <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
@@ -590,7 +590,7 @@ export default function DashboardPage() {
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
               <Globe className="w-6 h-6 text-orange-600" />
             </div>
             <span className="text-2xl font-bold text-gray-900">{industry}</span>

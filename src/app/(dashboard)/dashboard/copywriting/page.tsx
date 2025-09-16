@@ -92,7 +92,7 @@ export default function CopywritingPage() {
       description: 'Psychology-driven copywriting that triggers buying behavior',
       category: 'Psychology',
       icon: Zap,
-      color: 'bg-blue-500',
+      color: 'bg-idean-navy',
       estimatedTime: '15-20 minutes'
     },
     {
@@ -101,7 +101,7 @@ export default function CopywritingPage() {
       description: 'Viral content creation framework for maximum engagement',
       category: 'Content',
       icon: TrendingUp,
-      color: 'bg-blue-600',
+      color: 'bg-idean-navy',
       estimatedTime: '20-25 minutes'
     },
     {
@@ -110,7 +110,7 @@ export default function CopywritingPage() {
       description: 'Automated email campaigns that convert and nurture',
       category: 'Email',
       icon: Mail,
-      color: 'bg-blue-400',
+      color: 'bg-gray-500',
       estimatedTime: '25-30 minutes'
     },
     {
@@ -128,7 +128,7 @@ export default function CopywritingPage() {
       description: 'High-converting sales pages with proven structures',
       category: 'Sales',
       icon: Target,
-      color: 'bg-slate-600',
+      color: 'bg-idean-charcoal',
       estimatedTime: '30-40 minutes'
     },
     {
@@ -137,7 +137,7 @@ export default function CopywritingPage() {
       description: 'Facebook, Google, and native ad copy that converts',
       category: 'Advertising',
       icon: Sparkles,
-      color: 'bg-teal-600',
+      color: 'bg-gray-600',
       estimatedTime: '12-18 minutes'
     }
   ]
@@ -173,7 +173,7 @@ export default function CopywritingPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-idean-navy rounded-lg flex items-center justify-center">
             <PenTool className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -211,7 +211,7 @@ export default function CopywritingPage() {
           <Filter className="w-4 h-4 mr-2" />
           Search
         </Button>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-idean-navy hover:bg-idean-navy-dark">
           <Plus className="w-4 h-4 mr-2" />
           Create Framework
         </Button>
@@ -394,7 +394,7 @@ export default function CopywritingPage() {
       {/* Quick Start Guide */}
       <Card className="p-6 bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-12 h-12 bg-idean-navy rounded-lg flex items-center justify-center">
             <PenTool className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
@@ -409,7 +409,7 @@ export default function CopywritingPage() {
             </div>
           </div>
           <Button
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-idean-navy hover:bg-idean-navy-dark"
             onClick={() => {
               if (copywritings.length > 0) {
                 handleCopywritingClick(copywritings[0])
