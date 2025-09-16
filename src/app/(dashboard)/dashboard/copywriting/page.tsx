@@ -30,12 +30,6 @@ export default function CopywritingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  useEffect(() => {
-    if (!hasLoaded) {
-      loadCopywritings()
-    }
-  }, [hasLoaded, loadCopywritings])
-
   const loadCopywritings = useCallback(async () => {
     if (hasLoaded) return
     
@@ -69,6 +63,12 @@ export default function CopywritingPage() {
       setHasLoaded(true)
     }
   }, [hasLoaded, searchTerm])
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      loadCopywritings()
+    }
+  }, [hasLoaded, loadCopywritings])
 
   const handleSearch = () => {
     setHasLoaded(false)

@@ -61,10 +61,6 @@ export default function SettingsPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [currentPlan, setCurrentPlan] = useState('free')
 
-  useEffect(() => {
-    loadSettings()
-  }, [loadSettings])
-
   const loadSettings = useCallback(async () => {
     try {
       setLoading(true)
@@ -96,6 +92,10 @@ export default function SettingsPage() {
       setLoading(false)
     }
   }, [user])
+
+  useEffect(() => {
+    loadSettings()
+  }, [loadSettings])
 
   const saveSettings = async () => {
     try {

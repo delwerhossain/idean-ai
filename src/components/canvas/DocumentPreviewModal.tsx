@@ -59,8 +59,8 @@ export function DocumentPreviewModal({
   // Add keyboard event listeners
   React.useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
+      window.document?.addEventListener('keydown', handleKeyDown)
+      return () => window.document?.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, handleKeyDown])
 

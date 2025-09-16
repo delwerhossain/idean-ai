@@ -29,7 +29,7 @@ export default function GrowthCopilotGenerationPage() {
         setError(null)
 
         const response = await ideanApi.growthCopilot.getById(growthCopilotId)
-        setGrowthCopilot(response.data)
+        setGrowthCopilot(response)
       } catch (err: unknown) {
         console.error('Failed to load growth copilot framework:', err)
         setError('Failed to load growth copilot framework. Please try again.')

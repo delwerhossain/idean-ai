@@ -228,8 +228,8 @@ export function DocumentCard({
                       {children}
                     </blockquote>
                   ),
-                  code: ({ inline, children, ...props }) =>
-                    inline ? (
+                  code: ({ children, ...props }: any) =>
+                    (props as any).inline ? (
                       <code className="bg-gray-100 text-purple-600 px-1 py-0.5 rounded text-sm font-mono" {...props}>
                         {children}
                       </code>

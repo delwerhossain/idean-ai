@@ -91,7 +91,7 @@ export default function DashboardPage() {
 
       // Handle business data from user API
       if (userResponse.status === 'fulfilled' && userResponse.value.business) {
-        business = userResponse.value.business
+        business = userResponse.value.business as any
         console.log('✅ Business data loaded:', business?.business_name)
       } else if (userResponse.status === 'rejected') {
         console.warn('⚠️ User data failed to load:', userResponse.reason?.message)
@@ -132,8 +132,8 @@ export default function DashboardPage() {
       }
 
       // Handle analytics data from API
-      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
-        analytics = { ...analytics, ...analyticsResponse.value.data as Record<string, unknown> }
+      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value) {
+        analytics = { ...analytics, ...analyticsResponse.value as Record<string, unknown> }
         console.log('📈 Analytics data loaded')
       } else if (analyticsResponse.status === 'rejected') {
         console.warn('⚠️ Analytics data failed to load, using defaults:', analyticsResponse.reason?.message)

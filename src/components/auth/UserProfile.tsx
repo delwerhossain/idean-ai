@@ -87,13 +87,13 @@ export function UserProfile() {
             </div>
             <div></div>
             
-            {isOwner() && (
+            {user?.role === 'owner' && (
               <div className="col-span-2 text-purple-600">
                 • Full access & billing control
               </div>
             )}
             
-            {isAdmin() && !isOwner() && (
+            {user?.role === 'admin' && (
               <div className="col-span-2 text-blue-600">
                 • Manage team & settings
               </div>

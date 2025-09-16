@@ -136,12 +136,16 @@ export default function CopywritingGenerationPage() {
         console.error('Failed to load copywriting framework:', err)
 
         // Handle specific error cases
-        if (err.status === 401) {
-          setError('Authentication required. Please sign in to access this framework.')
-        } else if (err.status === 404) {
-          setError('Copywriting framework not found. It may have been deleted or you may not have access.')
+        if (err && typeof err === 'object' && 'status' in err) {
+          if ((err as any).status === 401) {
+            setError('Authentication required. Please sign in to access this framework.')
+          } else if ((err as any).status === 404) {
+            setError('Copywriting framework not found. It may have been deleted or you may not have access.')
+          } else {
+            setError((err as any).message || 'Failed to load copywriting framework. Please try again.')
+          }
         } else {
-          setError(err.message || 'Failed to load copywriting framework. Please try again.')
+          setError('Failed to load copywriting framework. Please try again.')
         }
       } finally {
         setLoading(false)

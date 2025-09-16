@@ -181,12 +181,12 @@ export default function OnboardingPage() {
           // Use additional business creation method for existing users
           const response = await ideanApi.business.createAdditional(businessData)
           console.log('📋 API Response (additional business):', response)
-          createdBusiness = response.business
+          createdBusiness = response
         } else {
           // Use regular method for new users
           const response = await ideanApi.business.create(businessData)
           console.log('📋 API Response (first business):', response)
-          createdBusiness = response.business
+          createdBusiness = response
         }
 
         console.log('✅ Business created:', createdBusiness)
@@ -205,10 +205,11 @@ export default function OnboardingPage() {
       }
 
       // Always update current business info
-      localStorage.setItem('businessName', createdBusiness.business_name)
-      localStorage.setItem('industry', createdBusiness.industry_tag)
-      localStorage.setItem('businessId', createdBusiness.id)
-      localStorage.setItem('currentBusiness', JSON.stringify(createdBusiness))
+      const business = 'business' in createdBusiness ? createdBusiness.business : createdBusiness
+      localStorage.setItem('businessName', business.business_name)
+      localStorage.setItem('industry', business.industry_tag)
+      localStorage.setItem('businessId', business.id)
+      localStorage.setItem('currentBusiness', JSON.stringify(business))
 
       // Clear onboarding data
       localStorage.removeItem('onboardingData')
@@ -224,13 +225,13 @@ export default function OnboardingPage() {
       // Emit business creation event for BusinessContext to pick up
       if (typeof window !== 'undefined') {
         console.log('🎯 Onboarding: Emitting businessCreated event:', {
-          businessId: createdBusiness.id,
-          businessName: createdBusiness.business_name,
+          businessId: business.id,
+          businessName: business.business_name,
           isExistingUser
         })
 
         window.dispatchEvent(new CustomEvent('businessCreated', {
-          detail: createdBusiness
+          detail: business
         }))
 
         // Also emit business switch event for existing users
@@ -256,39 +257,45 @@ export default function OnboardingPage() {
       // Handle specific API errors
       let errorMessage = 'Failed to create your business. Please try again.'
 
-      if (error.status === 400) {
-        errorMessage = 'Please check your business information and try again.'
-      } else if (error.status === 401) {
-        errorMessage = 'Authentication failed. Please sign in again.'
-      } else if (error.status === 403) {
-        errorMessage = 'Permission denied. Please check your account permissions.'
-      } else if (error.status === 429) {
-        errorMessage = 'Too many requests. Please wait a moment and try again.'
-      } else if (error.status === 500) {
-        errorMessage = 'Server error. Please try again later.'
-      } else if (error.message?.includes('network')) {
-        errorMessage = 'Network error. Please check your connection and try again.'
-      } else if (error.message?.includes('timeout')) {
-        errorMessage = 'Request timed out. Please try again.'
+      if (error && typeof error === 'object' && 'status' in error) {
+        if ((error as any).status === 400) {
+          errorMessage = 'Please check your business information and try again.'
+        } else if ((error as any).status === 401) {
+          errorMessage = 'Authentication failed. Please sign in again.'
+        } else if ((error as any).status === 403) {
+          errorMessage = 'Permission denied. Please check your account permissions.'
+        } else if ((error as any).status === 429) {
+          errorMessage = 'Too many requests. Please wait a moment and try again.'
+        } else if ((error as any).status === 500) {
+          errorMessage = 'Server error. Please try again later.'
+        }
+      }
+
+      if (error && typeof error === 'object' && 'message' in error) {
+        if ((error as any).message?.includes('network')) {
+          errorMessage = 'Network error. Please check your connection and try again.'
+        } else if ((error as any).message?.includes('timeout')) {
+          errorMessage = 'Request timed out. Please try again.'
+        }
       }
 
       setError(errorMessage)
 
       // Log detailed error for debugging
       console.log('🔍 Detailed error information:', {
-        status: error.status,
-        message: error.message,
-        name: error.name,
-        data: error.data,
-        stack: error.stack?.split('\n').slice(0, 5) // First 5 lines of stack
+        status: error && typeof error === 'object' && 'status' in error ? (error as any).status : undefined,
+        message: error && typeof error === 'object' && 'message' in error ? (error as any).message : undefined,
+        name: error && typeof error === 'object' && 'name' in error ? (error as any).name : undefined,
+        data: error && typeof error === 'object' && 'data' in error ? (error as any).data : undefined,
+        stack: error && typeof error === 'object' && 'stack' in error ? (error as any).stack?.split('\n').slice(0, 5) : undefined
       })
 
       // Log user authentication status
       if (user) {
         console.log('👤 User info:', {
-          uid: user.uid,
+          id: user.id,
           email: user.email,
-          emailVerified: user.emailVerified
+          name: user.name
         })
       } else {
         console.log('❌ No user found - this should not happen!')

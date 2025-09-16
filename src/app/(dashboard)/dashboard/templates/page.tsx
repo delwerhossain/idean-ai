@@ -32,12 +32,6 @@ export default function TemplatesPage() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  useEffect(() => {
-    if (!hasLoaded) {
-      loadTemplates()
-    }
-  }, [selectedCategory, hasLoaded, loadTemplates])
-
   const loadTemplates = useCallback(async () => {
     if (loading || hasLoaded) return
     
@@ -48,26 +42,29 @@ export default function TemplatesPage() {
       let response
       if (selectedCategory === 'all') {
         response = await ideanApi.templates.getAll({
-          limit: 50,
-          search: searchTerm
-        })
+          limit: 50
+        } as any)
       } else {
         response = await ideanApi.templates.getByCategory(selectedCategory, {
-          limit: 50,
-          search: searchTerm
-        })
+          limit: 50
+        } as any)
       }
 
-      if (response.data) {
-        setTemplates(response.data.data || [])
+      if (response) {
+        setTemplates(response.items || [])
       }
     } catch (err: unknown) {
       console.error('Failed to load templates:', err)
       
-      if (err.status === 429) {
-        console.warn('Rate limited - using fallback mode for templates')
-        setTemplates([])
-      } else if (err.status === 404 || err.message.includes('fetch')) {
+      if (err && typeof err === 'object' && 'status' in err) {
+        if ((err as any).status === 429) {
+          console.warn('Rate limited - using fallback mode for templates')
+          setTemplates([])
+        } else if ((err as any).status === 404) {
+          console.warn('Templates not found - using fallback mode')
+          setTemplates([])
+        }
+      } else if (err && typeof err === 'object' && 'message' in err && (err as any).message?.includes('fetch')) {
         console.warn('Backend unavailable - using fallback mode for templates')
         // Provide mock data when backend is unavailable
         setTemplates([])
@@ -79,6 +76,12 @@ export default function TemplatesPage() {
       setHasLoaded(true)
     }
   }, [hasLoaded, loading, selectedCategory, searchTerm])
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      loadTemplates()
+    }
+  }, [selectedCategory, hasLoaded, loadTemplates])
 
   const handleSearch = () => {
     setHasLoaded(false)
@@ -300,10 +303,9 @@ export default function TemplatesPage() {
                     <Button size="sm" variant="ghost">
                       <Copy className="w-3 h-3" />
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
-                      onClick={() => setSelectedTemplate(template)}
                     >
                       Use Template
                     </Button>
