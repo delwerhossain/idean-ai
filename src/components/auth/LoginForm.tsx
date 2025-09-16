@@ -151,7 +151,7 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full h-11 bg-black hover:bg-gray-800 text-white font-medium rounded-md"
+              className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Continue'}
