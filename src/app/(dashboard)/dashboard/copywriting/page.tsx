@@ -314,7 +314,7 @@ export default function CopywritingPage() {
       </div>
 
       {/* Custom Frameworks from Backend */}
-      {copywritings.length > 0 && (
+      {/* {copywritings.length > 0 && (
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4"> Custom Copywriting Frameworks</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -329,7 +329,7 @@ export default function CopywritingPage() {
                     <p className="text-xs text-gray-500">Custom Framework</p>
                   </div>
                 </div>
-                
+
                 {copywriting.description && (
                   <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                     {copywriting.description}
@@ -354,7 +354,7 @@ export default function CopywritingPage() {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Content Types Overview */}
       {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
