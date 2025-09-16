@@ -9,14 +9,13 @@ import { AuthStateDebug } from '@/components/debug/AuthStateDebug'
 interface DashboardLayoutProps {
   children: ReactNode
   className?: string
-  onNewCompany?: () => void
 }
 
-export default function DashboardLayout({ children, className = '', onNewCompany }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, className = '' }: DashboardLayoutProps) {
   return (
     <ProtectedRoute requiredRoles={['owner', 'admin', 'user']}>
       <div className="flex h-screen bg-gray-50">
-        <Sidebar onNewCompany={onNewCompany} />
+        <Sidebar />
         <main className={`flex-1 overflow-auto ${className}`}>
           {children}
         </main>

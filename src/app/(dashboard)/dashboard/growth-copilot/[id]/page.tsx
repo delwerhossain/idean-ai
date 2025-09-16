@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ideanApi, GrowthCopilot } from '@/lib/api/idean-api'
@@ -30,7 +30,7 @@ export default function GrowthCopilotGenerationPage() {
 
         const response = await ideanApi.growthCopilot.getById(growthCopilotId)
         setGrowthCopilot(response.data)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load growth copilot framework:', err)
         setError('Failed to load growth copilot framework. Please try again.')
       } finally {

@@ -371,7 +371,7 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    What's your primary ad objective?
+                    What&apos;s your primary ad objective?
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {AD_OBJECTIVES.map((objective) => (
@@ -564,7 +564,7 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
                   )}
 
                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">What we'll create for you:</h4>
+                    <h4 className="font-semibold text-gray-900 mb-3">What we&apos;ll create for you:</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
@@ -862,7 +862,7 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
           {currentStep === 2 && !generatedContent && !generating && (
             <div className="text-sm text-gray-500 flex items-center">
               <AlertCircle className="w-4 h-4 mr-2" />
-              Click "Generate Facebook Ad Copy" to continue
+              Click &quot;Generate Facebook Ad Copy&quot; to continue
             </div>
           )}
           

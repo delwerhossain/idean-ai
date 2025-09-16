@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { 
   TrendingUp, 
   Plus, 
@@ -22,7 +20,7 @@ import {
   Users,
   AlertTriangle
 } from 'lucide-react'
-import { ideanApi, GrowthCopilot } from '@/lib/api/idean-api'
+import { GrowthCopilot } from '@/lib/api/idean-api'
 
 export default function GrowthCopilotPage() {
   const { user } = useAuth()
@@ -31,16 +29,15 @@ export default function GrowthCopilotPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCopilot, setSelectedCopilot] = useState<GrowthCopilot | null>(null)
-  const [isExecuting, setIsExecuting] = useState(false)
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
     if (!hasLoaded) {
       loadGrowthCopilots()
     }
-  }, [hasLoaded])
+  }, [hasLoaded, loadGrowthCopilots])
 
-  const loadGrowthCopilots = async () => {
+  const loadGrowthCopilots = useCallback(async () => {
     if (loading || hasLoaded) return // Prevent multiple calls
     
     try {
@@ -54,7 +51,7 @@ export default function GrowthCopilotPage() {
       // })
 
       // Mock data for now - will be replaced with real API
-      const mockGrowthCopilots: any[] = [
+      const mockGrowthCopilots: GrowthCopilot[] = [
         {
           id: '1',
           title: 'Customer Value Journey',
@@ -147,14 +144,14 @@ export default function GrowthCopilotPage() {
         : mockGrowthCopilots
 
       setGrowthCopilots(filteredGrowthCopilots)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load growth copilots:', err)
       setError('Failed to load growth frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true) // Mark as loaded to prevent retries
     }
-  }
+  }, [hasLoaded, loading, searchTerm])
 
   const handleSearch = () => {
     setHasLoaded(false) // Reset to allow new search

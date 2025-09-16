@@ -45,18 +45,16 @@ export function DocumentPreviewModal({
   onExport,
   showNavigation = false
 }: DocumentPreviewModalProps) {
-  if (!isOpen || !document) return null
-
-  const content = document.editedContent || document.content
-  const currentIndex = documents.findIndex(doc => doc.id === document.id)
+  const content = document?.editedContent || document?.content
+  const currentIndex = documents.findIndex(doc => doc.id === document?.id)
   const canGoNext = showNavigation && currentIndex < documents.length - 1
   const canGoPrevious = showNavigation && currentIndex > 0
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = React.useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
     if (e.key === 'ArrowLeft' && canGoPrevious) onPrevious?.()
     if (e.key === 'ArrowRight' && canGoNext) onNext?.()
-  }
+  }, [onClose, onPrevious, onNext, canGoPrevious, canGoNext])
 
   // Add keyboard event listeners
   React.useEffect(() => {
@@ -64,7 +62,9 @@ export function DocumentPreviewModal({
       document.addEventListener('keydown', handleKeyDown)
       return () => document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, canGoNext, canGoPrevious])
+  }, [isOpen, handleKeyDown])
+
+  if (!isOpen || !document) return null
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">

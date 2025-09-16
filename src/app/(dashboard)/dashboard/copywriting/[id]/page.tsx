@@ -132,7 +132,7 @@ export default function CopywritingGenerationPage() {
         const response = await ideanApi.copywriting.getById(copywritingId)
         console.log('Copywriting framework loaded from backend:', response)
         setCopywriting(response)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load copywriting framework:', err)
 
         // Handle specific error cases

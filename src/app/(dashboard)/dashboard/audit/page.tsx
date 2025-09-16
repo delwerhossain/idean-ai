@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Target, CheckCircle, AlertCircle, Clock, TrendingUp, Users, DollarSign } from 'lucide-react'
+import { Target, AlertCircle, Clock, TrendingUp, Users, DollarSign } from 'lucide-react'
 
 export default function AuditPage() {
   const auditCategories = [

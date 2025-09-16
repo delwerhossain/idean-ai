@@ -124,7 +124,7 @@ export function MarkdownCanvas({
   // Convert HTML to Markdown (simplified conversion)
   const htmlToMarkdown = (html: string): string => {
     // This is a simplified conversion - in production, use a proper HTML to Markdown converter
-    let markdown = html
+    const markdown = html
       .replace(/<h1[^>]*>(.*?)<\/h1>/g, '# $1\n\n')
       .replace(/<h2[^>]*>(.*?)<\/h2>/g, '## $1\n\n')
       .replace(/<h3[^>]*>(.*?)<\/h3>/g, '### $1\n\n')
@@ -144,7 +144,7 @@ export function MarkdownCanvas({
   // Convert Markdown to HTML for display
   const markdownToHtml = (markdown: string): string => {
     // This is a simplified conversion - in production, use a proper Markdown to HTML converter
-    let html = markdown
+    const html = markdown
       .replace(/^# (.*$)/gm, '<h1>$1</h1>')
       .replace(/^## (.*$)/gm, '<h2>$1</h2>')
       .replace(/^### (.*$)/gm, '<h3>$1</h3>')

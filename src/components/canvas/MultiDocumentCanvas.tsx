@@ -82,7 +82,7 @@ export function MultiDocumentCanvas({
     if (!previewDocument) return
     
     const currentIndex = documents.findIndex(doc => doc.id === previewDocument.id)
-    let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1
+    const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1
     
     if (newIndex >= 0 && newIndex < documents.length) {
       setPreviewDocument(documents[newIndex])

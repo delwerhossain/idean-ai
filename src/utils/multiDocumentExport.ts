@@ -422,7 +422,7 @@ export async function exportCombinedDocument(
   const { format, includeMetadata, filename } = options
   
   let combinedContent = ''
-  let combinedTitle = 'Combined Documents'
+  const combinedTitle = 'Combined Documents'
   
   documents.forEach((doc, index) => {
     const content = doc.editedContent || doc.content

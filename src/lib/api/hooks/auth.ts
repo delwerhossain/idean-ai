@@ -78,15 +78,15 @@ export function useUpdateUser() {
 export function useDeleteUser() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  
+  const { logout } = useAuth()
+
   return useMutation({
     mutationFn: () => AuthService.deleteUser(),
     onSuccess: async () => {
       // Clear all cached data
       queryClient.clear()
-      
+
       // Sign out using Firebase auth
-      const { logout } = useAuth()
       await logout()
       router.push('/')
     },

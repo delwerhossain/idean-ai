@@ -9,7 +9,7 @@ import WebsiteStep from '@/components/onboarding/WebsiteStep'
 import IndustryStep from '@/components/onboarding/IndustryStep'
 import KnowledgeBaseStep from '@/components/onboarding/KnowledgeBaseStep'
 import BusinessContextStep from '@/components/onboarding/BusinessContextStep'
-import { ideanApi, ideanUtils } from '@/lib/api/idean-api'
+import { ideanApi } from '@/lib/api/idean-api'
 
 interface OnboardingData {
   userName: string
@@ -82,7 +82,7 @@ export default function OnboardingPage() {
     }
 
     checkExistingBusiness()
-  }, [user])
+  }, [user, data.userName])
 
   const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
@@ -250,7 +250,7 @@ export default function OnboardingPage() {
       // Redirect to dashboard
       window.location.href = '/dashboard'
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Business creation failed:', error)
 
       // Handle specific API errors

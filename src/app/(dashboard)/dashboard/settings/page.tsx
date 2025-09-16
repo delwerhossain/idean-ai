@@ -1,23 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   User, 
   Building, 
   Bell, 
   Shield, 
-  Globe, 
   Save, 
   Crown,
-  CreditCard,
-  AlertTriangle
 } from 'lucide-react'
 import UpgradeModal from '@/components/modals/UpgradeModal'
 
@@ -67,9 +63,9 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadSettings()
-  }, [session])
+  }, [loadSettings])
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -99,7 +95,7 @@ export default function SettingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   const saveSettings = async () => {
     try {
@@ -130,7 +126,7 @@ export default function SettingsPage() {
     }
   }
 
-  const updateSetting = (field: string, value: any) => {
+  const updateSetting = (field: string, value: string | boolean | number) => {
     setSettings(prev => ({
       ...prev,
       [field]: value

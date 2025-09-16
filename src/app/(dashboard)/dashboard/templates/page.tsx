@@ -1,25 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { 
   FileText, 
   Plus, 
   Search,
   Filter,
-  ArrowRight,
-  Sparkles,
-  Target,
-  Zap,
   MoreVertical,
   Edit,
   Copy,
-  Trash2,
   Palette,
   PenTool,
   TrendingUp,
@@ -36,16 +30,15 @@ export default function TemplatesPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
     if (!hasLoaded) {
       loadTemplates()
     }
-  }, [selectedCategory, hasLoaded])
+  }, [selectedCategory, hasLoaded, loadTemplates])
 
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
     if (loading || hasLoaded) return
     
     try {
@@ -68,7 +61,7 @@ export default function TemplatesPage() {
       if (response.data) {
         setTemplates(response.data.data || [])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load templates:', err)
       
       if (err.status === 429) {
@@ -85,7 +78,7 @@ export default function TemplatesPage() {
       setLoading(false)
       setHasLoaded(true)
     }
-  }
+  }, [hasLoaded, loading, selectedCategory, searchTerm])
 
   const handleSearch = () => {
     setHasLoaded(false)

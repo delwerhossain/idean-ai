@@ -190,7 +190,7 @@ export const ideanApi = {
 
   // Copywriting API (Content Generation)
   copywriting: {
-    getAll: (params?: PaginationParams) =>
+    getAll: (params?: PaginationParams & { search?: string }) =>
       apiClient.safeGet<{ copyWritings: Copywriting[] }>('/api/v1/copywriting', params, true),
 
     getById: (id: string) =>

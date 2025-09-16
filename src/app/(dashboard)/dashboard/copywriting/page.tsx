@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { 
   PenTool, 
   Plus, 
@@ -17,13 +15,10 @@ import {
   Sparkles,
   Target,
   Zap,
-  MessageSquare,
   Mail,
   Share2,
-  FileText,
   TrendingUp,
-  AlertTriangle,
-  CloudCog
+  AlertTriangle
 } from 'lucide-react'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
 
@@ -39,9 +34,9 @@ export default function CopywritingPage() {
     if (!hasLoaded) {
       loadCopywritings()
     }
-  }, [hasLoaded])
+  }, [hasLoaded, loadCopywritings])
 
-  const loadCopywritings = async () => {
+  const loadCopywritings = useCallback(async () => {
     if (hasLoaded) return
     
     try {
@@ -61,25 +56,25 @@ export default function CopywritingPage() {
         setCopywritings(copywritingData)
         console.log('✅ Loaded copywriting data from backend:', copywritingData)
 
-      } catch (apiError) {
+      } catch {
         console.log('⚠️  Backend copywriting data not available, using predefined frameworks only')
         // No copywriting data available - that's fine, use predefined frameworks
         setCopywritings([])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load copywriting frameworks:', err)
       setError('Failed to load copywriting frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true)
     }
-  }
+  }, [hasLoaded, searchTerm])
 
   const handleSearch = () => {
     setHasLoaded(false)
   }
 
-  const handleFrameworkClick = (framework: any) => {
+  const handleFrameworkClick = (framework: { id: string }) => {
     // Navigate to the generation page with the framework ID
     window.open(`/dashboard/copywriting/${framework.id}`, '_blank')
   }

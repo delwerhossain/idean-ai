@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ideanApi, BrandingLab } from '@/lib/api/idean-api'
@@ -29,8 +29,8 @@ export default function BrandingLabGenerationPage() {
         setError(null)
 
         const response = await ideanApi.brandingLab.getById(brandingLabId)
-        setBrandingLab(response.data)
-      } catch (err: any) {
+        setBrandingLab(response)
+      } catch (err: unknown) {
         console.error('Failed to load branding lab framework:', err)
         setError('Failed to load branding lab framework. Please try again.')
       } finally {

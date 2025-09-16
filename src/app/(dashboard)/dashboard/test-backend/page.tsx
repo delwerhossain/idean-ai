@@ -13,7 +13,7 @@ interface TestResult {
   name: string
   status: 'pending' | 'success' | 'error'
   message?: string
-  data?: any
+  data?: unknown
   duration?: number
 }
 
@@ -50,7 +50,7 @@ export default function TestBackendPage() {
         data: health,
         duration: Date.now() - start1
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       updateTest(0, {
         status: 'error',
         message: error.message || 'Health check failed',
@@ -91,7 +91,7 @@ export default function TestBackendPage() {
             duration: Date.now() - start3
           })
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         updateTest(2, {
           status: 'error',
           message: error.message || 'Session verification failed',
@@ -131,7 +131,7 @@ export default function TestBackendPage() {
             duration: Date.now() - start4
           })
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         updateTest(3, {
           status: 'error',
           message: error.message || 'User data fetch failed',
@@ -171,7 +171,7 @@ export default function TestBackendPage() {
             duration: Date.now() - start5
           })
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         updateTest(4, {
           status: 'error',
           message: error.message || 'Business API test failed',

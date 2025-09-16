@@ -173,7 +173,7 @@ export function htmlToMarkdown(html: string): string {
 
 // Convert Markdown to HTML (basic conversion)
 export function markdownToHtml(markdown: string): string {
-  let html = markdown
+  const html = markdown
     // Headers
     .replace(/^### (.*$)/gim, '<h3>$1</h3>')
     .replace(/^## (.*$)/gim, '<h2>$1</h2>')

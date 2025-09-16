@@ -9,19 +9,14 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   FileText, 
   TrendingUp, 
-  Users, 
-  DollarSign,
-  Plus,
   ArrowRight,
   Zap,
   Target,
-  BarChart3,
   Building,
   AlertTriangle,
   Sparkles,
   Palette,
   PenTool,
-  MessageCircle,
   Star,
   Clock,
   CheckCircle2,
@@ -30,7 +25,6 @@ import {
   Globe,
   Crown,
   Activity,
-  Calendar,
   Eye,
   ChevronRight
 } from 'lucide-react'
@@ -43,7 +37,7 @@ interface DashboardData {
     totalTemplates: number
     totalDocuments: number
     totalGenerations: number
-    recentActivity: any[]
+    recentActivity: { id: string; type: string; title: string; time: string }[]
     usage: {
       aiCredits: { used: number; total: number }
       storage: { used: number; total: number }
@@ -139,7 +133,7 @@ export default function DashboardPage() {
 
       // Handle analytics data from API
       if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
-        analytics = { ...analytics, ...analyticsResponse.value.data as any }
+        analytics = { ...analytics, ...analyticsResponse.value.data as Record<string, unknown> }
         console.log('📈 Analytics data loaded')
       } else if (analyticsResponse.status === 'rejected') {
         console.warn('⚠️ Analytics data failed to load, using defaults:', analyticsResponse.reason?.message)
@@ -148,7 +142,7 @@ export default function DashboardPage() {
       setDashboardData({ business, analytics })
       console.log('🎉 Dashboard data loaded successfully')
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('❌ Failed to load dashboard data:', err)
       setError('Failed to load dashboard data. Please try again.')
     } finally {
@@ -252,7 +246,7 @@ export default function DashboardPage() {
               <div>
                 <h1 className="text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
                 <p className="text-gray-600 text-lg">
-                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>'s strategic command center
+                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic command center
                 </p>
               </div>
             </div>
@@ -263,7 +257,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <dailyInsight.icon className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">{dailyInsight.title}</h3>
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Today's Focus</span>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Today&apos;s Focus</span>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">{dailyInsight.message}</p>
                 <Button 

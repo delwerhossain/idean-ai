@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { getStoredBackendToken, getCurrentFirebaseUser } from '@/lib/firebase'
+import { getStoredBackendToken } from '@/lib/firebase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,7 +10,14 @@ import { RefreshCcw, LogIn, LogOut, Copy } from 'lucide-react'
 
 export default function AuthDebugPage() {
   const { user, firebaseUser, loading, signInWithGoogle, logout } = useAuth()
-  const [backendTest, setBackendTest] = useState<any>(null)
+  const [backendTest, setBackendTest] = useState<{
+    health?: unknown;
+    auth?: unknown;
+    timestamp?: string;
+    status?: string;
+    data?: unknown;
+    error?: string
+  } | null>(null)
   const [isTestingBackend, setIsTestingBackend] = useState(false)
 
   const testBackendConnection = async () => {

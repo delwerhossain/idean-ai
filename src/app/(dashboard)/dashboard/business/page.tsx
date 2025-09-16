@@ -8,9 +8,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { 
-  Building, 
-  Plus, 
+import {
+  Building,
+  Plus,
   Search,
   Filter,
   Edit,
@@ -18,9 +18,7 @@ import {
   Globe,
   Tag,
   Users,
-  Settings,
   AlertTriangle,
-  CheckCircle,
   X,
   Save
 } from 'lucide-react'
@@ -69,12 +67,11 @@ export default function BusinessPage() {
       setError(null)
 
       const response = await ideanApi.business.getAll({
-        limit: 50,
-        search: searchTerm
+        limit: 50
       })
 
-      if (response.data) {
-        setBusinesses(response.data.data || [])
+      if (response) {
+        setBusinesses(response.items || [])
       }
     } catch (err) {
       console.error('Failed to load businesses:', err)
@@ -132,7 +129,7 @@ export default function BusinessPage() {
       // Reload businesses and reset form
       await loadBusinesses()
       resetForm()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save business:', err)
       setError(err.message || 'Failed to save business. Please try again.')
     } finally {
@@ -166,7 +163,7 @@ export default function BusinessPage() {
       setError(null)
       await ideanApi.business.delete(businessId)
       await loadBusinesses()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete business:', err)
       setError(err.message || 'Failed to delete business. Please try again.')
     }
