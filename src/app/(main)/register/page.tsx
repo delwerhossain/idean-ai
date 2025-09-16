@@ -1,14 +1,8 @@
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
-import { auth } from '@/lib/auth/config'
 import { RegisterForm } from '@/components/auth/RegisterForm'
 
-export default async function RegisterPage() {
-  const session = await auth()
-  
-  if (session) {
-    redirect('/dashboard')
-  }
+export default function RegisterPage() {
+  // Client-side auth check is handled by the RegisterForm component and AuthContext
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">

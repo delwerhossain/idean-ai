@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { TEST_USERS, clearTestData, getCurrentTestUser, type TestUser } from '@/lib/test-users'
-import { signOut } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Users, LogOut, Database, RefreshCw, Minimize2, Maximize2 } from 'lucide-react'
 
 export default function TestUserPanel() {
@@ -28,10 +28,13 @@ export default function TestUserPanel() {
     }
   }
 
-  const handleClearData = () => {
+  const { logout } = useAuth()
+
+  const handleClearData = async () => {
     if (window.confirm('Clear all test data? This will log you out.')) {
       clearTestData()
-      signOut({ callbackUrl: '/login' })
+      await logout()
+      window.location.href = '/login'
     }
   }
 
@@ -118,7 +121,10 @@ export default function TestUserPanel() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => signOut({ callbackUrl: '/login' })}
+                  onClick={async () => {
+                    await logout()
+                    window.location.href = '/login'
+                  }}
                   className="flex-1 h-7 text-xs bg-gray-700 border-gray-600 hover:bg-gray-600"
                 >
                   <LogOut className="w-3 h-3 mr-1" />

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,7 @@ import { Eye, EyeOff, User, Mail, Lock, Building, Chrome } from 'lucide-react'
 import { PasswordStrengthIndicator, validatePasswordStrength } from './PasswordStrengthIndicator'
 
 export function RegisterForm() {
+  const { signInWithGoogle, loading } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -100,21 +101,11 @@ export function RegisterForm() {
         
         setSuccess('Account created successfully! Redirecting to login...')
         
-        // Wait a moment then sign in the user
-        setTimeout(async () => {
-          const result = await signIn('credentials', {
-            email: formData.email,
-            password: formData.password,
-            redirect: false,
-          })
-
-          if (result?.ok) {
-            // Redirect to onboarding for new users
-            router.push('/dashboard/onboarding?welcome=true')
-          } else {
-            // Registration succeeded but login failed - redirect to login page
-            router.push('/login?email=' + encodeURIComponent(formData.email) + '&message=registration-success')
-          }
+        // Wait a moment then redirect to login
+        setTimeout(() => {
+          // TODO: Implement automatic login after registration
+          // For now, redirect to login page with success message
+          router.push('/login?email=' + encodeURIComponent(formData.email) + '&message=registration-success')
         }, 1500)
         
       } else {
@@ -148,19 +139,14 @@ export function RegisterForm() {
   }
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true)
     setError('')
     
     try {
-      await signIn('google', { 
-        callbackUrl: '/dashboard/onboarding',
-        redirect: true
-      })
+      await signInWithGoogle()
+      // Redirect will happen automatically via AuthContext useEffect
     } catch (error) {
       console.error('Google sign in error:', error)
       setError('Google sign in failed. Please try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -308,10 +294,10 @@ export function RegisterForm() {
             variant="outline"
             className="w-full h-12 border-gray-200 hover:bg-gray-50"
             onClick={handleGoogleSignIn}
-            disabled={isLoading}
+            disabled={loading}
           >
             <Chrome className="w-5 h-5 mr-2" />
-            Sign up with Google
+            {loading ? 'Signing up...' : 'Sign up with Google'}
           </Button>
 
           <div className="text-center text-sm text-gray-600">

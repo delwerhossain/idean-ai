@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { 
   TrendingUp, 
   Plus, 
@@ -22,30 +20,18 @@ import {
   Users,
   AlertTriangle
 } from 'lucide-react'
-import { ideanApi, GrowthCopilot } from '@/lib/api/idean-api'
+import { GrowthCopilot } from '@/lib/api/idean-api'
 
 export default function GrowthCopilotPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [growthCopilots, setGrowthCopilots] = useState<GrowthCopilot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCopilot, setSelectedCopilot] = useState<GrowthCopilot | null>(null)
-  const [isExecuting, setIsExecuting] = useState(false)
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  useEffect(() => {
-    if (!hasLoaded && !loading) {
-      loadGrowthCopilots()
-    }
-    
-    // Cleanup function to prevent state updates if component unmounts
-    return () => {
-      setLoading(false)
-    }
-  }, [hasLoaded, loading])
-
-  const loadGrowthCopilots = async () => {
+  const loadGrowthCopilots = useCallback(async () => {
     if (loading || hasLoaded) return // Prevent multiple calls
     
     try {
@@ -59,111 +45,99 @@ export default function GrowthCopilotPage() {
       // })
 
       // Mock data for now - will be replaced with real API
-      const mockGrowthCopilots: any[] = [
+      const mockGrowthCopilots: GrowthCopilot[] = [
         {
           id: '1',
-          title: 'Customer Value Journey',
+          name: 'Customer Value Journey',
           description: 'Map the complete customer journey from awareness to advocacy using proven frameworks.',
-          category: 'Strategy',
-          difficulty: 'Intermediate',
-          estimatedTime: '3-4 hours',
-          tags: ['customer', 'journey', 'value'],
-          status: 'available'
+          system_prompt: 'You are an expert in customer value journey mapping.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '2',
-          title: 'Blue Ocean Strategy',
+          name: 'Blue Ocean Strategy',
           description: 'Discover uncontested market spaces and create new demand using Blue Ocean principles.',
-          category: 'Strategy',
-          difficulty: 'Advanced',
-          estimatedTime: '4-5 hours',
-          tags: ['blue-ocean', 'strategy', 'innovation'],
-          status: 'available'
+          system_prompt: 'You are an expert in Blue Ocean Strategy.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '3',
-          title: 'Growth Heist Framework',
+          name: 'Growth Heist Framework',
           description: 'Implement systematic growth hacking strategies to accelerate business growth.',
-          category: 'Growth Hacking',
-          difficulty: 'Advanced',
-          estimatedTime: '3-4 hours',
-          tags: ['growth', 'hacking', 'acceleration'],
-          status: 'available'
+          system_prompt: 'You are an expert in growth hacking.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '4',
-          title: 'Niche Fortune Strategy',
+          name: 'Niche Fortune Strategy',
           description: 'Identify and dominate profitable niche markets with strategic positioning.',
-          category: 'Market Strategy',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['niche', 'market', 'positioning'],
-          status: 'available'
+          system_prompt: 'You are an expert in niche market strategy.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '5',
-          title: 'Funnel Architecture',
+          name: 'Funnel Architecture',
           description: 'Design and optimize high-converting sales funnels for maximum revenue.',
-          category: 'Sales Funnels',
-          difficulty: 'Intermediate',
-          estimatedTime: '3-4 hours',
-          tags: ['funnel', 'conversion', 'sales'],
-          status: 'available'
+          system_prompt: 'You are an expert in sales funnel architecture.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '6',
-          title: 'Conversion Psychology',
+          name: 'Conversion Psychology',
           description: 'Apply psychological principles to improve conversion rates and customer behavior.',
-          category: 'Psychology',
-          difficulty: 'Advanced',
-          estimatedTime: '2-3 hours',
-          tags: ['psychology', 'conversion', 'behavior'],
-          status: 'available'
+          system_prompt: 'You are an expert in conversion psychology.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '7',
-          title: 'Viral Marketing Mechanics',
+          name: 'Viral Marketing Mechanics',
           description: 'Create viral marketing campaigns that spread organically and drive exponential growth.',
-          category: 'Viral Marketing',
-          difficulty: 'Advanced',
-          estimatedTime: '3-4 hours',
-          tags: ['viral', 'marketing', 'growth'],
-          status: 'available'
+          system_prompt: 'You are an expert in viral marketing.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         },
         {
           id: '8',
-          title: 'Retention & Loyalty Systems',
+          name: 'Retention & Loyalty Systems',
           description: 'Build systems to retain customers and create long-term brand loyalty.',
-          category: 'Retention',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['retention', 'loyalty', 'systems'],
-          status: 'available'
+          system_prompt: 'You are an expert in customer retention.',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z'
         }
       ]
 
       // Filter by search term if provided
-      const filteredGrowthCopilots = searchTerm 
-        ? mockGrowthCopilots.filter(growth => 
-            growth.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            growth.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            growth.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      const filteredGrowthCopilots = searchTerm
+        ? mockGrowthCopilots.filter(growth =>
+            growth.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (growth.description && growth.description.toLowerCase().includes(searchTerm.toLowerCase()))
           )
         : mockGrowthCopilots
 
       setGrowthCopilots(filteredGrowthCopilots)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load growth copilots:', err)
       setError('Failed to load growth frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true) // Mark as loaded to prevent retries
     }
-  }
+  }, [hasLoaded, loading, searchTerm])
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      loadGrowthCopilots()
+    }
+  }, [hasLoaded, loadGrowthCopilots])
 
   const handleSearch = () => {
     setHasLoaded(false) // Reset to allow new search
-    loadGrowthCopilots()
   }
 
   const predefinedFrameworks = [
@@ -245,7 +219,7 @@ export default function GrowthCopilotPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
             ✅ Backend connected - Full AI capabilities available
           </div>

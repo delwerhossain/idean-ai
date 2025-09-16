@@ -80,7 +80,7 @@ export const businessAPI = {
    */
   createBusiness: async (data: CreateBusinessData): Promise<Business> => {
     const response = await apiClient.post<APIResponse<Business>>('/businesses', data)
-    return response.business || response
+    return (response as any).business || response
   },
 
   /**
@@ -95,7 +95,7 @@ export const businessAPI = {
    */
   getBusiness: async (id: string): Promise<Business> => {
     const response = await apiClient.get<APIResponse<Business>>(`/businesses/${id}`)
-    return response.business || response
+    return (response as any).business || response
   },
 
   /**
@@ -103,7 +103,7 @@ export const businessAPI = {
    */
   updateBusiness: async (id: string, data: UpdateBusinessData): Promise<Business> => {
     const response = await apiClient.put<APIResponse<Business>>(`/businesses/${id}`, data)
-    return response.business || response
+    return (response as any).business || response
   },
 
   /**
@@ -149,9 +149,7 @@ export const businessAPI = {
    * Remove a document from business
    */
   removeDocument: async (businessId: string, documentUrl: string): Promise<Business> => {
-    return apiClient.delete<Business>(`/businesses/${businessId}/documents`, {
-      body: JSON.stringify({ documentUrl })
-    })
+    return apiClient.delete<Business>(`/businesses/${businessId}/documents?url=${encodeURIComponent(documentUrl)}`)
   },
 
   /**

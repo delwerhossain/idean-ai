@@ -1,14 +1,8 @@
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
-import { auth } from '@/lib/auth/config'
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm'
 
-export default async function ResetPasswordPage() {
-  const session = await auth()
-  
-  if (session) {
-    redirect('/dashboard')
-  }
+export default function ResetPasswordPage() {
+  // Client-side auth check is handled by the component and AuthContext
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">

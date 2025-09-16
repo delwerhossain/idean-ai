@@ -1,23 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   User, 
   Building, 
   Bell, 
   Shield, 
-  Globe, 
   Save, 
   Crown,
-  CreditCard,
-  AlertTriangle
 } from 'lucide-react'
 import UpgradeModal from '@/components/modals/UpgradeModal'
 
@@ -41,7 +37,7 @@ interface UserSettings {
 }
 
 export default function SettingsPage() {
-  const { data: session, update } = useSession()
+  const { user } = useAuth()
   const [settings, setSettings] = useState<UserSettings>({
     name: '',
     email: '',
@@ -65,11 +61,7 @@ export default function SettingsPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [currentPlan, setCurrentPlan] = useState('free')
 
-  useEffect(() => {
-    loadSettings()
-  }, [session])
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -82,12 +74,12 @@ export default function SettingsPage() {
       if (savedSettings) {
         const parsed = JSON.parse(savedSettings)
         setSettings(parsed)
-      } else if (session?.user) {
-        // Initialize with session data
+      } else if (user) {
+        // Initialize with user data
         setSettings(prev => ({
           ...prev,
-          name: session.user.name || '',
-          email: session.user.email || '',
+          name: user.name || '',
+          email: user.email || '',
           businessName: businessName,
           industry: industry
         }))
@@ -99,7 +91,11 @@ export default function SettingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    loadSettings()
+  }, [loadSettings])
 
   const saveSettings = async () => {
     try {
@@ -119,13 +115,8 @@ export default function SettingsPage() {
       })
       */
       
-      // Update session if name changed
-      if (session?.user && settings.name !== session.user.name) {
-        await update({
-          ...session,
-          user: { ...session.user, name: settings.name }
-        })
-      }
+      // TODO: Update user profile when name changes
+      // This would be handled by the backend API when implemented
       
       console.log('✅ Settings saved successfully')
     } catch (error) {
@@ -135,7 +126,7 @@ export default function SettingsPage() {
     }
   }
 
-  const updateSetting = (field: string, value: any) => {
+  const updateSetting = (field: string, value: string | boolean | number) => {
     setSettings(prev => ({
       ...prev,
       [field]: value
@@ -219,9 +210,9 @@ export default function SettingsPage() {
               value={settings.email}
               onChange={(e) => updateSetting('email', e.target.value)}
               placeholder="Enter your email"
-              disabled={!!session?.user?.email}
+              disabled={!!user?.email}
             />
-            {session?.user?.email && (
+            {user?.email && (
               <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             )}
           </div>

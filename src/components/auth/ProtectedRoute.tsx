@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Card, CardContent } from '@/components/ui/card'
@@ -24,6 +24,13 @@ export function ProtectedRoute({
   const { isLoading, isAuthenticated, hasRole, canAccess } = useAuth()
   const router = useRouter()
 
+  // Handle redirect in useEffect to avoid React render state update issues
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push(redirectTo)
+    }
+  }, [isLoading, isAuthenticated, router, redirectTo])
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -33,8 +40,11 @@ export function ProtectedRoute({
   }
 
   if (!isAuthenticated) {
-    router.push(redirectTo)
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
   // Check role-based access

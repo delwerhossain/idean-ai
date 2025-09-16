@@ -1,5 +1,5 @@
 import { auth as firebaseAuth } from '@/lib/firebase/client'
-import { getSession, signOut } from 'next-auth/react'
+import { getStoredBackendToken } from '@/lib/firebase'
 
 /**
  * JWT Token utilities for authentication with backend
@@ -24,23 +24,28 @@ export class JWTTokenManager {
    */
   async getValidToken(): Promise<string> {
     try {
-      const session = await getSession()
+      // First try to get backend token from localStorage
+      const backendToken = getStoredBackendToken()
+      if (backendToken) {
+        // Check if token is close to expiring (Firebase tokens are valid for 1 hour)
+        const tokenPayload = this.parseJWT(backendToken)
+        const now = Math.floor(Date.now() / 1000)
+        const timeUntilExpiry = tokenPayload.exp - now
+
+        // If token expires in less than 5 minutes, refresh it
+        if (timeUntilExpiry < 300) {
+          return await this.refreshToken()
+        }
+
+        return backendToken
+      }
       
-      if (!session?.firebaseToken) {
-        throw new Error('No authentication token available')
+      // If no stored token, get fresh token from Firebase
+      if (!firebaseAuth.currentUser) {
+        throw new Error('No authenticated user')
       }
-
-      // Check if token is close to expiring (Firebase tokens are valid for 1 hour)
-      const tokenPayload = this.parseJWT(session.firebaseToken)
-      const now = Math.floor(Date.now() / 1000)
-      const timeUntilExpiry = tokenPayload.exp - now
-
-      // If token expires in less than 5 minutes, refresh it
-      if (timeUntilExpiry < 300) {
-        return await this.refreshToken()
-      }
-
-      return session.firebaseToken
+      
+      return await firebaseAuth.currentUser.getIdToken()
     } catch (error) {
       console.error('Error getting valid token:', error)
       throw error
@@ -75,16 +80,17 @@ export class JWTTokenManager {
       // Force refresh Firebase token
       const newToken = await firebaseAuth.currentUser.getIdToken(true)
       
-      // Update NextAuth session with new token
-      // Note: This requires a session update mechanism
-      // You might need to implement a custom session update
+      // Store the new token in localStorage (align with reader key)
+      localStorage.setItem('authToken', newToken)
       
       return newToken
     } catch (error) {
       console.error('Token refresh failed:', error)
       
       // If token refresh fails, user may need to re-authenticate
-      await signOut({ redirect: true, callbackUrl: '/login' })
+      // Clear stored tokens and redirect to login
+      localStorage.removeItem('authToken')
+      window.location.href = '/login'
       throw new Error('Authentication session expired. Please sign in again.')
     }
   }
@@ -114,10 +120,10 @@ export class JWTTokenManager {
    */
   async isTokenValid(): Promise<boolean> {
     try {
-      const session = await getSession()
-      if (!session?.firebaseToken) return false
+      const backendToken = getStoredBackendToken()
+      if (!backendToken) return false
 
-      const tokenPayload = this.parseJWT(session.firebaseToken)
+      const tokenPayload = this.parseJWT(backendToken)
       const now = Math.floor(Date.now() / 1000)
       
       return tokenPayload.exp > now
@@ -131,10 +137,10 @@ export class JWTTokenManager {
    */
   async getTokenExpiry(): Promise<Date | null> {
     try {
-      const session = await getSession()
-      if (!session?.firebaseToken) return null
+      const backendToken = getStoredBackendToken()
+      if (!backendToken) return null
 
-      const tokenPayload = this.parseJWT(session.firebaseToken)
+      const tokenPayload = this.parseJWT(backendToken)
       return new Date(tokenPayload.exp * 1000)
     } catch (error) {
       return null
@@ -146,10 +152,10 @@ export class JWTTokenManager {
    */
   async getUserClaims(): Promise<any> {
     try {
-      const session = await getSession()
-      if (!session?.firebaseToken) return null
+      const backendToken = getStoredBackendToken()
+      if (!backendToken) return null
 
-      return this.parseJWT(session.firebaseToken)
+      return this.parseJWT(backendToken)
     } catch (error) {
       console.error('Error getting user claims:', error)
       return null

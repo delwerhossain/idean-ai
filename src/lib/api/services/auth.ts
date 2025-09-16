@@ -14,7 +14,7 @@ export class AuthService {
    */
   static async syncUser(userData: UserCreateRequest): Promise<User> {
     try {
-      const response = await apiClient.post<User>('/api/auth/sync-user', userData)
+      const response = await apiClient.post<User>('/auth/sync-user', userData)
       return response
     } catch (error) {
       console.error('Failed to sync user with backend:', error)
@@ -27,7 +27,7 @@ export class AuthService {
    */
   static async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiClient.get<User>('/api/auth/me')
+      const response = await apiClient.get<User>('/auth/me')
       return response
     } catch (error) {
       console.error('Failed to get current user:', error)
@@ -40,7 +40,7 @@ export class AuthService {
    */
   static async updateUser(updates: UserUpdateRequest): Promise<User> {
     try {
-      const response = await apiClient.patch<User>('/api/auth/me', updates)
+      const response = await apiClient.patch<User>('/auth/me', updates)
       return response
     } catch (error) {
       console.error('Failed to update user:', error)
@@ -53,7 +53,7 @@ export class AuthService {
    */
   static async deleteUser(): Promise<void> {
     try {
-      await apiClient.delete('/api/auth/me')
+      await apiClient.delete('/auth/me')
     } catch (error) {
       console.error('Failed to delete user:', error)
       throw error
@@ -65,7 +65,7 @@ export class AuthService {
    */
   static async checkEmailAvailable(email: string): Promise<boolean> {
     try {
-      const response = await apiClient.post<{ available: boolean }>('/api/auth/check-email', { email })
+      const response = await apiClient.post<{ available: boolean }>('/auth/check-email', { email })
       return response.available || false
     } catch (error) {
       console.error('Failed to check email availability:', error)
@@ -78,7 +78,7 @@ export class AuthService {
    */
   static async sendEmailVerification(): Promise<void> {
     try {
-      await apiClient.post('/api/auth/send-verification')
+      await apiClient.post('/auth/send-verification')
     } catch (error) {
       console.error('Failed to send email verification:', error)
       throw error
@@ -90,7 +90,7 @@ export class AuthService {
    */
   static async verifyEmail(token: string): Promise<void> {
     try {
-      await apiClient.post('/api/auth/verify-email', { token })
+      await apiClient.post('/auth/verify-email', { token })
     } catch (error) {
       console.error('Failed to verify email:', error)
       throw error
@@ -102,7 +102,7 @@ export class AuthService {
    */
   static async requestPasswordReset(email: string): Promise<void> {
     try {
-      await apiClient.post('/api/auth/forgot-password', { email })
+      await apiClient.post('/auth/forgot-password', { email })
     } catch (error) {
       console.error('Failed to request password reset:', error)
       throw error
@@ -114,7 +114,7 @@ export class AuthService {
    */
   static async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
-      await apiClient.post('/api/auth/reset-password', { token, password: newPassword })
+      await apiClient.post('/auth/reset-password', { token, password: newPassword })
     } catch (error) {
       console.error('Failed to reset password:', error)
       throw error
@@ -126,7 +126,7 @@ export class AuthService {
    */
   static async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      await apiClient.post('/api/auth/change-password', { 
+      await apiClient.post('/auth/change-password', { 
         currentPassword, 
         newPassword 
       })
@@ -141,7 +141,7 @@ export class AuthService {
    */
   static async getSessions(): Promise<any[]> {
     try {
-      const response = await apiClient.get<any[]>('/api/auth/sessions')
+      const response = await apiClient.get<any[]>('/auth/sessions')
       return response
     } catch (error) {
       console.error('Failed to get sessions:', error)
@@ -154,7 +154,7 @@ export class AuthService {
    */
   static async revokeSession(sessionId: string): Promise<void> {
     try {
-      await apiClient.delete(`/api/auth/sessions/${sessionId}`)
+      await apiClient.delete(`/auth/sessions/${sessionId}`)
     } catch (error) {
       console.error('Failed to revoke session:', error)
       throw error
@@ -166,7 +166,7 @@ export class AuthService {
    */
   static async revokeAllOtherSessions(): Promise<void> {
     try {
-      await apiClient.post('/api/auth/revoke-all-sessions')
+      await apiClient.post('/auth/revoke-all-sessions')
     } catch (error) {
       console.error('Failed to revoke all sessions:', error)
       throw error

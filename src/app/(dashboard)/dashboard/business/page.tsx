@@ -1,16 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { 
-  Building, 
-  Plus, 
+import {
+  Building,
+  Plus,
   Search,
   Filter,
   Edit,
@@ -18,9 +18,7 @@ import {
   Globe,
   Tag,
   Users,
-  Settings,
   AlertTriangle,
-  CheckCircle,
   X,
   Save
 } from 'lucide-react'
@@ -40,7 +38,7 @@ interface BusinessFormData {
 }
 
 export default function BusinessPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -69,12 +67,11 @@ export default function BusinessPage() {
       setError(null)
 
       const response = await ideanApi.business.getAll({
-        limit: 50,
-        search: searchTerm
+        limit: 50
       })
 
-      if (response.data) {
-        setBusinesses(response.data.data || [])
+      if (response) {
+        setBusinesses(response.items || [])
       }
     } catch (err) {
       console.error('Failed to load businesses:', err)
@@ -132,9 +129,9 @@ export default function BusinessPage() {
       // Reload businesses and reset form
       await loadBusinesses()
       resetForm()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save business:', err)
-      setError(err.message || 'Failed to save business. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to save business. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -166,9 +163,9 @@ export default function BusinessPage() {
       setError(null)
       await ideanApi.business.delete(businessId)
       await loadBusinesses()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete business:', err)
-      setError(err.message || 'Failed to delete business. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to delete business. Please try again.')
     }
   }
 
@@ -210,7 +207,7 @@ export default function BusinessPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
             ✅ Backend connected - Full business management available
           </div>

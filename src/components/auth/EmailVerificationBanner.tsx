@@ -16,7 +16,7 @@ export function EmailVerificationBanner() {
   const [isDismissed, setIsDismissed] = useState(false)
 
   // Don't show if user is verified or banner is dismissed
-  if (!user || user.emailVerified || isDismissed) {
+  if (!user || isDismissed) {
     return null
   }
 

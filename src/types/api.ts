@@ -20,6 +20,7 @@ export interface User {
   provider?: string               // google, email, etc
   businessId?: string             // Reference to Business
   role?: string                   // Default: "user"
+  business?: Business             // Nested business object (from /users/me endpoint)
 }
 
 export interface Business {

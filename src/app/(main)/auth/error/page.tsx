@@ -1,12 +1,13 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams()
   const error = searchParams?.get('error')
 
@@ -40,7 +41,7 @@ export default function AuthErrorPage() {
               {getErrorMessage(error)}
             </p>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <Button asChild className="w-full">
@@ -48,7 +49,7 @@ export default function AuthErrorPage() {
                   Try Again
                 </Link>
               </Button>
-              
+
               <Button asChild variant="outline" className="w-full">
                 <Link href="/">
                   Go Home
@@ -59,5 +60,31 @@ export default function AuthErrorPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
+            <CardHeader className="space-y-2 text-center">
+              <div className="mx-auto w-16 h-16 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                Authentication Error
+              </CardTitle>
+              <p className="text-gray-600">
+                Loading...
+              </p>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   )
 }

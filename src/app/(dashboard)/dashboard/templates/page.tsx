@@ -1,25 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { 
   FileText, 
   Plus, 
   Search,
   Filter,
-  ArrowRight,
-  Sparkles,
-  Target,
-  Zap,
   MoreVertical,
   Edit,
   Copy,
-  Trash2,
   Palette,
   PenTool,
   TrendingUp,
@@ -30,26 +24,15 @@ import {
 import { ideanApi, Template } from '@/lib/api/idean-api'
 
 export default function TemplatesPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  useEffect(() => {
-    if (!hasLoaded && !loading) {
-      loadTemplates()
-    }
-    
-    return () => {
-      setLoading(false)
-    }
-  }, [selectedCategory, hasLoaded, loading])
-
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
     if (loading || hasLoaded) return
     
     try {
@@ -59,24 +42,31 @@ export default function TemplatesPage() {
       let response
       if (selectedCategory === 'all') {
         response = await ideanApi.templates.getAll({
-          limit: 50,
-          search: searchTerm
-        })
+          limit: 50
+        } as any)
       } else {
         response = await ideanApi.templates.getByCategory(selectedCategory, {
-          limit: 50,
-          search: searchTerm
-        })
+          limit: 50
+        } as any)
       }
 
-      if (response.data) {
-        setTemplates(response.data.data || [])
+      if (response) {
+        setTemplates(response.items || [])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load templates:', err)
       
-      if (err.status === 429) {
-        console.warn('Rate limited - using fallback mode for templates')
+      if (err && typeof err === 'object' && 'status' in err) {
+        if ((err as any).status === 429) {
+          console.warn('Rate limited - using fallback mode for templates')
+          setTemplates([])
+        } else if ((err as any).status === 404) {
+          console.warn('Templates not found - using fallback mode')
+          setTemplates([])
+        }
+      } else if (err && typeof err === 'object' && 'message' in err && (err as any).message?.includes('fetch')) {
+        console.warn('Backend unavailable - using fallback mode for templates')
+        // Provide mock data when backend is unavailable
         setTemplates([])
       } else {
         setError('Failed to load templates. Please try again.')
@@ -85,11 +75,16 @@ export default function TemplatesPage() {
       setLoading(false)
       setHasLoaded(true)
     }
-  }
+  }, [hasLoaded, loading, selectedCategory, searchTerm])
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      loadTemplates()
+    }
+  }, [selectedCategory, hasLoaded, loadTemplates])
 
   const handleSearch = () => {
     setHasLoaded(false)
-    loadTemplates()
   }
 
   const getCategoryIcon = (template: Template) => {
@@ -162,13 +157,13 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
-            ✅ Backend connected - Full template management available
+            ✅ Connected as {user.name} - Full template management available
           </div>
         ) : (
           <div className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-md inline-block">
-            ⚡ Demo mode - Connect backend for template creation
+            ⚡ Demo mode - Please sign in for template creation
           </div>
         )}
       </div>
@@ -193,14 +188,20 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'all' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => {
+              setSelectedCategory('all')
+              setHasLoaded(false)
+            }}
           >
             All
           </Button>
           <Button
             variant={selectedCategory === 'brandinglab' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('brandinglab')}
+            onClick={() => {
+              setSelectedCategory('brandinglab')
+              setHasLoaded(false)
+            }}
           >
             <Palette className="w-3 h-3 mr-1" />
             Branding
@@ -208,7 +209,10 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'growthcopilot' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('growthcopilot')}
+            onClick={() => {
+              setSelectedCategory('growthcopilot')
+              setHasLoaded(false)
+            }}
           >
             <TrendingUp className="w-3 h-3 mr-1" />
             Growth
@@ -216,7 +220,10 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'copywriting' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedCategory('copywriting')}
+            onClick={() => {
+              setSelectedCategory('copywriting')
+              setHasLoaded(false)
+            }}
           >
             <PenTool className="w-3 h-3 mr-1" />
             Copy
@@ -296,10 +303,9 @@ export default function TemplatesPage() {
                     <Button size="sm" variant="ghost">
                       <Copy className="w-3 h-3" />
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
-                      onClick={() => setSelectedTemplate(template)}
                     >
                       Use Template
                     </Button>

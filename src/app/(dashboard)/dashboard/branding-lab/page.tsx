@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { 
   Palette, 
   Plus, 
@@ -15,37 +13,24 @@ import {
   Filter,
   ArrowRight,
   Sparkles,
-  Target,
-  Zap,
   Heart,
   Crown,
   Lightbulb,
   Users,
   AlertTriangle
 } from 'lucide-react'
-import { ideanApi, BrandingLab } from '@/lib/api/idean-api'
+import { BrandingLab } from '@/lib/api/idean-api'
 
 export default function BrandingLabPage() {
-  const { data: session } = useSession()
+  const { user } = useAuth()
   const [brandingLabs, setBrandingLabs] = useState<BrandingLab[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBrandingLab, setSelectedBrandingLab] = useState<BrandingLab | null>(null)
-  const [isExecuting, setIsExecuting] = useState(false)
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  useEffect(() => {
-    if (!hasLoaded && !loading) {
-      loadBrandingLabs()
-    }
-    
-    return () => {
-      setLoading(false)
-    }
-  }, [hasLoaded, loading])
-
-  const loadBrandingLabs = async () => {
+  const loadBrandingLabs = useCallback(async () => {
     if (loading || hasLoaded) return
     
     try {
@@ -62,88 +47,80 @@ export default function BrandingLabPage() {
       const mockBrandingLabs: BrandingLab[] = [
         {
           id: '1',
-          title: 'Brand Identity Framework',
+          name: 'Brand Identity Framework',
           description: 'Create a comprehensive brand identity including logo, colors, typography, and visual guidelines.',
-          category: 'Identity',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['branding', 'identity', 'visual'],
-          status: 'available'
-        },
+          system_prompt: 'Create a brand identity framework',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as BrandingLab,
         {
           id: '2',
-          title: 'Brand Voice & Messaging',
+          name: 'Brand Voice & Messaging',
           description: 'Develop your brand personality, tone of voice, and core messaging framework.',
-          category: 'Messaging',
-          difficulty: 'Beginner',
-          estimatedTime: '1-2 hours',
-          tags: ['messaging', 'voice', 'communication'],
-          status: 'available'
-        },
+          system_prompt: 'Create brand voice and messaging',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as BrandingLab,
         {
           id: '3',
-          title: 'Brand Story Development',
+          name: 'Brand Story Development',
           description: 'Craft compelling brand narratives that connect with your target audience.',
-          category: 'Storytelling',
-          difficulty: 'Advanced',
-          estimatedTime: '3-4 hours',
-          tags: ['storytelling', 'narrative', 'connection'],
-          status: 'available'
-        },
+          system_prompt: 'Craft compelling brand narratives',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as BrandingLab,
         {
           id: '4',
-          title: 'Brand Positioning Strategy',
+          name: 'Brand Positioning Strategy',
           description: 'Position your brand uniquely in the market using proven positioning frameworks.',
-          category: 'Strategy',
-          difficulty: 'Advanced',
-          estimatedTime: '2-3 hours',
-          tags: ['positioning', 'strategy', 'competition'],
-          status: 'available'
-        },
+          system_prompt: 'Position your brand uniquely',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as BrandingLab,
         {
           id: '5',
-          title: 'Logo Design Principles',
+          name: 'Logo Design Principles',
           description: 'Learn the fundamentals of effective logo design and create memorable brand marks.',
-          category: 'Design',
-          difficulty: 'Intermediate',
-          estimatedTime: '2-3 hours',
-          tags: ['logo', 'design', 'visual'],
-          status: 'available'
-        },
+          system_prompt: 'Learn logo design fundamentals',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as BrandingLab,
         {
           id: '6',
-          title: 'Brand Guidelines Creation',
+          name: 'Brand Guidelines Creation',
           description: 'Develop comprehensive brand guidelines to ensure consistent brand application.',
-          category: 'Guidelines',
-          difficulty: 'Intermediate',
-          estimatedTime: '1-2 hours',
-          tags: ['guidelines', 'consistency', 'standards'],
-          status: 'available'
-        }
+          system_prompt: 'Develop brand guidelines',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as BrandingLab
       ]
 
       // Filter by search term if provided
       const filteredLabs = searchTerm 
-        ? mockBrandingLabs.filter(lab => 
-            lab.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            lab.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            lab.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        ? mockBrandingLabs.filter(lab =>
+            lab.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (lab.description && lab.description.toLowerCase().includes(searchTerm.toLowerCase()))
           )
         : mockBrandingLabs
 
       setBrandingLabs(filteredLabs)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load branding labs:', err)
       setError('Failed to load branding frameworks. Please try again.')
     } finally {
       setLoading(false)
       setHasLoaded(true)
     }
-  }
+  }, [loading, hasLoaded, searchTerm])
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      loadBrandingLabs()
+    }
+  }, [hasLoaded, loadBrandingLabs])
 
   const handleSearch = () => {
     setHasLoaded(false)
-    loadBrandingLabs()
   }
 
   const predefinedFrameworks = [
@@ -225,7 +202,7 @@ export default function BrandingLabPage() {
           </div>
         </div>
 
-        {session?.backendToken ? (
+        {user ? (
           <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
             ✅ Backend connected - Full AI capabilities available
           </div>

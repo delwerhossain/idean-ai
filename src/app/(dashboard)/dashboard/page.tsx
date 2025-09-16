@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -9,19 +9,14 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   FileText, 
   TrendingUp, 
-  Users, 
-  DollarSign,
-  Plus,
   ArrowRight,
   Zap,
   Target,
-  BarChart3,
   Building,
   AlertTriangle,
   Sparkles,
   Palette,
   PenTool,
-  MessageCircle,
   Star,
   Clock,
   CheckCircle2,
@@ -30,7 +25,6 @@ import {
   Globe,
   Crown,
   Activity,
-  Calendar,
   Eye,
   ChevronRight
 } from 'lucide-react'
@@ -43,7 +37,7 @@ interface DashboardData {
     totalTemplates: number
     totalDocuments: number
     totalGenerations: number
-    recentActivity: any[]
+    recentActivity: { id: string; type: string; title: string; time: string }[]
     usage: {
       aiCredits: { used: number; total: number }
       storage: { used: number; total: number }
@@ -62,7 +56,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -70,69 +64,47 @@ export default function DashboardPage() {
   const [selectedQuickAction, setSelectedQuickAction] = useState<string | null>(null)
 
   useEffect(() => {
-    if (status === 'loading') return
+    if (authLoading) return
     
-    if (!session?.user) {
+    if (!user) {
       window.location.href = '/login'
       return
     }
 
     loadDashboardData()
-  }, [session, status])
+  }, [user, authLoading])
 
   const loadDashboardData = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      // First check localStorage for business data
-      const savedBusiness = localStorage.getItem('currentBusiness')
-      const businessName = localStorage.getItem('businessName') || 'Your Business'
-      const industry = localStorage.getItem('industry') || 'General'
-      
-      // Check if user is new (for future backend integration)
-      const isNewUser = localStorage.getItem('isNewUser') === 'true'
-      const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted') === 'true'
-      
-      // If new user or no onboarding completed, redirect to onboarding
-      if (isNewUser || !hasCompletedOnboarding) {
-        router.push('/dashboard/onboarding')
-        return
-      }
-      
-      // TODO: Replace with actual API calls when backend is ready
-      // const [businessResponse, analyticsResponse] = await Promise.allSettled([
-      //   ideanApi.business.getMine(),
-      //   ideanApi.analytics.getDashboard()
-      // ])
+      console.log('📊 Loading dashboard data...')
+
+      // Load user and analytics data from API
+      const [userResponse, analyticsResponse] = await Promise.allSettled([
+        ideanApi.user.getMe(),
+        ideanApi.analytics.getDashboard()
+      ])
 
       let business: Business | undefined
-      
-      // Fallback business data from localStorage
-      if (savedBusiness) {
-        try {
-          business = JSON.parse(savedBusiness)
-        } catch {
-          business = {
-            id: 'local',
-            business_name: businessName,
-            website_url: '',
-            industry_tag: industry,
-            language: 'en',
-            mentor_approval: 'pending',
-            module_select: 'standard',
-            readiness_checklist: '{}',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            userId: session?.user?.id || 'unknown'
-          }
-        }
-      }
 
-      // TODO: Handle business data from API when available
-      // if (businessResponse.status === 'fulfilled' && businessResponse.value.data) {
-      //   business = businessResponse.value.data
-      // }
+      // Handle business data from user API
+      if (userResponse.status === 'fulfilled' && userResponse.value.business) {
+        business = userResponse.value.business as any
+        console.log('✅ Business data loaded:', business?.business_name)
+      } else if (userResponse.status === 'rejected') {
+        console.warn('⚠️ User data failed to load:', userResponse.reason?.message)
+
+        // If user not found (404), redirect should be handled by layout
+        if (userResponse.reason?.status === 404 || userResponse.reason?.status === 400) {
+          console.log('📋 User not found, layout should handle redirect')
+          return
+        }
+      } else if (userResponse.status === 'fulfilled' && !userResponse.value.business) {
+        console.log('📋 User has no business, layout should handle redirect')
+        return
+      }
 
       let analytics: DashboardData['analytics'] = {
         totalTemplates: 0,
@@ -159,14 +131,19 @@ export default function DashboardPage() {
         }
       }
 
-      // TODO: Handle analytics data from API when available
-      // if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value.data) {
-      //   analytics = { ...analytics, ...analyticsResponse.value.data }
-      // }
+      // Handle analytics data from API
+      if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value) {
+        analytics = { ...analytics, ...analyticsResponse.value as Record<string, unknown> }
+        console.log('📈 Analytics data loaded')
+      } else if (analyticsResponse.status === 'rejected') {
+        console.warn('⚠️ Analytics data failed to load, using defaults:', analyticsResponse.reason?.message)
+      }
 
       setDashboardData({ business, analytics })
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err)
+      console.log('🎉 Dashboard data loaded successfully')
+
+    } catch (err: unknown) {
+      console.error('❌ Failed to load dashboard data:', err)
       setError('Failed to load dashboard data. Please try again.')
     } finally {
       setLoading(false)
@@ -251,8 +228,8 @@ export default function DashboardPage() {
   if (!dashboardData) return null
 
   const dailyInsight = getDailyInsight()
-  const businessName = dashboardData.business?.business_name || localStorage.getItem('businessName') || 'Your Business'
-  const industry = dashboardData.business?.industry_tag || localStorage.getItem('industry') || 'General'
+  const businessName = dashboardData.business?.business_name || 'Your Business'
+  const industry = dashboardData.business?.industry_tag || 'General'
   const currentTime = new Date().getHours()
   const greeting = currentTime < 12 ? 'Good morning' : currentTime < 17 ? 'Good afternoon' : 'Good evening'
 
@@ -269,7 +246,7 @@ export default function DashboardPage() {
               <div>
                 <h1 className="text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
                 <p className="text-gray-600 text-lg">
-                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>'s strategic command center
+                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic command center
                 </p>
               </div>
             </div>
@@ -280,7 +257,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <dailyInsight.icon className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">{dailyInsight.title}</h3>
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Today's Focus</span>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Today&apos;s Focus</span>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">{dailyInsight.message}</p>
                 <Button 
