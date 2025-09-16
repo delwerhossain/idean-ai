@@ -45,6 +45,13 @@
 
 :root {
   --radius: 0.625rem;
+
+  /* Idean Consulting Brand Colors */
+  --idean-navy-blue: #2D3960;
+  --idean-dark-charcoal: #272727;
+  --idean-pure-white: #FFFFFF;
+  --idean-slate-gray: #1A1A1A;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -77,6 +84,25 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
+
+/* Idean Consulting Custom Color Classes */
+.bg-idean-navy { background-color: #2D3960; }
+.bg-idean-charcoal { background-color: #272727; }
+.bg-idean-white { background-color: #FFFFFF; }
+.bg-idean-slate { background-color: #1A1A1A; }
+
+.text-idean-navy { color: #2D3960; }
+.text-idean-charcoal { color: #272727; }
+.text-idean-white { color: #FFFFFF; }
+.text-idean-slate { color: #1A1A1A; }
+
+.border-idean-navy { border-color: #2D3960; }
+.border-idean-charcoal { border-color: #272727; }
+.border-idean-slate { border-color: #1A1A1A; }
+
+.hover\:bg-idean-navy:hover { background-color: #2D3960; }
+.hover\:bg-idean-navy-dark:hover { background-color: #1e2a4a; }
+.hover\:bg-idean-slate:hover { background-color: #1A1A1A; }
 
 .dark {
   --background: oklch(0.145 0 0);
