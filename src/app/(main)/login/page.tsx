@@ -39,8 +39,8 @@ export default function LoginPage() {
       </div>
 
       {/* Privacy Footer */}
-      <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-gray-500">
-        <p>
+      <div className="absolute bottom-4 left-0 right-0 px-4 text-center text-sm text-gray-500">
+        <p className="max-w-sm mx-auto">
           Private & secure. See our{' '}
           <Link href="/privacy" className="underline hover:text-gray-700">
             privacy policy

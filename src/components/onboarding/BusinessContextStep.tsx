@@ -73,13 +73,13 @@ export default function BusinessContextStep({
     }
     load()
     return () => { cancelled = true }
-  }, [currentBusiness])
+  }, [])
 
   // Auto-save to backend when values change (debounced)
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       try {
-        const id = businessId || ((await ideanApi.business.getMine()) as any)?.data?.id
+        const id = ((await ideanApi.business.getMine()) as any)?.data?.id
         if (!id) return
         await ideanApi.business.update(id, {
           business_context: businessContext || '',
@@ -90,7 +90,7 @@ export default function BusinessContextStep({
       }
     }, 800)
     return () => clearTimeout(timeoutId)
-  }, [businessContext, mentorApproval, businessId])
+  }, [businessContext, mentorApproval])
 
   const addPromptExample = (example: string) => {
     const currentContext = businessContext.trim()
@@ -135,7 +135,7 @@ export default function BusinessContextStep({
     try {
       setUploading(true)
       setUploadProgress(0)
-      const id = businessId || ((await ideanApi.business.getMine()) as any)?.data?.id || ((await ideanApi.business.getMine()) as any)?.id
+      const id = ((await ideanApi.business.getMine()) as any)?.data?.id || ((await ideanApi.business.getMine()) as any)?.id
       if (!id) throw new Error('Business not found for upload')
 
       const result = await ideanApi.documents.upload(file, id, (p) => setUploadProgress(p))

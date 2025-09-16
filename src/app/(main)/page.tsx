@@ -131,7 +131,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-gray-200 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-          <p>
+          <p className="max-w-sm mx-auto">
             Private & secure. See our{' '}
             <Link href="/privacy" className="underline hover:text-gray-700">
               privacy policy

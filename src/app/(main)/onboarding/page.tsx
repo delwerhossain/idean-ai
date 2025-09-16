@@ -284,8 +284,8 @@ export default function OnboardingPage() {
       </div>
 
       {/* Privacy Footer */}
-      <div className="fixed bottom-16 left-0 right-0 text-center text-sm text-gray-500 pb-4">
-        <p>
+      <div className="fixed bottom-16 left-0 right-0 px-4 text-center text-sm text-gray-500 pb-4">
+        <p className="max-w-sm mx-auto">
           Private & secure. See our{' '}
           <Link href="/privacy" className="underline hover:text-gray-700">
             privacy policy
