@@ -133,7 +133,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
             <div className="w-4 h-4 bg-white rounded-sm flex items-center justify-center">
-              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <div className="w-2 h-2 bg-idean-navy rounded-full"></div>
             </div>
           </div>
           {isHovered && (
@@ -173,7 +173,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                    ? 'bg-gray-50 text-idean-navy border border-gray-200'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
                 title={!isHovered ? item.label : undefined}
@@ -183,7 +183,7 @@ export default function Sidebar({ className = '' }: SidebarProps) {
                   <>
                     <span className="flex-1 whitespace-nowrap">{item.label}</span>
                     {item.badge && (
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium flex-shrink-0">
+                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-idean-navy rounded-full font-medium flex-shrink-0">
                         {item.badge}
                       </span>
                     )}
