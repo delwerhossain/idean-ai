@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle, Upload, FileText } from 'lucide-react'
 import { ideanApi } from '@/lib/api/idean-api'
-import { useCurrentBusiness } from '@/lib/contexts/BusinessContext'
+// import { useCurrentBusiness } from '@/lib/contexts/BusinessContext' // Removed as it's not available in onboarding context
 import { apiUtils } from '@/lib/api/client'
 
 interface BusinessContextStepProps {
@@ -47,7 +47,7 @@ export default function BusinessContextStep({
 }: BusinessContextStepProps) {
   const characterCount = businessContext.length
   const maxCharacters = 500
-  const { business: currentBusiness, businessId } = useCurrentBusiness()
+  // const { business: currentBusiness, businessId } = useCurrentBusiness() // Commented out for onboarding flow
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadedDocName, setUploadedDocName] = useState<string | null>(null)
