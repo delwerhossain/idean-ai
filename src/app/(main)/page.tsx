@@ -13,14 +13,14 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">iA</span>
               </div>
               <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
             </Link>
             <div className="flex items-center space-x-6">
               <Link href="/dashboard/onboarding">
-                <Button className="bg-black hover:bg-gray-800 text-white font-medium">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
                   Get Started
                 </Button>
               </Link>
@@ -48,7 +48,7 @@ export default function Home() {
               <Link href="/dashboard/onboarding">
                 <Button
                   size="lg"
-                  className="bg-black hover:bg-gray-800 text-white px-8 py-3 text-base font-medium"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base font-medium"
                 >
                   Get Started
                   <ArrowRight className="ml-2 w-4 h-4" />
@@ -85,24 +85,24 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Target className="w-6 h-6 text-gray-700" />
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Target className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Strategy</h3>
             <p className="text-gray-600">Proven business frameworks</p>
           </div>
 
           <div className="text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Rocket className="w-6 h-6 text-gray-700" />
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Rocket className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Execution</h3>
             <p className="text-gray-600">Marketing tools and campaigns</p>
           </div>
 
           <div className="text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-6 h-6 text-gray-700" />
+            <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="w-6 h-6 text-teal-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Content</h3>
             <p className="text-gray-600">AI-powered content creation</p>
@@ -111,7 +111,7 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gray-900">
+      <div className="bg-slate-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h2 className="text-3xl font-semibold text-white mb-6">
             Ready to get started?
@@ -119,7 +119,7 @@ export default function Home() {
           <Link href="/dashboard/onboarding">
             <Button
               size="lg"
-              className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base font-medium"
+              className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 text-base font-medium"
             >
               Start Now
               <ArrowRight className="ml-2 w-4 h-4" />

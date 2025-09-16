@@ -327,7 +327,7 @@ export default function DashboardPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Palette className="w-7 h-7 text-white" />
             </div>
-            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">Brand DNA</span>
+            <span className="text-xs bg-teal-100 text-teal-700 px-3 py-1 rounded-full font-medium">Brand DNA</span>
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Branding Lab</h3>
           <p className="text-gray-600 text-sm mb-4 leading-relaxed">
@@ -346,7 +346,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Button className="w-full group-hover:bg-purple-600 group-hover:text-white" variant="outline">
+          <Button className="w-full group-hover:bg-blue-600 group-hover:text-white" variant="outline">
             Build Your Brand
             <Crown className="w-4 h-4 ml-2" />
           </Button>
@@ -378,7 +378,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Button className="w-full group-hover:bg-orange-600 group-hover:text-white" variant="outline">
+          <Button className="w-full group-hover:bg-blue-600 group-hover:text-white" variant="outline">
             Generate Content
             <Sparkles className="w-4 h-4 ml-2" />
           </Button>
@@ -456,7 +456,7 @@ export default function DashboardPage() {
         {/* Business Health Dashboard */}
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-green-600" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Business Health Score</h3>
@@ -568,7 +568,7 @@ export default function DashboardPage() {
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
               <FileText className="w-6 h-6 text-green-600" />
             </div>
             <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
@@ -579,7 +579,7 @@ export default function DashboardPage() {
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <Building className="w-6 h-6 text-purple-600" />
             </div>
             <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
@@ -590,7 +590,7 @@ export default function DashboardPage() {
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <Globe className="w-6 h-6 text-orange-600" />
             </div>
             <span className="text-2xl font-bold text-gray-900">{industry}</span>

@@ -797,7 +797,7 @@ ${inputs.ctaText || 'Take action now!'}
               </Button>
             )}
             {currentStep === 4 && (
-              <Button onClick={onClose} className="bg-green-600 hover:bg-green-700">
+              <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Complete
               </Button>

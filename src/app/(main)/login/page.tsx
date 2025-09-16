@@ -11,14 +11,14 @@ export default function LoginPage() {
       {/* Header with navigation */}
       <div className="flex justify-between items-center p-6 border-b border-gray-100">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-sm font-bold text-white">iA</span>
           </div>
           <span className="text-xl font-semibold text-gray-900">iDEAN AI</span>
         </Link>
         <div className="flex space-x-4">
           <Link href="/onboarding">
-            <Button className="bg-black hover:bg-gray-800 text-white font-medium">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
               Get Started
             </Button>
           </Link>
