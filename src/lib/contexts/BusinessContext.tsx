@@ -167,13 +167,15 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
       try {
         const userResponse = await ideanApi.user.getMe()
         if (userResponse.business) {
-          currentBiz = userResponse.business
-          businessList.push(currentBiz)
+          currentBiz = userResponse.business as any
+          if (currentBiz) {
+            businessList.push(currentBiz)
+          }
           console.log('✅ User business loaded:', currentBiz?.business_name)
 
           // Check if there's a saved business in localStorage that's different
           const savedBusinessId = localStorage.getItem('businessId')
-          if (savedBusinessId && savedBusinessId !== currentBiz.id) {
+          if (savedBusinessId && currentBiz && savedBusinessId !== currentBiz.id) {
             // Try to load the saved business if it's different from user's primary business
             console.log('🔍 Found different saved business ID, will attempt to load all businesses')
           }
@@ -204,8 +206,8 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
       if (currentBiz) {
         try {
           const allBusinessResponse = await ideanApi.business.getAll({ limit: 50 })
-          if (allBusinessResponse.data) {
-            const allBizList = (allBusinessResponse.data as any)?.data || []
+          if (allBusinessResponse.items) {
+            const allBizList = allBusinessResponse.items || []
             if (allBizList.length > 0) {
               businessList = allBizList
               console.log(`📊 Loaded ${allBizList.length} total businesses`)
@@ -302,8 +304,8 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     // Optionally refresh business data from server
     try {
       const updatedBusiness = await ideanApi.business.getById(businessId)
-      if (updatedBusiness.data) {
-        const refreshedBusiness = updatedBusiness.data
+      if (updatedBusiness) {
+        const refreshedBusiness = updatedBusiness
         setCurrentBusiness(refreshedBusiness)
         console.log('✅ Business data refreshed from server')
 

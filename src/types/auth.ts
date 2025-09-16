@@ -43,7 +43,7 @@ export interface AuthSession {
 }
 
 // NextAuth v5 type declarations aligned with backend schema
-declare module 'next-auth' {
+// declare module 'next-auth' {
   interface Session {
     user: {
       id: string

@@ -234,8 +234,8 @@ export function DocumentPreviewModal({
                         {children}
                       </blockquote>
                     ),
-                    code: ({ inline, children, ...props }) =>
-                      inline ? (
+                    code: ({ children, ...props }: any) =>
+                      (props as any).inline ? (
                         <code className="bg-gray-100 text-purple-700 px-2 py-1 rounded text-sm font-mono" {...props}>
                           {children}
                         </code>

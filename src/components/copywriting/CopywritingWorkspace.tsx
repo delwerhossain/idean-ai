@@ -45,7 +45,7 @@ export default function CopywritingWorkspace({ businessId }: CopywritingWorkspac
   const loadCopywritingTemplates = async () => {
     try {
       const response = await ideanApi.templates.getByCategory('copywriting')
-      setCopywritingTemplates(response.data || [])
+      setCopywritingTemplates(response.items || [])
     } catch (error) {
       console.error('Failed to load copywriting templates:', error)
     }

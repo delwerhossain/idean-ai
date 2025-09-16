@@ -37,8 +37,8 @@ export function useMarkdownEditor({
   })
 
   const editorRef = useRef<Editor | null>(null)
-  const debounceRef = useRef<NodeJS.Timeout>()
-  const autoSaveRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const autoSaveRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Debounced content update
   const debouncedUpdate = useCallback((content: string) => {

@@ -129,8 +129,8 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
         }
 
         // Handle the API response format from the JSON file
-        const apiResponse = response.data || response
-        const generatedContent = apiResponse.generatedContent || apiResponse.content || 'Generated content will appear here.'
+        const apiResponse = response
+        const generatedContent = apiResponse.content || 'Generated content will appear here.'
 
         console.log('API Response:', apiResponse) // Debug logging
 
@@ -140,8 +140,8 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
             framework: framework.name,
             inputs,
             timestamp: new Date().toISOString(),
-            tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
-            model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4'
+            tokensUsed: (apiResponse as any).generationMetadata?.usage?.total_tokens || (apiResponse as any).usage?.total_tokens || 0,
+            model: (apiResponse as any).generationMetadata?.model || (apiResponse as any).model || 'gpt-4'
           }
         })
       }
@@ -304,7 +304,7 @@ ${inputs.ctaText || 'Take action now!'}
           throw new Error('Unsupported generation type')
       }
 
-      const newSectionContent = response.data?.generatedContent || response.generatedContent
+      const newSectionContent = (response as any).generatedContent || response.content
 
       if (newSectionContent && generationResult) {
         // Replace the section in the current content

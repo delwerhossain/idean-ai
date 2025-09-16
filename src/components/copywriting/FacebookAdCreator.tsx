@@ -108,8 +108,8 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
     if (businessData.currentBusiness) {
       setStepData(prev => ({
         ...prev,
-        language: businessData.currentBusiness.language || 'en',
-        targetAudience: businessData.currentBusiness.business_context?.split('.')[0] || '',
+        language: businessData.currentBusiness?.language || 'en',
+        targetAudience: businessData.currentBusiness?.business_context?.split('.')[0] || '',
       }))
     }
   }, [businessData.currentBusiness])
@@ -182,7 +182,7 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
         industry: businessData.currentBusiness?.industry_tag || ''
       }
 
-      const response = await ideanApi.copywriting.generate(templateId, inputs)
+      const response = await ideanApi.copywriting.generate(templateId, { userInputs: inputs })
       
       // Parse the generated content (assuming structured response)
       const content = response.content
@@ -306,7 +306,7 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
         }
       }
 
-      const response = await ideanApi.copywriting.generate(templateId, inputs)
+      const response = await ideanApi.copywriting.generate(templateId, { userInputs: inputs })
       
       // Mock section-specific regeneration
       const variations = {
@@ -333,7 +333,7 @@ export default function FacebookAdCreator({ businessId, templates }: FacebookAdC
         ]
       }
 
-      const newContent = variations[section] ? variations[section][Math.floor(Math.random() * variations[section].length)] : response.content
+      const newContent = (variations as any)[section] ? (variations as any)[section][Math.floor(Math.random() * (variations as any)[section].length)] : response.content
       
       if (section === 'creativeIdeas') {
         const newIdeas = [

@@ -34,7 +34,6 @@ import {
   X
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import { ideanApi } from '@/lib/api/idean-api'
 import { useBusinessDataContext, useBusinessSwitchListener } from '@/lib/contexts/BusinessContext'
 
@@ -133,8 +132,8 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
     if (businessData.currentBusiness) {
       setPostData(prev => ({
         ...prev,
-        language: businessData.currentBusiness.language || 'en',
-        audience: businessData.currentBusiness.business_context?.split('.')[0] || '',
+        language: businessData.currentBusiness?.language || 'en',
+        audience: businessData.currentBusiness?.business_context?.split('.')[0] || '',
       }))
     }
   }, [businessData.currentBusiness])
@@ -148,7 +147,7 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
       audience: newBusiness.business_context?.split('.')[0] || '',
     }))
     // Clear generated posts to avoid confusion
-    setGeneratedPosts([])
+    setGeneratedPost(null)
     setActiveVariation(0)
   })
 
@@ -206,7 +205,7 @@ export default function SocialMediaPostCreator({ businessId, templates }: Social
         industry: businessData.currentBusiness?.industry_tag || ''
       }
 
-      const response = await ideanApi.copywriting.generate(templateId, inputs)
+      const response = await ideanApi.copywriting.generate(templateId, { userInputs: inputs })
       
       // Mock structured response for social media post
       const mockGeneratedPost: GeneratedPost = {
