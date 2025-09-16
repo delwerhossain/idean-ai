@@ -97,7 +97,7 @@ export default function SignupPage() {
       {/* Header with login link */}
       <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-6">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-idean-navy rounded-lg flex items-center justify-center">
             <span className="text-sm font-bold text-white">iA</span>
           </div>
           <span className="text-xl font-semibold text-gray-900">iDEAN AI</span>
@@ -207,7 +207,7 @@ export default function SignupPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
+                  className="w-full h-11 bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium rounded-md"
                   disabled={loading}
                 >
                   {loading ? 'Signing up...' : 'Sign up'}
