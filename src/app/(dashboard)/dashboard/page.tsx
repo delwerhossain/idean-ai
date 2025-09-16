@@ -378,7 +378,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <Button className="w-full group-hover:bg-idean-navy group-hover:text-idean-white" variant="outline">
+          <Button className="w-full group-hover:bg-idean-navy group-hover:text-white" variant="outline">
             Generate Content
             <Sparkles className="w-4 h-4 ml-2" />
           </Button>
