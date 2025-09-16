@@ -72,7 +72,9 @@
       "Bash(sed:*)",
       "Bash(cd:*)",
       "Bash(pnpm:*)",
-      "Bash(del \"D:\\delwer\\ai-bud-all\\idean-all\\idean-ai-delwer\\src\\app\\(dashboard)\\dashboard\\copywriting\\[id]\\response_1757864048377.json\")"
+      "Bash(del \"D:\\delwer\\ai-bud-all\\idean-all\\idean-ai-delwer\\src\\app\\(dashboard)\\dashboard\\copywriting\\[id]\\response_1757864048377.json\")",
+      "Bash(del \"E:\\test\\other\\ai\\idea-ai\\src\\app\\(dashboard)\\dashboard\\blueprints\\page.tsx\")",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": [],

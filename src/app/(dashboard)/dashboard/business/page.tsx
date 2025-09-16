@@ -131,7 +131,7 @@ export default function BusinessPage() {
       resetForm()
     } catch (err: unknown) {
       console.error('Failed to save business:', err)
-      setError(err.message || 'Failed to save business. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to save business. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -165,7 +165,7 @@ export default function BusinessPage() {
       await loadBusinesses()
     } catch (err: unknown) {
       console.error('Failed to delete business:', err)
-      setError(err.message || 'Failed to delete business. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to delete business. Please try again.')
     }
   }
 
