@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth as useFirebaseAuth } from '@/contexts/AuthContext'
-import { AuthSession } from '@/types/auth'
 
 export function useAuth() {
   const { user, loading, authLoading, isHydrated } = useFirebaseAuth()

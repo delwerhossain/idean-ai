@@ -255,7 +255,6 @@ export async function exportAsPDF(
 
     // Generate canvas from element
     const canvas = await html2canvas(element, {
-      quality,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
