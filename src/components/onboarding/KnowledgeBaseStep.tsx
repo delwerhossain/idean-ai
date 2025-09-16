@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Upload, FileText, X, AlertCircle, HelpCircle } from 'lucide-react'
+import { Upload, FileText, X, HelpCircle } from 'lucide-react'
 
 interface KnowledgeBaseStepProps {
   knowledgeBase: File[]
