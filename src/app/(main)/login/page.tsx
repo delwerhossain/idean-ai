@@ -5,8 +5,8 @@ export default function LoginPage() {
   // Client-side auth check is handled by the LoginForm component and AuthContext
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="h-screen bg-white flex items-center justify-center overflow-hidden">
+      <div className="w-full max-w-sm px-6 py-8 max-h-screen overflow-y-auto">
         <Suspense fallback={
           <div className="animate-pulse">
             <div className="bg-gray-200 h-96 rounded-xl"></div>
