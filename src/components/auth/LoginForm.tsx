@@ -50,10 +50,21 @@ export function LoginForm() {
     }
   }
 
-  // Redirect if user is already logged in
+  // Redirect based on user state and onboarding completion
   useEffect(() => {
     if (user) {
-      router.push('/dashboard')
+      // Check if user has completed onboarding (has business data)
+      const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding')
+      const userHasBusiness = user.business || user.businessId
+
+      if (hasCompletedOnboarding || userHasBusiness) {
+        // User has completed onboarding, go to dashboard
+        router.push('/dashboard')
+      } else {
+        // New user or user without business, need onboarding
+        localStorage.setItem('isNewUser', 'false') // They have an account but need onboarding
+        router.push('/dashboard/onboarding')
+      }
     }
   }, [user, router])
 
@@ -130,6 +141,15 @@ export function LoginForm() {
               </div>
             )}
 
+            <div className="text-center">
+              <a
+                href="/forgot-password"
+                className="text-xs text-gray-500 hover:text-gray-700"
+              >
+                Forgot password?
+              </a>
+            </div>
+
             <Button
               type="submit"
               className="w-full h-11 bg-black hover:bg-gray-800 text-white font-medium rounded-md"
@@ -137,23 +157,7 @@ export function LoginForm() {
             >
               {loading ? 'Signing in...' : 'Continue'}
             </Button>
-
-            <div className="text-center">
-              <a
-                href="/forgot-password"
-                className="text-sm text-gray-600 hover:text-gray-800"
-              >
-                Forgot password?
-              </a>
-            </div>
           </form>
-
-          <div className="text-center text-sm text-gray-600 mt-4 sm:mt-6">
-            Don&apos;t have an account?{' '}
-            <a href="/register" className="text-gray-900 hover:underline font-medium">
-              Sign up
-            </a>
-          </div>
         </CardContent>
       </Card>
     </div>
