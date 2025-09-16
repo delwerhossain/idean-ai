@@ -51,7 +51,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Combined state for complete authentication readiness
-  const isAuthReady = !authLoading && !isHydrating && isHydrated;
+  // Make auth ready as soon as hydration is complete, even if authLoading is still true
+  const isAuthReady = !isHydrating && isHydrated;
 
   useEffect(() => {
     // Mark as hydrated when we're on the client
@@ -63,26 +64,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Early localStorage check to restore user session immediately
     const checkStoredAuth = () => {
       if (typeof window !== 'undefined') {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('authToken');
+        try {
+          const storedUser = localStorage.getItem('user');
+          const storedToken = localStorage.getItem('authToken');
 
-        if (storedUser && storedToken) {
-          try {
+          if (storedUser && storedToken) {
             const parsedUser = JSON.parse(storedUser);
             console.log('⚡ Early restore: Found stored auth, restoring user session:', parsedUser.email);
             setUser(parsedUser);
             setIsNewUser(false);
+            setAuthLoading(false); // Mark auth loading complete for stored sessions
             setIsHydrating(false); // Mark hydration complete early
             return true; // User restored successfully
-          } catch (error) {
-            console.error('Failed to parse stored user during early restore:', error);
-            localStorage.removeItem('user');
-            localStorage.removeItem('authToken');
           }
-        }
 
-        console.log('⚡ Early restore: No valid stored auth found');
-        setIsHydrating(false); // Mark hydration complete even if no user
+          console.log('⚡ Early restore: No valid stored auth found');
+          setIsHydrating(false); // Mark hydration complete even if no user
+        } catch (error) {
+          console.error('Failed to parse stored user during early restore:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('authToken');
+          setIsHydrating(false);
+        }
       }
       return false;
     };

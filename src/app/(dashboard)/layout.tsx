@@ -72,12 +72,12 @@ function BusinessStatusChecker({ children }: { children: React.ReactNode }) {
 
   // Show loading UI while authentication is being resolved
   if (!isAuthReady) {
-    return <AuthLoading message="Authenticating..." />
+    return <AuthLoading message="Authenticating..." timeout={3000} />
   }
 
   // If no user after auth is ready, let the redirect happen
   if (!user) {
-    return null // Don't render children while redirecting
+    return <AuthLoading message="Redirecting to login..." timeout={2000} />
   }
 
   // Render children - the business status check happens in the background
