@@ -73,8 +73,12 @@ export default function OnboardingPage() {
   const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
       const newData = { ...prev, [field]: value }
-      // Save to localStorage for persistence
-      localStorage.setItem('onboardingData', JSON.stringify(newData))
+      // Save to localStorage for persistence (excluding files which can't be serialized)
+      const { knowledgeBase, ...serializableData } = newData
+      localStorage.setItem('onboardingData', JSON.stringify({
+        ...serializableData,
+        hasFiles: (knowledgeBase && knowledgeBase.length > 0)
+      }))
       return newData
     })
   }

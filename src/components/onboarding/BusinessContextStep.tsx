@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle, Upload, FileText } from 'lucide-react'
-import { ideanApi } from '@/lib/api/idean-api'
-// import { useCurrentBusiness } from '@/lib/contexts/BusinessContext' // Removed as it's not available in onboarding context
-import { apiUtils } from '@/lib/api/client'
+import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle } from 'lucide-react'
+// Removed API imports since this component only handles UI state during onboarding
+// The actual business creation happens in the signup process
 
 interface BusinessContextStepProps {
   businessContext: string
@@ -47,50 +46,11 @@ export default function BusinessContextStep({
 }: BusinessContextStepProps) {
   const characterCount = businessContext.length
   const maxCharacters = 500
-  // const { business: currentBusiness, businessId } = useCurrentBusiness() // Commented out for onboarding flow
-  const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadedDocName, setUploadedDocName] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  // This component only handles UI state during onboarding
+  // No API calls or file uploads happen here
 
-  // Load initial data from backend (replace localStorage)
-  useEffect(() => {
-    let cancelled = false
-    const load = async () => {
-      try {
-        const biz = await ideanApi.business.getMine()
-        const data: any = (biz as any).data || biz
-        if (!data || cancelled) return
-        if (!businessContext && data.business_context) {
-          onBusinessContextChange(data.business_context)
-        }
-        if (!mentorApproval && data.mentor_approval) {
-          onMentorApprovalChange(data.mentor_approval === 'approved')
-        }
-      } catch (err) {
-        console.warn('Failed to load business context from API:', err)
-      }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [])
-
-  // Auto-save to backend when values change (debounced)
-  useEffect(() => {
-    const timeoutId = setTimeout(async () => {
-      try {
-        const id = ((await ideanApi.business.getMine()) as any)?.data?.id
-        if (!id) return
-        await ideanApi.business.update(id, {
-          business_context: businessContext || '',
-          mentor_approval: mentorApproval ? 'approved' : 'pending',
-        })
-      } catch (err) {
-        console.warn('Failed to save business context to API:', err)
-      }
-    }, 800)
-    return () => clearTimeout(timeoutId)
-  }, [businessContext, mentorApproval])
+  // During onboarding, we don't have a business yet, so we just handle the UI state
+  // The actual business creation happens at the end in the signup process
 
   const addPromptExample = (example: string) => {
     const currentContext = businessContext.trim()
@@ -120,36 +80,8 @@ export default function BusinessContextStep({
     onMentorApprovalChange(value)
   }
 
-  // Single PDF upload (3MB max) to business knowledge base
-  const onSelectPdf = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = (e.target.files && e.target.files[0]) || null
-    if (!file) return
-
-    const { isValid, errors } = apiUtils.validateFile(file, 3 * 1024 * 1024, ['application/pdf'])
-    if (!isValid) {
-      alert(errors.join('\n'))
-      e.target.value = ''
-      return
-    }
-
-    try {
-      setUploading(true)
-      setUploadProgress(0)
-      const id = ((await ideanApi.business.getMine()) as any)?.data?.id || ((await ideanApi.business.getMine()) as any)?.id
-      if (!id) throw new Error('Business not found for upload')
-
-      const result = await ideanApi.documents.upload(file, id, (p) => setUploadProgress(p))
-      setUploadedDocName(file.name)
-      console.log('Document uploaded successfully:', result)
-    } catch (err) {
-      console.error('PDF upload failed:', err)
-      alert('Failed to upload PDF. Please try again.')
-    } finally {
-      setUploading(false)
-      setUploadProgress(0)
-      if (fileInputRef.current) fileInputRef.current.value = ''
-    }
-  }
+  // PDF upload is handled in the KnowledgeBaseStep during onboarding
+  // This component focuses on business context text input only
 
   return (
     <div className="space-y-6">
@@ -255,51 +187,14 @@ export default function BusinessContextStep({
           </div>
         )}
 
-        {/* Single PDF Upload (3MB max) */}
+        {/* Note about Knowledge Base Upload */}
         <div className="border-t pt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload one business PDF (max 3MB)
-          </label>
-          <div className="flex items-center gap-3">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf"
-              onChange={onSelectPdf}
-              disabled={uploading}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="flex items-center gap-2"
-              variant="outline"
-            >
-              <Upload className="w-4 h-4" />
-              {uploading ? 'Uploading...' : 'Upload PDF'}
-            </Button>
-            {uploadedDocName && (
-              <div className="text-sm text-gray-600 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-gray-400" />
-                <span>Uploaded: {uploadedDocName}</span>
-              </div>
-            )}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-800 mb-2">📚 Knowledge Base Upload</h4>
+            <p className="text-sm text-blue-700">
+              You'll be able to upload business documents (PDFs, docs) in the next step to help iDEAN AI understand your business better.
+            </p>
           </div>
-          {uploading && (
-            <div className="mt-2">
-              <div className="h-2 bg-gray-200 rounded">
-                <div
-                  className="h-2 bg-blue-500 rounded"
-                  style={{ width: `${Math.round(uploadProgress)}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">{Math.round(uploadProgress)}%</p>
-            </div>
-          )}
-          <p className="text-xs text-gray-500 mt-2">
-            The business knowledge base uploads now. Copywriting templates can be fetched later.
-          </p>
         </div>
 
         {/* Mentor Approval Section */}

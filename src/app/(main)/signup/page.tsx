@@ -49,11 +49,41 @@ export default function SignupPage() {
       if (onboardingData) {
         try {
           const data = JSON.parse(onboardingData)
-          // The user will be redirected to dashboard creation flow
-          localStorage.setItem('pendingBusinessData', onboardingData)
+
+          // Import and create business using backend API
+          const { ideanApi } = await import('@/lib/api/idean-api')
+
+          // Create business (files will be handled separately since they can't be stored in localStorage)
+          const businessData = {
+            business_name: data.businessName,
+            website_url: data.website || '',
+            industry_tag: data.industry,
+            business_documents: [],
+            business_context: data.businessContext || '',
+            language: data.language || 'en',
+            mentor_approval: data.mentorApproval ? 'approved' : 'pending',
+            module_select: 'standard' as const,
+            readiness_checklist: 'pending'
+          }
+
+          const result = await ideanApi.business.create(businessData)
+          console.log('Business created:', result)
+
+          // Note: File uploads need to be handled differently since File objects
+          // cannot be stored in localStorage. For MVP, business is created without documents.
+
+          // Clear onboarding data
+          localStorage.removeItem('onboardingData')
+          localStorage.removeItem('onboardingCompleted')
+          localStorage.removeItem('readyForSignup')
           localStorage.setItem('hasCompletedOnboarding', 'true')
-        } catch (error) {
-          console.error('Failed to parse onboarding data:', error)
+
+          // Redirect to dashboard
+          router.push('/dashboard')
+
+        } catch (apiError) {
+          console.error('Failed to create business:', apiError)
+          setError('Failed to create business. Please try again.')
         }
       }
     } catch (error: any) {

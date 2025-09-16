@@ -19,7 +19,7 @@ export default function Home() {
               <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
             </Link>
             <div className="flex items-center space-x-6">
-              <Link href="/onboarding">
+              <Link href="/dashboard/onboarding">
                 <Button className="bg-black hover:bg-gray-800 text-white font-medium">
                   Get Started
                 </Button>
@@ -45,7 +45,7 @@ export default function Home() {
               Transform business ideas into actionable strategies with proven frameworks.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/onboarding">
+              <Link href="/dashboard/onboarding">
                 <Button
                   size="lg"
                   className="bg-black hover:bg-gray-800 text-white px-8 py-3 text-base font-medium"
@@ -116,7 +116,7 @@ export default function Home() {
           <h2 className="text-3xl font-semibold text-white mb-6">
             Ready to get started?
           </h2>
-          <Link href="/onboarding">
+          <Link href="/dashboard/onboarding">
             <Button
               size="lg"
               className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base font-medium"
