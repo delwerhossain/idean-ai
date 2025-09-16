@@ -87,6 +87,7 @@
 
 /* Idean Consulting Custom Color Classes */
 .bg-idean-navy { background-color: #2D3960; }
+.bg-idean-navy-dark { background-color: #1e2a4a; }
 .bg-idean-charcoal { background-color: #272727; }
 .bg-idean-white { background-color: #FFFFFF; }
 .bg-idean-slate { background-color: #1A1A1A; }
@@ -100,9 +101,17 @@
 .border-idean-charcoal { border-color: #272727; }
 .border-idean-slate { border-color: #1A1A1A; }
 
+/* Hover States */
 .hover\:bg-idean-navy:hover { background-color: #2D3960; }
 .hover\:bg-idean-navy-dark:hover { background-color: #1e2a4a; }
 .hover\:bg-idean-slate:hover { background-color: #1A1A1A; }
+.hover\:text-idean-white:hover { color: #FFFFFF; }
+
+/* Group Hover States */
+.group:hover .group-hover\:bg-idean-navy { background-color: #2D3960; }
+.group:hover .group-hover\:bg-idean-navy-dark { background-color: #1e2a4a; }
+.group:hover .group-hover\:text-idean-white { color: #FFFFFF; }
+.group:hover .group-hover\:text-idean-navy { color: #2D3960; }
 
 .dark {
   --background: oklch(0.145 0 0);
