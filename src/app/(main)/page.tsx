@@ -1,23 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkles, Target, Rocket } from 'lucide-react'
+import Link from 'next/link'
 
 export default function Home() {
-  useEffect(() => {
-    // Auto-redirect to onboarding for first-time users
-    // In a real app, you'd check authentication and user state here
-    const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding')
-    if (!hasCompletedOnboarding) {
-      // Uncomment for auto-redirect:
-      // window.location.href = '/dashboard/onboarding'
-    }
-  }, [])
-
-  const startOnboarding = () => {
-    window.location.href = '/dashboard/onboarding'
-  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -25,22 +12,23 @@ export default function Home() {
       <nav className="border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">iD</span>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">iA</span>
               </div>
               <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
-            </div>
+            </Link>
             <div className="flex items-center space-x-6">
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900 font-medium">
-                Features
-              </Button>
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900 font-medium">
-                Pricing
-              </Button>
-              <Button onClick={startOnboarding} className="bg-gray-900 hover:bg-gray-800 text-white font-medium">
-                Get Started
-              </Button>
+              <Link href="/onboarding">
+                <Button className="bg-black hover:bg-gray-800 text-white font-medium">
+                  Get Started
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="ghost" className="text-gray-700 hover:text-gray-900 font-medium">
+                  Login
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -56,14 +44,26 @@ export default function Home() {
             <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
               Transform business ideas into actionable strategies with proven frameworks.
             </p>
-            <Button
-              onClick={startOnboarding}
-              size="lg"
-              className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 text-base font-medium"
-            >
-              Get Started
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/onboarding">
+                <Button
+                  size="lg"
+                  className="bg-black hover:bg-gray-800 text-white px-8 py-3 text-base font-medium"
+                >
+                  Get Started
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 text-base font-medium"
+                >
+                  Login
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -116,16 +116,30 @@ export default function Home() {
           <h2 className="text-3xl font-semibold text-white mb-6">
             Ready to get started?
           </h2>
-          <Button
-            onClick={startOnboarding}
-            size="lg"
-            className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base font-medium"
-          >
-            Start Now
-            <ArrowRight className="ml-2 w-4 h-4" />
-          </Button>
+          <Link href="/onboarding">
+            <Button
+              size="lg"
+              className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base font-medium"
+            >
+              Start Now
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+          <p>
+            Private & secure. See our{' '}
+            <Link href="/privacy" className="underline hover:text-gray-700">
+              privacy policy
+            </Link>
+            .
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }
