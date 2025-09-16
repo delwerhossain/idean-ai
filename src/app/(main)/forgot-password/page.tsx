@@ -128,7 +128,3 @@ export default function ForgotPasswordPage() {
   )
 }
 
-export const metadata = {
-  title: 'Forgot Password - iDEAN AI',
-  description: 'Reset your iDEAN AI account password',
-}

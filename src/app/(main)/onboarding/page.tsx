@@ -272,7 +272,3 @@ export default function OnboardingPage() {
   )
 }
 
-export const metadata = {
-  title: 'Get Started - iDEAN AI',
-  description: 'Create your business strategy with iDEAN AI',
-}

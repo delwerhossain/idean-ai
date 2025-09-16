@@ -202,7 +202,3 @@ export default function SignupPage() {
   )
 }
 
-export const metadata = {
-  title: 'Sign Up - iDEAN AI',
-  description: 'Create your iDEAN AI account to save your business strategy',
-}
