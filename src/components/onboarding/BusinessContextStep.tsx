@@ -5,8 +5,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MessageSquare, Lightbulb, Target, Users, CheckCircle2, HelpCircle } from 'lucide-react'
-// Removed API imports since this component only handles UI state during onboarding
-// The actual business creation happens in the signup process
+// This component is responsible for collecting and managing the business context and mentor approval UI state during onboarding.
+// It does not handle business creation logic; that logic is implemented in the signup process (see src/components/onboarding/Signup.tsx).
 
 interface BusinessContextStepProps {
   businessContext: string
