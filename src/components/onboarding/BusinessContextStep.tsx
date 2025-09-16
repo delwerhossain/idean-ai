@@ -58,7 +58,7 @@ export default function BusinessContextStep({
     let cancelled = false
     const load = async () => {
       try {
-        const biz = currentBusiness || (await ideanApi.business.getMine())
+        const biz = await ideanApi.business.getMine()
         const data: any = (biz as any).data || biz
         if (!data || cancelled) return
         if (!businessContext && data.business_context) {
@@ -104,8 +104,8 @@ export default function BusinessContextStep({
   }
 
   const generateBusinessSummary = () => {
-    const businessName = currentBusiness?.business_name || 'Your Business'
-    const industry = currentBusiness?.industry_tag || 'General'
+    const businessName = 'Your Business'
+    const industry = 'General'
     const summary = `${businessName} operates in the ${industry} industry. ${businessContext || 'We provide quality services to our customers and aim to grow our business through effective marketing and customer satisfaction.'}`
     return summary
   }
