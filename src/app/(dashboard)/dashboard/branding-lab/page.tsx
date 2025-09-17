@@ -189,16 +189,16 @@ export default function BrandingLabPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
             <Palette className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Branding Lab</h1>
-            <p className="text-gray-600">Strategic brand frameworks and messaging systems</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Branding Lab</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Strategic brand frameworks and messaging systems</p>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ export default function BrandingLabPage() {
       </div>
 
       {/* Search and Filter */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -227,66 +227,69 @@ export default function BrandingLabPage() {
             />
           </div>
         </div>
-        <Button onClick={handleSearch} variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-        <Button className="bg-purple-600 hover:bg-purple-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Framework
-        </Button>
+        <div className="flex gap-2 sm:gap-3">
+          <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
+            <Filter className="w-4 h-4 mr-2" />
+            Search
+          </Button>
+          <Button className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none">
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Create Framework</span>
+            <span className="sm:hidden">Create</span>
+          </Button>
+        </div>
       </div>
 
       {/* Framework Categories */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Crown className="w-5 h-5" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <Crown className="w-4 h-4 sm:w-5 sm:h-5" />
             Brand Foundation
           </h3>
-          <p className="text-gray-600 text-sm mb-4">
+          <p className="text-gray-600 text-sm mb-3 sm:mb-4">
             Core brand identity frameworks for establishing strong brand foundations
           </p>
           <div className="space-y-3">
             {predefinedFrameworks.filter(f => f.category === 'Foundation' || f.category === 'Psychology').map((framework) => {
               const Icon = framework.icon
               return (
-                <div key={framework.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                  <div className={`w-8 h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
-                    <Icon className="w-4 h-4 text-white" />
+                <div key={framework.id} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{framework.name}</p>
+                    <p className="font-medium text-gray-900 text-sm sm:text-base">{framework.name}</p>
                     <p className="text-xs text-gray-500">{framework.estimatedTime}</p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                 </div>
               )
             })}
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Lightbulb className="w-5 h-5" />
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
             Brand Communication
           </h3>
-          <p className="text-gray-600 text-sm mb-4">
+          <p className="text-gray-600 text-sm mb-3 sm:mb-4">
             Messaging and positioning frameworks for effective brand communication
           </p>
           <div className="space-y-3">
             {predefinedFrameworks.filter(f => f.category === 'Positioning' || f.category === 'Communication').map((framework) => {
               const Icon = framework.icon
               return (
-                <div key={framework.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                  <div className={`w-8 h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
-                    <Icon className="w-4 h-4 text-white" />
+                <div key={framework.id} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 ${framework.color} rounded-lg flex items-center justify-center`}>
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{framework.name}</p>
+                    <p className="font-medium text-gray-900 text-sm sm:text-base">{framework.name}</p>
                     <p className="text-xs text-gray-500">{framework.estimatedTime}</p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                 </div>
               )
             })}
@@ -296,17 +299,17 @@ export default function BrandingLabPage() {
 
       {/* Custom Frameworks from Backend */}
       {brandingLabs.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Branding Frameworks</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Custom Branding Frameworks</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {brandingLabs.map((lab) => (
-              <Card key={lab.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                    <Palette className="w-5 h-5 text-white" />
+              <Card key={lab.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                    <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{lab.name}</h4>
+                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{lab.name}</h4>
                     <p className="text-xs text-gray-500">Custom Framework</p>
                   </div>
                 </div>
@@ -338,57 +341,58 @@ export default function BrandingLabPage() {
       )}
 
       {/* Key Features Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Crown className="w-6 h-6 text-purple-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <Card className="p-4 sm:p-6 text-center">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Brand Identity</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Brand Identity</h3>
+          <p className="text-xs sm:text-sm text-gray-600">
             Define core values, personality, and visual identity elements
           </p>
         </Card>
 
-        <Card className="p-6 text-center">
-          <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-6 h-6 text-pink-600" />
+        <Card className="p-4 sm:p-6 text-center">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Emotional Connection</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Emotional Connection</h3>
+          <p className="text-xs sm:text-sm text-gray-600">
             Build psychological triggers and emotional brand connections
           </p>
         </Card>
 
-        <Card className="p-6 text-center">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Users className="w-6 h-6 text-blue-600" />
+        <Card className="p-4 sm:p-6 text-center sm:col-span-2 lg:col-span-1">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Voice & Messaging</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Voice & Messaging</h3>
+          <p className="text-xs sm:text-sm text-gray-600">
             Consistent brand voice across all communication channels
           </p>
         </Card>
       </div>
 
       {/* Quick Start Guide */}
-      <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-            <Palette className="w-6 h-6 text-white" />
+      <Card className="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+            <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">Getting Started with Branding Lab</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Getting Started with Branding Lab</h3>
+            <p className="text-xs sm:text-sm text-gray-600 mb-3">
               Build a powerful brand identity with proven frameworks from luxury brands and psychology research.
             </p>
-            <div className="flex items-center gap-4 text-xs text-gray-500">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
               <span>• 18-30 minutes per framework</span>
               <span>• Brand guidelines output</span>
               <span>• Export to design tools</span>
             </div>
           </div>
-          <Button className="bg-purple-600 hover:bg-purple-700">
-            Start Brand Foundation
+          <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto mt-3 sm:mt-0">
+            <span className="hidden sm:inline">Start Brand Foundation</span>
+            <span className="sm:hidden">Start Foundation</span>
           </Button>
         </div>
       </Card>

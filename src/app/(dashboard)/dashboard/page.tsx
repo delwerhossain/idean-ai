@@ -234,35 +234,35 @@ export default function DashboardPage() {
   const greeting = currentTime < 12 ? 'Good morning' : currentTime < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div className="p-6 space-y-8 max-w-7xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {/* Hero Section - Business Welcome */}
-      <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-8 mb-8">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-0">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                <Brain className="w-6 h-6 text-blue-600" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
-                <p className="text-gray-600 text-lg">
+                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
+                <p className="text-gray-600 text-base sm:text-lg">
                   Welcome to <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic command center
                 </p>
               </div>
             </div>
             
             {/* Daily Strategic Insight */}
-            <Card className="bg-white border-blue-200 mt-6">
-              <div className="p-4">
-                <div className="flex items-center gap-3 mb-3">
+            <Card className="bg-white border-blue-200 mt-4 sm:mt-6">
+              <div className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-3">
                   <dailyInsight.icon className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">{dailyInsight.title}</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{dailyInsight.title}</h3>
                   <span className="text-xs bg-gray-100 text-idean-navy px-2 py-1 rounded-full font-medium">Today&apos;s Focus</span>
                 </div>
-                <p className="text-gray-600 text-sm mb-4">{dailyInsight.message}</p>
-                <Button 
+                <p className="text-gray-600 text-sm mb-4 leading-relaxed">{dailyInsight.message}</p>
+                <Button
                   onClick={() => router.push(dailyInsight.href)}
-                  className="bg-idean-navy text-idean-white hover:bg-idean-navy-dark text-sm"
+                  className="bg-idean-navy text-idean-white hover:bg-idean-navy-dark text-sm w-full sm:w-auto"
                   size="sm"
                 >
                   {dailyInsight.action}
@@ -271,33 +271,33 @@ export default function DashboardPage() {
               </div>
             </Card>
           </div>
-          
+
           {/* Quick Stats */}
-          <div className="hidden md:flex flex-col gap-4 ml-8">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{dashboardData.analytics.growth.score}</div>
-              <div className="text-gray-500 text-sm">Growth Score</div>
+          <div className="flex flex-row lg:flex-col gap-4 sm:gap-6 lg:gap-4 lg:ml-8 w-full lg:w-auto">
+            <div className="text-center flex-1 lg:flex-none">
+              <div className="text-2xl sm:text-3xl font-bold text-blue-600">{dashboardData.analytics.growth.score}</div>
+              <div className="text-gray-500 text-xs sm:text-sm">Growth Score</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}/{dashboardData.analytics.frameworks.total}</div>
-              <div className="text-gray-500 text-sm">Frameworks</div>
+            <div className="text-center flex-1 lg:flex-none">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}/{dashboardData.analytics.frameworks.total}</div>
+              <div className="text-gray-500 text-xs sm:text-sm">Frameworks</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Three Core Module Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
         {/* Growth Co-Pilot Card */}
-        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200 group cursor-pointer"
+        <Card className="p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200 group cursor-pointer md:col-span-2 lg:col-span-1"
               onClick={() => router.push('/dashboard/growth-copilot')}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-7 h-7 text-white" />
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            <span className="text-xs bg-gray-100 text-idean-navy px-3 py-1 rounded-full font-medium">Strategy DNA</span>
+            <span className="text-xs bg-gray-100 text-idean-navy px-2 sm:px-3 py-1 rounded-full font-medium">Strategy DNA</span>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Growth Co-Pilot</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Growth Co-Pilot</h3>
           <p className="text-gray-600 text-sm mb-4 leading-relaxed">
             Strategic frameworks for business growth including Customer Value Journey, Blue Ocean Strategy, and Niche Fortune™
           </p>
@@ -321,15 +321,15 @@ export default function DashboardPage() {
         </Card>
 
         {/* Branding Lab Card */}
-        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 group cursor-pointer"
+        <Card className="p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 group cursor-pointer"
               onClick={() => router.push('/dashboard/branding-lab')}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Palette className="w-7 h-7 text-white" />
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Palette className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            <span className="text-xs bg-gray-100 text-idean-navy px-3 py-1 rounded-full font-medium">Brand DNA</span>
+            <span className="text-xs bg-gray-100 text-idean-navy px-2 sm:px-3 py-1 rounded-full font-medium">Brand DNA</span>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Branding Lab</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Branding Lab</h3>
           <p className="text-gray-600 text-sm mb-4 leading-relaxed">
             Strategic brand frameworks including Brand Foundation, NeuroBranding™, and Voice & Messaging systems
           </p>
@@ -353,15 +353,15 @@ export default function DashboardPage() {
         </Card>
 
         {/* AI Copywriting Card */}
-        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-orange-200 group cursor-pointer"
+        <Card className="p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-orange-200 group cursor-pointer md:col-span-2 lg:col-span-1"
               onClick={() => router.push('/dashboard/copywriting')}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PenTool className="w-7 h-7 text-white" />
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PenTool className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-medium">Content DNA</span>
+            <span className="text-xs bg-orange-100 text-orange-700 px-2 sm:px-3 py-1 rounded-full font-medium">Content DNA</span>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">AI Copywriting</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">AI Copywriting</h3>
           <p className="text-gray-600 text-sm mb-4 leading-relaxed">
             Content generation frameworks including NeuroCopywriting™, Nuclear Content™, and conversion-focused copy systems
           </p>
@@ -386,64 +386,64 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Start Wizard */}
-      <Card className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200 mb-8">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center">
-            <Rocket className="w-6 h-6 text-white" />
+      <Card className="p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-600 rounded-xl flex items-center justify-center">
+            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Quick Start: What do you want to create today?</h3>
-            <p className="text-gray-600">Choose your goal and let iDEAN AI guide you through the perfect framework</p>
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Quick Start: What do you want to create today?</h3>
+            <p className="text-gray-600 text-sm sm:text-base">Choose your goal and let iDEAN AI guide you through the perfect framework</p>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button 
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <Button
             variant={selectedQuickAction === 'strategy' ? 'default' : 'outline'}
-            className="h-auto p-4 justify-start"
+            className="h-auto p-3 sm:p-4 justify-start w-full"
             onClick={() => {
               setSelectedQuickAction('strategy')
               setTimeout(() => router.push('/dashboard/growth-copilot'), 300)
             }}
           >
-            <div className="flex items-center gap-3">
-              <Target className="w-5 h-5" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Target className="w-4 h-4 sm:w-5 sm:h-5" />
               <div className="text-left">
-                <div className="font-medium">Business Strategy</div>
+                <div className="font-medium text-sm sm:text-base">Business Strategy</div>
                 <div className="text-xs opacity-80">Growth frameworks & planning</div>
               </div>
             </div>
           </Button>
           
-          <Button 
+          <Button
             variant={selectedQuickAction === 'brand' ? 'default' : 'outline'}
-            className="h-auto p-4 justify-start"
+            className="h-auto p-3 sm:p-4 justify-start w-full"
             onClick={() => {
               setSelectedQuickAction('brand')
               setTimeout(() => router.push('/dashboard/branding-lab'), 300)
             }}
           >
-            <div className="flex items-center gap-3">
-              <Palette className="w-5 h-5" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
               <div className="text-left">
-                <div className="font-medium">Brand Identity</div>
+                <div className="font-medium text-sm sm:text-base">Brand Identity</div>
                 <div className="text-xs opacity-80">Brand positioning & voice</div>
               </div>
             </div>
           </Button>
-          
-          <Button 
+
+          <Button
             variant={selectedQuickAction === 'content' ? 'default' : 'outline'}
-            className="h-auto p-4 justify-start"
+            className="h-auto p-3 sm:p-4 justify-start w-full sm:col-span-2 lg:col-span-1"
             onClick={() => {
               setSelectedQuickAction('content')
               setTimeout(() => router.push('/dashboard/copywriting'), 300)
             }}
           >
-            <div className="flex items-center gap-3">
-              <PenTool className="w-5 h-5" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <PenTool className="w-4 h-4 sm:w-5 sm:h-5" />
               <div className="text-left">
-                <div className="font-medium">Marketing Content</div>
+                <div className="font-medium text-sm sm:text-base">Marketing Content</div>
                 <div className="text-xs opacity-80">Copy, campaigns & content</div>
               </div>
             </div>
@@ -452,9 +452,9 @@ export default function DashboardPage() {
       </Card>
 
       {/* Business Health Dashboard & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
         {/* Business Health Dashboard */}
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-green-600" />
@@ -497,9 +497,9 @@ export default function DashboardPage() {
             ))}
           </div>
         </Card>
-        
+
         {/* Recent Activity & Templates */}
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -546,57 +546,57 @@ export default function DashboardPage() {
       </div>
 
       {/* Analytics & Usage Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Zap className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-xl sm:text-2xl font-bold text-gray-900">
               {dashboardData.analytics.usage.aiCredits.used}
             </span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1">AI Credits Used</h3>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">AI Credits Used</h3>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
             <div 
               className="bg-idean-navy h-2 rounded-full" 
               style={{ width: `${(dashboardData.analytics.usage.aiCredits.used / dashboardData.analytics.usage.aiCredits.total) * 100}%` }}
             ></div>
           </div>
-          <p className="text-sm text-gray-600">of {dashboardData.analytics.usage.aiCredits.total} monthly</p>
+          <p className="text-xs sm:text-sm text-gray-600">of {dashboardData.analytics.usage.aiCredits.total} monthly</p>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-green-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
+            <span className="text-xl sm:text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1">Frameworks</h3>
-          <p className="text-sm text-gray-600">Completed this month</p>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Frameworks</h3>
+          <p className="text-xs sm:text-sm text-gray-600">Completed this month</p>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Building className="w-6 h-6 text-purple-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Building className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
+            <span className="text-xl sm:text-2xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1">Documents</h3>
-          <p className="text-sm text-gray-600">In knowledge base</p>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Documents</h3>
+          <p className="text-xs sm:text-sm text-gray-600">In knowledge base</p>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Globe className="w-6 h-6 text-orange-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">{industry}</span>
+            <span className="text-lg sm:text-2xl font-bold text-gray-900">{industry}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1">Industry</h3>
-          <p className="text-sm text-gray-600">Business vertical</p>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Industry</h3>
+          <p className="text-xs sm:text-sm text-gray-600">Business vertical</p>
         </Card>
       </div>
     </div>

@@ -175,16 +175,16 @@ export default function CopywritingPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-idean-navy rounded-lg flex items-center justify-center">
             <PenTool className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">AI Copywriting</h1>
-            <p className="text-gray-600">Content generation frameworks for campaigns and marketing</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AI Copywriting</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Content generation frameworks for campaigns and marketing</p>
           </div>
         </div>
 
@@ -200,7 +200,7 @@ export default function CopywritingPage() {
       </div>
 
       {/* Search and Filter */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -213,14 +213,17 @@ export default function CopywritingPage() {
             />
           </div>
         </div>
-        <Button onClick={handleSearch} variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-        <Button className="bg-idean-navy hover:bg-idean-navy-dark">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Framework
-        </Button>
+        <div className="flex gap-2 sm:gap-3">
+          <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
+            <Filter className="w-4 h-4 mr-2" />
+            Search
+          </Button>
+          <Button className="bg-idean-navy hover:bg-idean-navy-dark flex-1 sm:flex-none">
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Create Framework</span>
+            <span className="sm:hidden">Create</span>
+          </Button>
+        </div>
       </div>
 
 
