@@ -41,6 +41,7 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [inputs, setInputs] = useState<Record<string, any>>({})
+  const [mobileView, setMobileView] = useState<'input' | 'editor'>('input') // Add mobile view state
   const [generationOptions, setGenerationOptions] = useState({
     tone: 'professional',
     length: 'medium',
@@ -484,50 +485,89 @@ ${inputs.ctaText || 'Take action now!'}
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-full w-full">
-      {/* Left Panel - Input Form (40% on desktop, hidden when editing on mobile) */}
-      <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col ${
-        currentStep === 'editing' ? 'hidden lg:flex' : 'flex'
-      }`}>
-        <GenerationInputPanel
-          framework={framework}
-          inputs={inputs}
-          generationOptions={generationOptions}
-          currentStep={currentStep}
-          isGenerating={isGenerating}
-          error={error}
-          onInputChange={setInputs}
-          onOptionsChange={setGenerationOptions}
-          onGenerate={handleGenerate}
-          onBack={onBack}
-        />
-      </div>
+    <div className="flex flex-col h-full w-full">
+      {/* Mobile Navigation Bar - Only visible on mobile when there's content */}
+      {currentStep === 'editing' && (
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">{framework.name}</h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setMobileView('input')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  mobileView === 'input'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Inputs
+              </button>
+              <button
+                onClick={() => setMobileView('editor')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  mobileView === 'editor'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Editor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Right Panel - Editor Canvas (60% on desktop, full width when editing on mobile) */}
-      <div className={`flex flex-col bg-gray-50 ${
-        currentStep === 'editing' ? 'flex-1' : 'flex-1 hidden lg:flex'
-      }`}>
-        {/* Editor Content - Now handles its own toolbar and status */}
-        <div className="flex-1 overflow-hidden">
-          <GenerationEditor
-            content={generationResult?.content || ''}
-            isGenerating={isGenerating}
-            currentStep={currentStep}
+      <div className="flex flex-1 lg:flex-row h-full min-h-0">
+        {/* Left Panel - Input Form */}
+        <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col ${
+          // Desktop: hide when editing, Mobile: show based on mobileView
+          currentStep === 'editing'
+            ? `${mobileView === 'input' ? 'flex' : 'hidden'} lg:flex`
+            : 'flex'
+        }`}>
+          <GenerationInputPanel
             framework={framework}
-            onRegenerateSection={handleRegenerateSection}
-            onRegenerateAll={() => handleGenerate()}
-            hasContent={!!generationResult?.content}
-            onExport={handleExport}
-            onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
-            onContentChange={(newContent) => {
-              if (generationResult) {
-                setGenerationResult({
-                  ...generationResult,
-                  content: newContent
-                })
-              }
-            }}
+            inputs={inputs}
+            generationOptions={generationOptions}
+            currentStep={currentStep}
+            isGenerating={isGenerating}
+            error={error}
+            onInputChange={setInputs}
+            onOptionsChange={setGenerationOptions}
+            onGenerate={handleGenerate}
+            onBack={onBack}
           />
+        </div>
+
+        {/* Right Panel - Editor Canvas */}
+        <div className={`flex flex-col bg-gray-50 ${
+          // Desktop: hide when not editing, Mobile: show based on mobileView
+          currentStep === 'editing'
+            ? `${mobileView === 'editor' ? 'flex-1' : 'hidden'} lg:flex-1`
+            : 'flex-1 hidden lg:flex'
+        }`}>
+          {/* Editor Content */}
+          <div className="flex-1 overflow-hidden">
+            <GenerationEditor
+              content={generationResult?.content || ''}
+              isGenerating={isGenerating}
+              currentStep={currentStep}
+              framework={framework}
+              onRegenerateSection={handleRegenerateSection}
+              onRegenerateAll={() => handleGenerate()}
+              hasContent={!!generationResult?.content}
+              onExport={handleExport}
+              onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
+              onContentChange={(newContent) => {
+                if (generationResult) {
+                  setGenerationResult({
+                    ...generationResult,
+                    content: newContent
+                  })
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
