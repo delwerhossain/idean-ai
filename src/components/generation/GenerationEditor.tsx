@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { FileText, Edit, Wand2, Copy, Eye, Download, ChevronDown } from 'lucide-react'
+import { FileText, Edit, Wand2, Copy, Eye, Download, ChevronDown, BookmarkPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -14,6 +14,7 @@ import {
 import ReactMarkdown from 'react-markdown'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
+import { SaveTemplateDialog } from './SaveTemplateDialog'
 
 interface Framework {
   id: string
@@ -31,6 +32,7 @@ interface GenerationEditorProps {
   onRegenerateAll?: () => void
   hasContent?: boolean
   onExport?: (format: 'pdf' | 'markdown' | 'docx' | 'html') => void
+  onSaveAsTemplate?: (data: { name: string; description?: string }) => Promise<void>
 }
 
 export function GenerationEditor({
@@ -42,10 +44,12 @@ export function GenerationEditor({
   onContentChange,
   onRegenerateAll,
   hasContent = false,
-  onExport
+  onExport,
+  onSaveAsTemplate
 }: GenerationEditorProps) {
   const [editorContent, setEditorContent] = useState(content)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -278,12 +282,39 @@ ${editorContent}`
 
           {/* Center: Stats */}
           <div className="text-sm text-gray-500 hidden sm:block">
-            {wordCount} words • {charCount} characters
-          </div>
+           {wordCount} words • {charCount} characters</div>
+           
+         
 
           {/* Right Side - Actions */}
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Regenerate Button */}
+                {/* Quick Actions */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyToClipboard}
+                className="flex-1 sm:flex-none"
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy All
+              </Button>
+
+              {/* Save as Template Button */}
+              {onSaveAsTemplate && hasContent && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSaveDialog(true)}
+                  className="flex-1 sm:flex-none bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800"
+                >
+                  <BookmarkPlus className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Save Template</span>
+                  <span className="sm:hidden">Save</span>
+                </Button>
+              )}
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -415,21 +446,20 @@ ${editorContent}`
               </span>
             </div>
 
-            {/* Quick Actions */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyToClipboard}
-                className="flex-1 sm:flex-none"
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy All
-              </Button>
-            </div>
+
           </div>
         </div>
       </div>
+
+      {/* Save Template Dialog */}
+      {onSaveAsTemplate && (
+        <SaveTemplateDialog
+          open={showSaveDialog}
+          onOpenChange={setShowSaveDialog}
+          onSave={onSaveAsTemplate}
+          frameworkName={framework.name}
+        />
+      )}
     </div>
   )
 }

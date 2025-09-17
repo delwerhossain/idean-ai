@@ -263,6 +263,17 @@ export const ideanApi = {
       }
     }) =>
       apiClient.post<CopywritingGenerateResponse>(`/api/v1/copywriting/${id}/generate`, payload),
+
+    // Create template from copywriting framework
+    createTemplate: (id: string, data: {
+      name: string
+      user_given_prompt: string
+      text_input_queries: string[]
+      text_input_given: string[]
+      drop_down: string[]
+      documentIds?: string[]
+    }) =>
+      apiClient.post<Template>(`/api/v1/copywriting/${id}/templates`, data),
   },
 
   // Templates API (Reusable Frameworks)
@@ -300,6 +311,10 @@ export const ideanApi = {
     // Get templates by category
     getByCategory: (category: 'brandinglab' | 'growthcopilot' | 'copywriting', params?: PaginationParams) =>
       apiClient.getPaginated<Template>(`/api/v1/templates/category/${category}`, params),
+
+    // Get current user's templates
+    getMyTemplates: (params?: PaginationParams) =>
+      apiClient.safeGet<PaginatedResponse<Template>>('/api/v1/templates/my-templates', params, true),
   },
 
   // Documents API (Knowledge Base)
