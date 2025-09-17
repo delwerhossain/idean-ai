@@ -14,6 +14,21 @@ import AuthService, { AuthResponse } from '@/lib/api/services/auth';
 import BusinessService from '@/lib/api/services/business';
 import type { User } from '@/types/api';
 import type { BusinessCreateRequest } from '@/lib/api/services/business';
+import {
+  decodeJWT,
+  isTokenExpired,
+  createUserFromJWT,
+  getCachedUserData,
+  setCachedUserData,
+  clearUserCache,
+  willTokenExpireSoon
+} from '@/lib/auth/jwt-decoder';
+import {
+  authPerformanceMonitor,
+  generateSessionId,
+  authLogger,
+  measureAuthTime
+} from '@/lib/auth/performance-monitor';
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
@@ -56,36 +71,90 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Combined state for complete authentication readiness
   const isAuthReady = !authLoading && !isHydrating && isHydrated;
 
+  // Background user data refresh for token validation
+  const refreshUserInBackground = async (token: string) => {
+    try {
+      authLogger.debug('Background refresh: Validating user data');
+      const userResponse = await measureAuthTime(
+        () => AuthService.getCurrentUser(),
+        'Background user refresh'
+      );
+      if (userResponse) {
+        setUser(userResponse);
+        setCachedUserData(userResponse, token);
+        authLogger.success('Background refresh: User data updated');
+      }
+    } catch (error) {
+      authLogger.warn('Background refresh failed:', error);
+      // Don't clear user state on background refresh failure
+      // Let user continue with cached data
+    }
+  };
+
   useEffect(() => {
     // Mark as hydrated when we're on the client
     setIsHydrated(true);
 
-    console.log('AuthContext: Setting up auth state listener');
-    console.log('Auth object:', auth);
+    authLogger.debug('AuthContext: Setting up optimized auth state listener');
 
-    // Early localStorage check to restore user session immediately
+    // Optimistic authentication with JWT decoding and caching
     const checkStoredAuth = () => {
       if (typeof window !== 'undefined') {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('authToken');
+        const sessionId = generateSessionId();
 
-        if (storedUser && storedToken) {
-          try {
-            const parsedUser = JSON.parse(storedUser);
-            console.log('⚡ Early restore: Found stored auth, restoring user session:', parsedUser.email);
-            setUser(parsedUser);
+        // Try cached user data first (fastest)
+        const cachedUser = getCachedUserData();
+        if (cachedUser) {
+          authPerformanceMonitor.startMeasure(sessionId, 'cache');
+          authPerformanceMonitor.markCacheHit(sessionId);
+          authLogger.success('Cache hit: Restored user from cache:', cachedUser.email);
+          setUser(cachedUser);
+          setIsNewUser(false);
+          setIsHydrating(false);
+          authPerformanceMonitor.endMeasure(sessionId);
+          return true;
+        }
+
+        // Fallback to localStorage with JWT validation
+        const storedToken = localStorage.getItem('authToken');
+        if (storedToken && !isTokenExpired(storedToken)) {
+          authPerformanceMonitor.startMeasure(sessionId, 'jwt');
+
+          // Create user from JWT payload immediately (no API call needed)
+          const userFromJWT = createUserFromJWT(storedToken);
+          if (userFromJWT) {
+            authPerformanceMonitor.markJWTDecode(sessionId);
+            authLogger.success('JWT restore: Created user from token:', userFromJWT.email);
+            setUser(userFromJWT);
             setIsNewUser(false);
-            setIsHydrating(false); // Mark hydration complete early
-            return true; // User restored successfully
-          } catch (error) {
-            console.error('Failed to parse stored user during early restore:', error);
-            localStorage.removeItem('user');
-            localStorage.removeItem('authToken');
+            setIsHydrating(false);
+
+            // Cache the user data for next time
+            setCachedUserData(userFromJWT, storedToken);
+
+            // Schedule background validation if token expires soon
+            if (willTokenExpireSoon(storedToken, 30)) {
+              authLogger.debug('Token expires soon, scheduling background refresh');
+              setTimeout(() => {
+                refreshUserInBackground(storedToken);
+              }, 1000);
+            }
+
+            authPerformanceMonitor.endMeasure(sessionId);
+            return true;
           }
         }
 
-        console.log('⚡ Early restore: No valid stored auth found');
-        setIsHydrating(false); // Mark hydration complete even if no user
+        // Clean up invalid/expired tokens
+        if (storedToken && isTokenExpired(storedToken)) {
+          authLogger.debug('Cleaning expired token');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+          clearUserCache();
+        }
+
+        authLogger.debug('No valid stored auth found');
+        setIsHydrating(false);
       }
       return false;
     };
@@ -123,10 +192,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setUser(authResponse.user);
             setIsNewUser(false);
 
-            // Store user data
+            // Store user data and cache it
             localStorage.setItem('user', JSON.stringify(authResponse.user));
+            if (authResponse.token) {
+              setCachedUserData(authResponse.user, authResponse.token);
+            }
 
-            console.log('User authenticated with backend:', {
+            console.log('✅ User authenticated with backend:', {
               userId: authResponse.user.id,
               email: authResponse.user.email,
               role: authResponse.user.role,
@@ -186,6 +258,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (typeof window !== 'undefined') {
               localStorage.removeItem('authToken');
               localStorage.removeItem('user');
+              clearUserCache();
             }
           }
           // If hasStoredAuth is true, we already set the user state during early restore
@@ -271,6 +344,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsNewUser(false);
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
+      clearUserCache();
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

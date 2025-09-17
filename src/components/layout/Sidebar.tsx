@@ -14,7 +14,8 @@ import {
   TrendingUp,
   PenTool,
   Palette,
-  Building
+  Building,
+  Plus
 } from 'lucide-react'
 import UpgradeModal from '@/components/modals/UpgradeModal'
 
@@ -70,7 +71,7 @@ const navigationItems: NavigationItem[] = [
   },
   { 
     icon: Building, 
-    label: 'Business Management', 
+    label: 'Business Knowledged', 
     href: '/dashboard/business',
     roles: ['admin', 'owner']
   },
@@ -146,18 +147,45 @@ export default function Sidebar({ className = '' }: SidebarProps) {
         </div>
       </div>
 
-      {/* Business Section - Simplified */}
+      {/* Business Section - Smart Business Display */}
       <div className="flex-shrink-0 p-3 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
-            <span className="text-white font-bold text-sm">B</span>
-          </div>
-          {isHovered && (
-            <div className="flex-1 min-w-0">
-              <span className="font-semibold text-sm text-gray-900 truncate">My Business</span>
+        {user?.business?.business_name || user?.businessId ? (
+          // User has a business - show business info
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span className="text-white font-bold text-sm">
+                {user.business?.business_name?.[0]?.toUpperCase() || 'B'}
+              </span>
             </div>
-          )}
-        </div>
+            {isHovered && (
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-sm text-gray-900 truncate">
+                  {user.business?.business_name || 'My Business'}
+                </span>
+                <p className="text-xs text-gray-500 truncate">
+                  {user.business?.industry_tag || 'Business'}
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          // User doesn't have a business - show add business prompt
+          <Link href="/dashboard/onboarding" className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors group">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+              <Plus className="w-4 h-4 text-white" />
+            </div>
+            {isHovered && (
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-sm text-gray-900 group-hover:text-orange-600 transition-colors">
+                  Add Business
+                </span>
+                <p className="text-xs text-gray-500 group-hover:text-orange-500 transition-colors">
+                  Set up your business profile
+                </p>
+              </div>
+            )}
+          </Link>
+        )}
       </div>
 
       {/* Scrollable Navigation Content */}

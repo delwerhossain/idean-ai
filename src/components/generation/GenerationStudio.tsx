@@ -24,6 +24,7 @@ interface GenerationStudioProps {
 
 interface GenerationResult {
   content: string
+  documentId?: string // Add document ID for template creation
   metadata?: {
     framework: string
     inputs: Record<string, any>
@@ -141,8 +142,14 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
           const generatedContent = response.data.generatedContent
           const metadata = response.data.generationMetadata
 
+          // Extract document ID from usedDocuments or savedDocument
+          const usedDocuments = (response.data as any).usedDocuments || []
+          const savedDocument = response.data.savedDocument
+          const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : savedDocument?.id
+
           setGenerationResult({
             content: generatedContent,
+            documentId: documentId, // Capture document ID for template creation
             metadata: {
               framework: response.data.copyWriting.name,
               inputs: response.data.inputsUsed.userInputs,
@@ -156,8 +163,13 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
           const apiResponse = response as any
           const generatedContent = apiResponse.content || 'Generated content will appear here.'
 
+          // Extract document ID from usedDocuments array if available
+          const usedDocuments = apiResponse.usedDocuments || []
+          const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : undefined
+
           setGenerationResult({
             content: generatedContent,
+            documentId: documentId, // Capture document ID for template creation
             metadata: {
               framework: framework.name,
               inputs,
@@ -415,6 +427,60 @@ ${inputs.ctaText || 'Take action now!'}
     }
   }
 
+  const handleSaveAsTemplate = async (data: { name: string; description?: string }) => {
+    if (!framework || !generationResult?.content || !user) {
+      console.error('Missing required data for template creation')
+      return
+    }
+
+    try {
+      // Only support template creation for copywriting type for now
+      if (type !== 'copywriting') {
+        console.error('Template creation only supported for copywriting frameworks')
+        return
+      }
+
+      console.log('Creating template from copywriting framework:', framework.id)
+
+      // Transform inputs to match backend format
+      const inputFields = framework.input_fields || []
+      const text_input_queries: string[] = []
+      const text_input_given: string[] = []
+
+      // Extract field names and values from inputs
+      inputFields.forEach(field => {
+        const fieldName = field.includes(':') ? field.split(':')[0] : field
+        text_input_queries.push(fieldName)
+        text_input_given.push(inputs[fieldName] || '')
+      })
+
+      // Transform dropdown selections
+      const drop_down: string[] = [
+        generationOptions.tone,
+        generationOptions.length,
+        generationOptions.audience
+      ].filter(Boolean)
+
+      const templateData = {
+        name: data.name,
+        user_given_prompt: data.description || `Template for ${framework.name}`,
+        text_input_queries,
+        text_input_given,
+        drop_down,
+        documentIds: generationResult.documentId ? [generationResult.documentId] : []
+      }
+
+      await ideanApi.copywriting.createTemplate(framework.id, templateData)
+
+      console.log('✅ Template created successfully:', data.name)
+      // You could show a success toast notification here
+    } catch (error) {
+      console.error('❌ Failed to create template:', error)
+      // You could show an error toast notification here
+      throw error // Re-throw so the dialog can handle the error
+    }
+  }
+
   return (
     <div className="flex flex-col lg:flex-row h-full w-full">
       {/* Left Panel - Input Form (40% on desktop, hidden when editing on mobile) */}
@@ -450,6 +516,7 @@ ${inputs.ctaText || 'Take action now!'}
             onRegenerateAll={() => handleGenerate()}
             hasContent={!!generationResult?.content}
             onExport={handleExport}
+            onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
             onContentChange={(newContent) => {
               if (generationResult) {
                 setGenerationResult({

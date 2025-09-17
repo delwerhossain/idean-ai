@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
-import { 
-  FileText, 
-  Plus, 
+import {
+  FileText,
+  Plus,
   Search,
   Filter,
   MoreVertical,
@@ -19,7 +19,8 @@ import {
   TrendingUp,
   AlertTriangle,
   Clock,
-  Tag
+  Tag,
+  User
 } from 'lucide-react'
 import { ideanApi, Template } from '@/lib/api/idean-api'
 
@@ -29,12 +30,12 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
   const [hasLoaded, setHasLoaded] = useState(false)
 
   const loadTemplates = useCallback(async () => {
     if (loading || hasLoaded) return
-    
+
     try {
       setLoading(true)
       setError(null)
@@ -44,6 +45,17 @@ export default function TemplatesPage() {
         response = await ideanApi.templates.getAll({
           limit: 50
         } as any)
+      } else if (selectedCategory === 'my-templates') {
+        // Get user's own templates
+        if (user) {
+          response = await ideanApi.templates.getMyTemplates({
+            limit: 50
+          })
+        } else {
+          // Redirect to login or show message
+          setTemplates([])
+          return
+        }
       } else {
         response = await ideanApi.templates.getByCategory(selectedCategory, {
           limit: 50
@@ -51,7 +63,9 @@ export default function TemplatesPage() {
       }
 
       if (response) {
-        setTemplates(response.items || [])
+        // Handle different response formats consistently
+        const templates = response.items || (response as any).data || response || []
+        setTemplates(Array.isArray(templates) ? templates : [])
       }
     } catch (err: unknown) {
       console.error('Failed to load templates:', err)
@@ -195,6 +209,19 @@ export default function TemplatesPage() {
           >
             All
           </Button>
+          {user && (
+            <Button
+              variant={selectedCategory === 'my-templates' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setSelectedCategory('my-templates')
+                setHasLoaded(false)
+              }}
+            >
+              <User className="w-3 h-3 mr-1" />
+              My Templates
+            </Button>
+          )}
           <Button
             variant={selectedCategory === 'brandinglab' ? 'default' : 'outline'}
             size="sm"
