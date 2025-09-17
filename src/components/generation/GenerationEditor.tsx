@@ -280,10 +280,7 @@ ${editorContent}`
             </Button>
           </div>
 
-          {/* Center: Stats */}
-          <div className="text-sm text-gray-500 hidden sm:block">
-           {wordCount} words • {charCount} characters</div>
-           
+       
          
 
           {/* Right Side - Actions */}
