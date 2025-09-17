@@ -183,6 +183,8 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
       }
 
       setCurrentStep('editing')
+      // Auto-switch to editor view on mobile after generation
+      setMobileView('editor')
     } catch (err: any) {
       console.error('Generation failed:', err)
       setError(err.message || 'Failed to generate content. Please try again.')
@@ -486,40 +488,55 @@ ${inputs.ctaText || 'Take action now!'}
 
   return (
     <div className="flex flex-col h-full w-full">
-      {/* Mobile Navigation Bar - Only visible on mobile when there's content */}
+      {/* Mobile Navigation Bar - Enhanced Design */}
       {currentStep === 'editing' && (
-        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">{framework.name}</h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setMobileView('input')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  mobileView === 'input'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Inputs
-              </button>
-              <button
-                onClick={() => setMobileView('editor')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  mobileView === 'editor'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Editor
-              </button>
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base font-semibold text-gray-900 truncate">{framework.name}</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Tap to switch views</p>
             </div>
+          </div>
+
+          {/* Enhanced Toggle Buttons */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setMobileView('input')}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                mobileView === 'input'
+                  ? 'bg-white text-blue-600 shadow-sm border border-blue-100'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <div className={`w-2 h-2 rounded-full transition-colors ${
+                  mobileView === 'input' ? 'bg-blue-500' : 'bg-gray-400'
+                }`} />
+                Inputs
+              </div>
+            </button>
+            <button
+              onClick={() => setMobileView('editor')}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                mobileView === 'editor'
+                  ? 'bg-white text-blue-600 shadow-sm border border-blue-100'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <div className={`w-2 h-2 rounded-full transition-colors ${
+                  mobileView === 'editor' ? 'bg-blue-500' : 'bg-gray-400'
+                }`} />
+                Editor
+              </div>
+            </button>
           </div>
         </div>
       )}
 
       <div className="flex flex-1 lg:flex-row h-full min-h-0">
         {/* Left Panel - Input Form */}
-        <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col ${
+        <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
           // Desktop: hide when editing, Mobile: show based on mobileView
           currentStep === 'editing'
             ? `${mobileView === 'input' ? 'flex' : 'hidden'} lg:flex`
@@ -540,7 +557,7 @@ ${inputs.ctaText || 'Take action now!'}
         </div>
 
         {/* Right Panel - Editor Canvas */}
-        <div className={`flex flex-col bg-gray-50 ${
+        <div className={`flex flex-col bg-gray-50 transition-all duration-300 ${
           // Desktop: hide when not editing, Mobile: show based on mobileView
           currentStep === 'editing'
             ? `${mobileView === 'editor' ? 'flex-1' : 'hidden'} lg:flex-1`

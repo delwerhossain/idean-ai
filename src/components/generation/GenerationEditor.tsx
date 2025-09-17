@@ -257,104 +257,93 @@ ${editorContent}`
 
   return (
     <div className="h-full bg-white flex flex-col">
-      {/* Top Toolbar with Edit/Preview Toggle and Export */}
-      <div className="bg-white border-b px-3 sm:px-4 py-2 sm:py-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+      {/* Top Toolbar - Compact */}
+      <div className="bg-white border-b px-3 sm:px-4 py-2">
+        <div className="flex items-center justify-between">
           {/* Left: Edit/Preview Toggle */}
-          <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant={!isPreviewMode ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsPreviewMode(false)}
-              className="flex-1 sm:flex-none"
+              className="h-8 px-2 sm:px-3"
             >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Edit
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline sm:ml-2">Edit</span>
             </Button>
             <Button
               variant={isPreviewMode ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsPreviewMode(true)}
-              className="flex-1 sm:flex-none"
+              className="h-8 px-2 sm:px-3"
             >
-              <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Preview
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline sm:ml-2">Preview</span>
             </Button>
           </div>
 
        
          
 
-          {/* Right Side - Actions */}
-          <div className="flex flex-col gap-2 sm:gap-1 w-full sm:w-auto">
-            {/* Mobile: First Row - Primary Actions */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Right: Action Buttons - Compact */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyToClipboard}
+              className="h-8 px-2"
+            >
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden lg:inline lg:ml-2">Copy</span>
+            </Button>
+
+            {onSaveAsTemplate && hasContent && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleCopyToClipboard}
-                className="flex-1 sm:flex-none"
+                onClick={() => setShowSaveDialog(true)}
+                className="h-8 px-2"
               >
-                <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Copy All</span>
-                <span className="sm:hidden">Copy</span>
+                <BookmarkPlus className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden lg:inline lg:ml-2">Save</span>
               </Button>
+            )}
 
-              {/* Save as Template Button */}
-              {onSaveAsTemplate && hasContent && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRegenerateAll}
+              disabled={isGenerating || !hasContent}
+              className="h-8 px-2"
+            >
+              <Wand2 className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden lg:inline lg:ml-2">Regen</span>
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowSaveDialog(true)}
-                  className="flex-1 sm:flex-none bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800"
+                  disabled={!hasContent}
+                  className="h-8 px-2"
                 >
-                  <BookmarkPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Save Template</span>
-                  <span className="sm:hidden">Save</span>
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden lg:inline lg:ml-2">Export</span>
+                  <ChevronDown className="w-2 h-2 ml-1" />
                 </Button>
-              )}
-            </div>
-
-            {/* Mobile: Second Row - Secondary Actions | Desktop: Same Line */}
-            <div className="flex items-center gap-2 w-full sm:w-auto sm:inline-flex">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRegenerateAll}
-                disabled={isGenerating || !hasContent}
-                className="flex-1 sm:flex-none gap-1 sm:gap-2 px-2 sm:px-3"
-              >
-                <Wand2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Regenerate</span>
-                <span className="sm:hidden">Regen</span>
-              </Button>
-
-              {/* Export Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!hasContent}
-                    className="flex-1 sm:flex-none gap-1 sm:gap-2 px-2 sm:px-3"
-                  >
-                    <Download className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Export</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => handleExport('pdf')}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Export as PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('markdown')}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Export as Markdown
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('markdown')}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export as Markdown
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -437,17 +426,11 @@ ${editorContent}`
         </div>
       </div>
 
-      {/* Bottom Action Bar */}
-      <div className="border-t bg-gray-50 p-3 sm:p-4">
+      {/* Bottom Stats Bar - Compact */}
+      <div className="border-t bg-gray-50 px-3 sm:px-4 py-1.5 sm:py-2">
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-            {/* Detailed Stats */}
-            <div className="text-xs sm:text-sm text-gray-500 w-full sm:w-auto">
-              <span className="font-medium block sm:inline">Statistics:</span>
-              <span className="sm:ml-2 block sm:inline mt-1 sm:mt-0">
-                {wordCount} words • {charCount} characters • {lineCount} lines
-              </span>
-            </div>
+          <div className="text-xs text-gray-500 text-center sm:text-left">
+            {wordCount} words • {charCount} chars • {lineCount} lines
           </div>
         </div>
       </div>
