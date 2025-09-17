@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Clock,
   Tag,
-  User
+  User,
+  RefreshCw
 } from 'lucide-react'
 import { ideanApi, Template } from '@/lib/api/idean-api'
 
@@ -30,42 +31,110 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('my-templates')
   const [hasLoaded, setHasLoaded] = useState(false)
 
   const loadTemplates = useCallback(async () => {
-    if (loading || hasLoaded) return
+    // Remove the hasLoaded check to allow initial loading
+
+    console.log('Loading templates for category:', selectedCategory, 'User:', user?.email)
 
     try {
       setLoading(true)
       setError(null)
 
       let response
-      if (selectedCategory === 'all') {
-        response = await ideanApi.templates.getAll({
-          limit: 50
-        } as any)
-      } else if (selectedCategory === 'my-templates') {
+      let allTemplates: Template[] = []
+
+      // Load user's templates using the correct endpoint
+      console.log('Loading user templates...')
+
+      if (selectedCategory === 'all' || selectedCategory === 'my-templates') {
         // Get user's own templates
         if (user) {
-          response = await ideanApi.templates.getMyTemplates({
-            limit: 50
-          })
+          try {
+            response = await ideanApi.templates.getMyTemplates({
+              limit: 50
+            })
+            console.log('My Templates API response:', response)
+          } catch (err) {
+            console.error('Failed to load user templates:', err)
+            setTemplates([])
+            return
+          }
         } else {
-          // Redirect to login or show message
+          console.log('No user logged in, showing empty templates')
+          setTemplates([])
+          return
+        }
+      } else if (selectedCategory === 'copywriting') {
+        // Filter user's templates for copywriting only
+        if (user) {
+          try {
+            response = await ideanApi.templates.getMyTemplates({
+              limit: 50
+            })
+            console.log('Templates for copywriting filter:', response)
+          } catch (err) {
+            console.error('Failed to load copywriting templates:', err)
+            setTemplates([])
+            return
+          }
+        } else {
           setTemplates([])
           return
         }
       } else {
-        response = await ideanApi.templates.getByCategory(selectedCategory, {
-          limit: 50
-        } as any)
+        // For other categories, show empty for now
+        console.log('Other category selected:', selectedCategory)
+        setTemplates([])
+        return
       }
 
       if (response) {
-        // Handle different response formats consistently
-        const templates = response.items || (response as any).data || response || []
+        console.log('Raw API response:', response)
+
+        // Handle the actual API response structure: { success, message, data: { templates: [...] } }
+        let templates: Template[] = []
+
+        if (response.success && response.data && response.data.templates) {
+          templates = response.data.templates
+        } else if ((response as any).templates) {
+          templates = (response as any).templates
+        } else if (Array.isArray(response)) {
+          templates = response
+        } else {
+          console.warn('Unexpected response format:', response)
+          templates = []
+        }
+
+        console.log('Parsed templates:', templates)
+
+        // Filter templates by category if needed
+        if (selectedCategory === 'copywriting') {
+          templates = templates.filter(template =>
+            template.serviceType === 'copywriting' ||
+            template.copywriting ||
+            template.copywritingId
+          )
+          console.log('Filtered copywriting templates:', templates)
+        } else if (selectedCategory === 'brandinglab') {
+          templates = templates.filter(template =>
+            template.serviceType === 'brandinglab' ||
+            template.brandinglab ||
+            template.brandinglabId
+          )
+        } else if (selectedCategory === 'growthcopilot') {
+          templates = templates.filter(template =>
+            template.serviceType === 'growthcopilot' ||
+            template.growthcopilot ||
+            template.growthcopilotId
+          )
+        }
+
         setTemplates(Array.isArray(templates) ? templates : [])
+      } else {
+        setTemplates([])
       }
     } catch (err: unknown) {
       console.error('Failed to load templates:', err)
@@ -89,36 +158,40 @@ export default function TemplatesPage() {
       setLoading(false)
       setHasLoaded(true)
     }
-  }, [hasLoaded, loading, selectedCategory, searchTerm])
+  }, [selectedCategory, user])
 
   useEffect(() => {
-    if (!hasLoaded) {
-      loadTemplates()
-    }
-  }, [selectedCategory, hasLoaded, loadTemplates])
+    console.log('Effect triggered - loading templates')
+    loadTemplates()
+  }, [selectedCategory, loadTemplates])
 
   const handleSearch = () => {
     setHasLoaded(false)
   }
 
+  const handleRefresh = () => {
+    setHasLoaded(false)
+    setTemplates([])
+  }
+
   const getCategoryIcon = (template: Template) => {
-    if (template.brandinglab) return Palette
-    if (template.growthcopilot) return TrendingUp
-    if (template.copywriting) return PenTool
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return Palette
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return TrendingUp
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return PenTool
     return FileText
   }
 
   const getCategoryColor = (template: Template) => {
-    if (template.brandinglab) return 'bg-purple-500'
-    if (template.growthcopilot) return 'bg-blue-500'
-    if (template.copywriting) return 'bg-orange-500'
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'bg-purple-500'
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'bg-blue-500'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'bg-orange-500'
     return 'bg-gray-500'
   }
 
   const getCategoryName = (template: Template) => {
-    if (template.brandinglab) return 'Branding Lab'
-    if (template.growthcopilot) return 'Growth Co-pilot'
-    if (template.copywriting) return 'Copywriting'
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'Branding Lab'
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'Growth Co-pilot'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Copywriting'
     return 'Custom Template'
   }
 
@@ -260,6 +333,10 @@ export default function TemplatesPage() {
         <Button onClick={handleSearch} variant="outline">
           <Filter className="w-4 h-4 mr-2" />
           Search
+        </Button>
+        <Button onClick={handleRefresh} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
         </Button>
         <Button className="bg-gray-600 hover:bg-gray-700">
           <Plus className="w-4 h-4 mr-2" />

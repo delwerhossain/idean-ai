@@ -463,17 +463,19 @@ ${inputs.ctaText || 'Take action now!'}
 
       const templateData = {
         name: data.name,
-        user_given_prompt: data.description || `Template for ${framework.name}`,
+        user_given_prompt: data.description || inputs.additionalInstructions || `Template for ${framework.name}`,
         text_input_queries,
         text_input_given,
         drop_down,
         documentIds: generationResult.documentId ? [generationResult.documentId] : []
       }
 
-      await ideanApi.copywriting.createTemplate(framework.id, templateData)
+      const result = await ideanApi.copywriting.createTemplate(framework.id, templateData)
 
       console.log('✅ Template created successfully:', data.name)
-      // You could show a success toast notification here
+
+      // Show success message (you can implement a toast notification here)
+      alert(`Template "${data.name}" saved successfully! You can find it in your Templates dashboard.`)
     } catch (error) {
       console.error('❌ Failed to create template:', error)
       // You could show an error toast notification here
