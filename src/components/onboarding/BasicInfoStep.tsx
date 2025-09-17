@@ -75,25 +75,12 @@ export default function BasicInfoStep({
     setShowSuggestions(true)
     
     try {
-      const response = await fetch('/api/generate-names', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          clientName: userName,
-          industry: localStorage.getItem('industry') || '',
-          additionalContext: 'Bengali business context, suitable for Bangladesh market'
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate names')
-      }
-
-      const { names } = await response.json()
-      setSuggestions(names || BENGALI_BUSINESS_SUGGESTIONS.slice(0, 6))
-      setFilteredSuggestions(names || BENGALI_BUSINESS_SUGGESTIONS.slice(0, 6))
+      // Use fallback to predefined names since we're using Express.js backend
+      const fallbackSuggestions = BENGALI_BUSINESS_SUGGESTIONS
+        .filter(name => name.includes(userName) || Math.random() > 0.5)
+        .slice(0, 6)
+      setSuggestions(fallbackSuggestions)
+      setFilteredSuggestions(fallbackSuggestions)
     } catch (error) {
       console.error('Error generating AI suggestions:', error)
       // Fallback to predefined names

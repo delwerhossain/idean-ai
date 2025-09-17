@@ -17,7 +17,10 @@ export default function Error({
       return
     }
     
-    console.error('Page error:', error)
+    // Only log errors in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Page error:', error)
+    }
   }, [error, reset])
 
   // Don't render error UI for EPIPE errors

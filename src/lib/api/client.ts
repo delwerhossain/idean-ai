@@ -1,11 +1,11 @@
 import { getStoredBackendToken, getCurrentFirebaseUser, getStoredUser } from '@/lib/firebase'
-import { 
-  APIResponse, 
-  APIError as APIErrorType, 
-  ErrorCode, 
+import {
+  APIResponse,
+  APIError as APIErrorType,
+  ErrorCode,
   ERROR_CODES,
   PaginatedResponse,
-  PaginationParams 
+  PaginationParams
 } from '@/types/api'
 
 // Custom API Error class
@@ -33,8 +33,9 @@ class APIClient {
   private config: APIClientConfig
 
   constructor(config: Partial<APIClientConfig> = {}) {
+    // Use environment variables directly to avoid import-time validation race condition
     this.config = {
-      baseUrl: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'),
+      baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://ideanai.bismoservices.com',
       timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
       retryAttempts: 3,
       retryDelay: 1000,
@@ -49,8 +50,10 @@ class APIClient {
       const backendToken = getStoredBackendToken()
 
       if (!backendToken) {
-        console.warn('Backend token not found in storage, user may need to re-authenticate')
-        throw new APIError('Backend token not found in storage', 401, ERROR_CODES.UNAUTHORIZED)
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Backend token not found in storage, user may need to re-authenticate')
+        }
+        throw new APIError('Authentication required', 401, ERROR_CODES.UNAUTHORIZED)
       }
 
       return {
@@ -59,8 +62,10 @@ class APIClient {
         Accept: 'application/json',
       }
     } catch (error) {
-      console.error('Error getting authentication headers:', error)
-      throw new APIError('Authentication token unavailable', 401, ERROR_CODES.UNAUTHORIZED)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error getting authentication headers:', error)
+      }
+      throw new APIError('Authentication failed', 401, ERROR_CODES.UNAUTHORIZED)
     }
   }
 
@@ -191,7 +196,9 @@ class APIClient {
       return await this.request<T>(endpoint, options)
     } catch (error) {
       if (fallbackToPublic && error instanceof APIError && error.status === 401) {
-        console.warn('Authentication failed, trying public access')
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Authentication failed, trying public access')
+        }
         return this.publicRequest<T>(endpoint, options)
       }
       throw error
@@ -360,7 +367,9 @@ class APIClient {
         const data = JSON.parse(event.data)
         onMessage(data)
       } catch (error) {
-        console.error('WebSocket message parsing error:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('WebSocket message parsing error:', error)
+        }
       }
     }
 
@@ -376,28 +385,6 @@ class APIClient {
     return ws
   }
 
-  // Health check endpoint (backend health check)
-  async healthCheck(): Promise<{ status: string; timestamp: string; environment: string }> {
-    try {
-      // Use fetch directly for health check (no auth required)
-      const response = await fetch(`${this.config.baseUrl}/health`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(5000),
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Health check failed: ${response.status}`)
-      }
-      
-      return await response.json()
-    } catch (error) {
-      throw new APIError(
-        `Backend health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        0
-      )
-    }
-  }
 
   // Set configuration
   updateConfig(config: Partial<APIClientConfig>): void {

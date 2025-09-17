@@ -1,24 +1,76 @@
 // Authentication service for backend integration
 import { apiClient, APIError } from '@/lib/api/client'
-import type { 
-  User, 
-  UserCreateRequest, 
+import type {
+  User,
+  UserCreateRequest,
   UserUpdateRequest,
-  APIResponse 
+  APIResponse
 } from '@/types/api'
+import { ERROR_CODES } from '@/types/api'
+
+// Authentication response from backend
+export interface AuthResponse {
+  message: string
+  user: User
+  token: string
+}
 
 export class AuthService {
   /**
-   * Sync user data with backend after Firebase authentication
-   * This is called after successful Firebase login/registration
+   * Login user with Firebase token
+   * This is called after successful Firebase authentication
    */
-  static async syncUser(userData: UserCreateRequest): Promise<User> {
+  static async login(email: string, firebaseToken: string): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<User>('/auth/sync-user', userData)
+      const response = await apiClient.publicRequest<AuthResponse>('/api/v1/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          firebaseToken
+        })
+      })
+
+      // Store backend JWT token
+      localStorage.setItem('authToken', response.token)
+
       return response
     } catch (error) {
-      console.error('Failed to sync user with backend:', error)
-      throw error
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to login with backend:', error)
+      }
+      // Sanitize error message for production
+      const sanitizedError = error instanceof APIError
+        ? error
+        : new APIError('Login failed', 500, ERROR_CODES.INTERNAL_SERVER_ERROR)
+      throw sanitizedError
+    }
+  }
+
+  /**
+   * Register new user
+   */
+  static async register(userData: { email: string; name: string; password?: string; provider?: string }): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.publicRequest<AuthResponse>('/api/v1/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(userData)
+      })
+
+      // Store backend JWT token
+      if (response.token) {
+        localStorage.setItem('authToken', response.token)
+      }
+
+      return response
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to register with backend:', error)
+      }
+      // Sanitize error message for production
+      const sanitizedError = error instanceof APIError
+        ? error
+        : new APIError('Registration failed', 500, ERROR_CODES.INTERNAL_SERVER_ERROR)
+      throw sanitizedError
     }
   }
 
@@ -27,11 +79,15 @@ export class AuthService {
    */
   static async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiClient.get<User>('/auth/me')
+      const response = await apiClient.get<User>('/api/v1/users/me')
       return response
     } catch (error) {
-      console.error('Failed to get current user:', error)
-      throw error
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to get current user:', error)
+      }
+      throw error instanceof APIError
+        ? error
+        : new APIError('Unable to fetch user data', 500, ERROR_CODES.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -40,7 +96,7 @@ export class AuthService {
    */
   static async updateUser(updates: UserUpdateRequest): Promise<User> {
     try {
-      const response = await apiClient.patch<User>('/auth/me', updates)
+      const response = await apiClient.put<User>('/api/v1/users/me', updates)
       return response
     } catch (error) {
       console.error('Failed to update user:', error)
@@ -49,128 +105,77 @@ export class AuthService {
   }
 
   /**
-   * Delete user account
+   * Refresh JWT token
    */
-  static async deleteUser(): Promise<void> {
+  static async refreshToken(): Promise<{ token: string }> {
     try {
-      await apiClient.delete('/auth/me')
+      const currentToken = localStorage.getItem('authToken')
+      const response = await apiClient.post<{ token: string }>('/api/v1/auth/refresh', {
+        token: currentToken
+      })
+
+      // Store new token
+      localStorage.setItem('authToken', response.token)
+
+      return response
     } catch (error) {
-      console.error('Failed to delete user:', error)
+      console.error('Failed to refresh token:', error)
       throw error
     }
   }
 
   /**
-   * Check if email is available for registration
+   * Verify JWT token
    */
-  static async checkEmailAvailable(email: string): Promise<boolean> {
+  static async verifyToken(): Promise<boolean> {
     try {
-      const response = await apiClient.post<{ available: boolean }>('/auth/check-email', { email })
-      return response.available || false
+      await apiClient.get('/api/v1/auth/verify')
+      return true
     } catch (error) {
-      console.error('Failed to check email availability:', error)
+      console.error('Token verification failed:', error)
       return false
     }
   }
 
   /**
-   * Send email verification
+   * Logout user
    */
-  static async sendEmailVerification(): Promise<void> {
+  static async logout(): Promise<void> {
     try {
-      await apiClient.post('/auth/send-verification')
+      await apiClient.post('/api/v1/auth/logout')
     } catch (error) {
-      console.error('Failed to send email verification:', error)
-      throw error
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Backend logout failed:', error)
+      }
+      // Don't throw - we still want to clear local storage
+    } finally {
+      // Always clear local storage
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('user')
     }
   }
 
   /**
-   * Verify email with token
+   * Clear all authentication data from local storage
    */
-  static async verifyEmail(token: string): Promise<void> {
-    try {
-      await apiClient.post('/auth/verify-email', { token })
-    } catch (error) {
-      console.error('Failed to verify email:', error)
-      throw error
-    }
+  static clearAuthData(): void {
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('user')
   }
 
   /**
-   * Reset password request
+   * Check if user is authenticated (has valid token)
    */
-  static async requestPasswordReset(email: string): Promise<void> {
-    try {
-      await apiClient.post('/auth/forgot-password', { email })
-    } catch (error) {
-      console.error('Failed to request password reset:', error)
-      throw error
-    }
+  static isAuthenticated(): boolean {
+    const token = localStorage.getItem('authToken')
+    return !!token
   }
 
   /**
-   * Reset password with token
+   * Get stored auth token
    */
-  static async resetPassword(token: string, newPassword: string): Promise<void> {
-    try {
-      await apiClient.post('/auth/reset-password', { token, password: newPassword })
-    } catch (error) {
-      console.error('Failed to reset password:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Change password (for authenticated users)
-   */
-  static async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    try {
-      await apiClient.post('/auth/change-password', { 
-        currentPassword, 
-        newPassword 
-      })
-    } catch (error) {
-      console.error('Failed to change password:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Get user's authentication sessions
-   */
-  static async getSessions(): Promise<any[]> {
-    try {
-      const response = await apiClient.get<any[]>('/auth/sessions')
-      return response
-    } catch (error) {
-      console.error('Failed to get sessions:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Revoke a specific session
-   */
-  static async revokeSession(sessionId: string): Promise<void> {
-    try {
-      await apiClient.delete(`/auth/sessions/${sessionId}`)
-    } catch (error) {
-      console.error('Failed to revoke session:', error)
-      throw error
-    }
-  }
-
-  /**
-   * Revoke all sessions except current
-   */
-  static async revokeAllOtherSessions(): Promise<void> {
-    try {
-      await apiClient.post('/auth/revoke-all-sessions')
-    } catch (error) {
-      console.error('Failed to revoke all sessions:', error)
-      throw error
-    }
+  static getAuthToken(): string | null {
+    return localStorage.getItem('authToken')
   }
 }
 

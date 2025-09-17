@@ -54,9 +54,9 @@ export function UserProfile() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">Role</span>
-            <Badge className={`${getRoleColor(user.role)} border`}>
-              <span className="mr-1">{getRoleIcon(user.role)}</span>
-              {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+            <Badge className={`${getRoleColor(user.role || 'user')} border`}>
+              <span className="mr-1">{getRoleIcon(user.role || 'user')}</span>
+              {(user.role || 'user').charAt(0).toUpperCase() + (user.role || 'user').slice(1)}
             </Badge>
           </div>
           
