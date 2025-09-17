@@ -30,6 +30,12 @@ export default function CopywritingGenerationPage() {
 
         console.log('Loading copywriting framework with ID:', copywritingId)
 
+        // Helper function to check if ID is a UUID
+        const isUUID = (str: string) => {
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+          return uuidRegex.test(str)
+        }
+
         // Check if this is a predefined framework ID first
         const predefinedFrameworks = {
           'neuro-copy': {
@@ -110,7 +116,23 @@ export default function CopywritingGenerationPage() {
           } */
         }
 
-        // Check for predefined framework first
+        // If ID is a UUID, try backend first (custom frameworks)
+        if (isUUID(copywritingId)) {
+          // Check if user is authenticated for backend frameworks
+          if (!user) {
+            setError('Please sign in to access custom copywriting frameworks.')
+            return
+          }
+
+          // Try to load from backend
+          console.log(`Loading backend copywriting framework with UUID: ${copywritingId}`)
+          const response = await ideanApi.copywriting.getById(copywritingId)
+          console.log('✅ Backend copywriting framework loaded:', response)
+          setCopywriting(response)
+          return
+        }
+
+        // If not a UUID, check for predefined framework
         if (predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks]) {
           console.log('Loading predefined framework:', copywritingId)
           const framework = predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks]
@@ -122,30 +144,22 @@ export default function CopywritingGenerationPage() {
           return
         }
 
-        // If not predefined, check if user is authenticated for backend frameworks
-        if (!user) {
-          setError('Please sign in to access custom copywriting frameworks.')
-          return
-        }
-
-        // Try to load from backend
-        const response = await ideanApi.copywriting.getById(copywritingId)
-        console.log('Copywriting framework loaded from backend:', response)
-        setCopywriting(response)
+        // If neither UUID nor predefined, show error
+        setError(`Copywriting framework '${copywritingId}' not found. Please check the URL or try a different framework.`)
       } catch (err: unknown) {
-        console.error('Failed to load copywriting framework:', err)
+        console.error(`Failed to load backend copywriting framework '${copywritingId}':`, err)
 
         // Handle specific error cases
         if (err && typeof err === 'object' && 'status' in err) {
           if ((err as any).status === 401) {
-            setError('Authentication required. Please sign in to access this framework.')
+            setError('Authentication required. Please sign in to access this custom framework.')
           } else if ((err as any).status === 404) {
-            setError('Copywriting framework not found. It may have been deleted or you may not have access.')
+            setError(`Custom copywriting framework '${copywritingId}' not found. It may have been deleted or you may not have access.`)
           } else {
-            setError((err as any).message || 'Failed to load copywriting framework. Please try again.')
+            setError((err as any).message || `Failed to load custom framework '${copywritingId}'. Please try again.`)
           }
         } else {
-          setError('Failed to load copywriting framework. Please try again.')
+          setError(`Failed to load copywriting framework '${copywritingId}'. Please try again.`)
         }
       } finally {
         setLoading(false)

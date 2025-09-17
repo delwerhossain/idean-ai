@@ -46,12 +46,18 @@ export default function CopywritingPage() {
 
         // Backend returns copyWritings array directly
         const copywritingData = response.copyWritings || []
-        console.log('Fetched copywriting data:', copywritingData)
+        console.log('✅ Fetched copywriting data from backend:', copywritingData)
         setCopywritings(copywritingData)
-        console.log('✅ Loaded copywriting data from backend:', copywritingData)
 
-      } catch {
-        console.log('⚠️  Backend copywriting data not available, using predefined frameworks only')
+        if (copywritingData.length > 0) {
+          console.log(`✅ Loaded ${copywritingData.length} custom copywriting frameworks from backend`)
+        } else {
+          console.log('ℹ️ No custom copywriting frameworks found - using predefined frameworks only')
+        }
+
+      } catch (err: any) {
+        console.log('⚠️ Backend copywriting data not available:', err?.message || 'Unknown error')
+        console.log('Using predefined frameworks only')
         // No copywriting data available - that's fine, use predefined frameworks
         setCopywritings([])
       }
@@ -314,12 +320,13 @@ export default function CopywritingPage() {
       </div>
 
       {/* Custom Frameworks from Backend */}
-      {/* {copywritings.length > 0 && (
+      {copywritings.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4"> Custom Copywriting Frameworks</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Copywriting Frameworks</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {copywritings.map((copywriting) => (
-              <Card key={copywriting.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <Card key={copywriting.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => handleCopywritingClick(copywriting)}>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                     <PenTool className="w-5 h-5 text-white" />
@@ -345,7 +352,10 @@ export default function CopywritingPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleCopywritingClick(copywriting)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleCopywritingClick(copywriting)
+                    }}
                   >
                     Generate Copy
                   </Button>
@@ -354,7 +364,7 @@ export default function CopywritingPage() {
             ))}
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Content Types Overview */}
       {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
