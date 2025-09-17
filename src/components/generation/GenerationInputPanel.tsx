@@ -121,18 +121,27 @@ export function GenerationInputPanel({
           )}
           <div className="hidden sm:block w-px h-6 bg-gray-300" />
              {/* Step Indicator */}
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
           <div className={`w-2 h-2 rounded-full ${currentStep === 'input' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'}>
+          <span className={`${currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
             Input Details
           </span>
+          <span className={`${currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
+            Input
+          </span>
           <div className={`w-2 h-2 rounded-full ${currentStep === 'generating' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'}>
+          <span className={`${currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
             Generating
           </span>
+          <span className={`${currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
+            Gen
+          </span>
           <div className={`w-2 h-2 rounded-full ${currentStep === 'editing' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'}>
+          <span className={`${currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
             Review & Edit
+          </span>
+          <span className={`${currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
+            Edit
           </span>
         </div>
         </div>
@@ -144,28 +153,30 @@ export function GenerationInputPanel({
       <div className="flex border-b border-gray-200 bg-white">
         <button
           onClick={() => setActiveTab('inputs')}
-          className={`flex-1 px-4 py-3 text-sm font-medium ${
+          className={`flex-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${
             activeTab === 'inputs'
               ? 'text-purple-600 border-b-2 border-purple-500'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Input Fields
+          <span className="hidden sm:inline">Input Fields</span>
+          <span className="sm:hidden">Inputs</span>
         </button>
         <button
           onClick={() => setActiveTab('options')}
-          className={`flex-1 px-4 py-3 text-sm font-medium ${
+          className={`flex-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${
             activeTab === 'options'
               ? 'text-purple-600 border-b-2 border-purple-500'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Options
+          <span className="hidden sm:inline">Options</span>
+          <span className="sm:hidden">Opts</span>
         </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-gray-50">
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-600">{error}</p>

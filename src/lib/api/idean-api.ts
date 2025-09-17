@@ -94,6 +94,9 @@ export interface Template {
   brandinglab?: BrandingLab
   growthcopilot?: GrowthCopilot
   copywriting?: Copywriting
+  // New fields from the API response
+  serviceType?: 'copywriting' | 'brandinglab' | 'growthcopilot'
+  serviceId?: string
 }
 
 export interface Document {
@@ -274,6 +277,10 @@ export const ideanApi = {
       documentIds?: string[]
     }) =>
       apiClient.post<Template>(`/api/v1/copywriting/${id}/templates`, data),
+
+    // Get copywriting templates for current user - use general templates endpoint with copywriting filter
+    getTemplates: (params?: PaginationParams) =>
+      apiClient.safeGet<PaginatedResponse<Template>>('/api/v1/templates/category/copywriting', params, true),
   },
 
   // Templates API (Reusable Frameworks)
@@ -314,7 +321,27 @@ export const ideanApi = {
 
     // Get current user's templates
     getMyTemplates: (params?: PaginationParams) =>
-      apiClient.safeGet<PaginatedResponse<Template>>('/api/v1/templates/my-templates', params, true),
+      apiClient.safeGet<{
+        success: boolean
+        message: string
+        data: {
+          templates: Template[]
+          pagination: {
+            total: number
+            page: number
+            limit: number
+            pages: number
+            hasNext: boolean
+            hasPrev: boolean
+          }
+          summary: {
+            totalTemplates: number
+            copywritingTemplates: number
+            brandinglabTemplates: number
+            growthcopilotTemplates: number
+          }
+        }
+      }>('/api/v1/templates/my-templates', params, true),
   },
 
   // Documents API (Knowledge Base)

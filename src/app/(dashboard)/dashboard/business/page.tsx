@@ -194,16 +194,16 @@ export default function BusinessPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
             <Building className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Business Management</h1>
-            <p className="text-gray-600">Manage business profiles and configurations</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Business Management</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Manage business profiles and configurations</p>
           </div>
         </div>
 
@@ -220,15 +220,15 @@ export default function BusinessPage() {
 
       {/* Error Display */}
       {error && (
-        <Card className="p-4 mb-6 bg-red-50 border-red-200">
+        <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-red-50 border-red-200">
           <div className="flex items-center gap-2 text-red-700">
             <AlertTriangle className="w-4 h-4" />
-            <span className="text-sm">{error}</span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <span className="text-sm flex-1">{error}</span>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setError(null)}
-              className="ml-auto"
+              className="ml-auto flex-shrink-0"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -237,7 +237,7 @@ export default function BusinessPage() {
       )}
 
       {/* Search and Actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -250,25 +250,28 @@ export default function BusinessPage() {
             />
           </div>
         </div>
-        
-        <Button onClick={handleSearch} variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-        <Button 
-          onClick={() => setShowCreateForm(true)}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Business
-        </Button>
+
+        <div className="flex gap-2 sm:gap-3">
+          <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
+            <Filter className="w-4 h-4 mr-2" />
+            Search
+          </Button>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">New Business</span>
+            <span className="sm:hidden">New</span>
+          </Button>
+        </div>
       </div>
 
       {/* Create/Edit Form */}
       {showCreateForm && (
-        <Card className="p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
+        <Card className="p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
               {editingBusiness ? 'Edit Business' : 'Create New Business'}
             </h3>
             <Button variant="ghost" size="sm" onClick={resetForm}>
@@ -276,8 +279,8 @@ export default function BusinessPage() {
             </Button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Business Name */}
               <div>
                 <Label htmlFor="business_name" className="text-sm font-medium text-gray-700">
@@ -418,11 +421,11 @@ export default function BusinessPage() {
               </select>
             </div>
 
-            <div className="flex items-center gap-4 pt-4">
-              <Button 
-                type="submit" 
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-4">
+              <Button
+                type="submit"
                 disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
               >
                 {isSubmitting ? (
                   <>
@@ -436,7 +439,7 @@ export default function BusinessPage() {
                   </>
                 )}
               </Button>
-              <Button type="button" variant="outline" onClick={resetForm}>
+              <Button type="button" variant="outline" onClick={resetForm} className="w-full sm:w-auto">
                 Cancel
               </Button>
             </div>
@@ -446,23 +449,23 @@ export default function BusinessPage() {
 
       {/* Business List */}
       {businesses.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {businesses.map((business) => (
-            <Card key={business.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Building className="w-5 h-5 text-blue-600" />
+            <Card key={business.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
+              <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-3 sm:gap-0">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Building className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{business.business_name}</h4>
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{business.business_name}</h4>
+                    <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
                       <Globe className="w-3 h-3" />
-                      <span>{business.website_url}</span>
+                      <span className="truncate">{business.website_url}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -481,19 +484,19 @@ export default function BusinessPage() {
                 </div>
               </div>
 
-              <div className="space-y-3 mb-4">
+              <div className="space-y-2 sm:space-y-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">{business.industry_tag}</span>
+                  <Tag className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                  <span className="text-xs sm:text-sm text-gray-600">{business.industry_tag}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">{business.language === 'en' ? 'English' : business.language === 'bn' ? 'Bengali' : 'Hindi'}</span>
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                  <span className="text-xs sm:text-sm text-gray-600">{business.language === 'en' ? 'English' : business.language === 'bn' ? 'Bengali' : 'Hindi'}</span>
                 </div>
 
                 {business.business_context && (
-                  <p className="text-sm text-gray-600 line-clamp-2">
+                  <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
                     {business.business_context}
                   </p>
                 )}

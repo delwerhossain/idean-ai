@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Clock,
   Tag,
-  User
+  User,
+  RefreshCw
 } from 'lucide-react'
 import { ideanApi, Template } from '@/lib/api/idean-api'
 
@@ -30,42 +31,110 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('my-templates')
   const [hasLoaded, setHasLoaded] = useState(false)
 
   const loadTemplates = useCallback(async () => {
-    if (loading || hasLoaded) return
+    // Remove the hasLoaded check to allow initial loading
+
+    console.log('Loading templates for category:', selectedCategory, 'User:', user?.email)
 
     try {
       setLoading(true)
       setError(null)
 
       let response
-      if (selectedCategory === 'all') {
-        response = await ideanApi.templates.getAll({
-          limit: 50
-        } as any)
-      } else if (selectedCategory === 'my-templates') {
+      let allTemplates: Template[] = []
+
+      // Load user's templates using the correct endpoint
+      console.log('Loading user templates...')
+
+      if (selectedCategory === 'all' || selectedCategory === 'my-templates') {
         // Get user's own templates
         if (user) {
-          response = await ideanApi.templates.getMyTemplates({
-            limit: 50
-          })
+          try {
+            response = await ideanApi.templates.getMyTemplates({
+              limit: 50
+            })
+            console.log('My Templates API response:', response)
+          } catch (err) {
+            console.error('Failed to load user templates:', err)
+            setTemplates([])
+            return
+          }
         } else {
-          // Redirect to login or show message
+          console.log('No user logged in, showing empty templates')
+          setTemplates([])
+          return
+        }
+      } else if (selectedCategory === 'copywriting') {
+        // Filter user's templates for copywriting only
+        if (user) {
+          try {
+            response = await ideanApi.templates.getMyTemplates({
+              limit: 50
+            })
+            console.log('Templates for copywriting filter:', response)
+          } catch (err) {
+            console.error('Failed to load copywriting templates:', err)
+            setTemplates([])
+            return
+          }
+        } else {
           setTemplates([])
           return
         }
       } else {
-        response = await ideanApi.templates.getByCategory(selectedCategory, {
-          limit: 50
-        } as any)
+        // For other categories, show empty for now
+        console.log('Other category selected:', selectedCategory)
+        setTemplates([])
+        return
       }
 
       if (response) {
-        // Handle different response formats consistently
-        const templates = response.items || (response as any).data || response || []
+        console.log('Raw API response:', response)
+
+        // Handle the actual API response structure: { success, message, data: { templates: [...] } }
+        let templates: Template[] = []
+
+        if (response.success && response.data && response.data.templates) {
+          templates = response.data.templates
+        } else if ((response as any).templates) {
+          templates = (response as any).templates
+        } else if (Array.isArray(response)) {
+          templates = response
+        } else {
+          console.warn('Unexpected response format:', response)
+          templates = []
+        }
+
+        console.log('Parsed templates:', templates)
+
+        // Filter templates by category if needed
+        if (selectedCategory === 'copywriting') {
+          templates = templates.filter(template =>
+            template.serviceType === 'copywriting' ||
+            template.copywriting ||
+            template.copywritingId
+          )
+          console.log('Filtered copywriting templates:', templates)
+        } else if (selectedCategory === 'brandinglab') {
+          templates = templates.filter(template =>
+            template.serviceType === 'brandinglab' ||
+            template.brandinglab ||
+            template.brandinglabId
+          )
+        } else if (selectedCategory === 'growthcopilot') {
+          templates = templates.filter(template =>
+            template.serviceType === 'growthcopilot' ||
+            template.growthcopilot ||
+            template.growthcopilotId
+          )
+        }
+
         setTemplates(Array.isArray(templates) ? templates : [])
+      } else {
+        setTemplates([])
       }
     } catch (err: unknown) {
       console.error('Failed to load templates:', err)
@@ -89,36 +158,40 @@ export default function TemplatesPage() {
       setLoading(false)
       setHasLoaded(true)
     }
-  }, [hasLoaded, loading, selectedCategory, searchTerm])
+  }, [selectedCategory, user])
 
   useEffect(() => {
-    if (!hasLoaded) {
-      loadTemplates()
-    }
-  }, [selectedCategory, hasLoaded, loadTemplates])
+    console.log('Effect triggered - loading templates')
+    loadTemplates()
+  }, [selectedCategory, loadTemplates])
 
   const handleSearch = () => {
     setHasLoaded(false)
   }
 
+  const handleRefresh = () => {
+    setHasLoaded(false)
+    setTemplates([])
+  }
+
   const getCategoryIcon = (template: Template) => {
-    if (template.brandinglab) return Palette
-    if (template.growthcopilot) return TrendingUp
-    if (template.copywriting) return PenTool
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return Palette
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return TrendingUp
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return PenTool
     return FileText
   }
 
   const getCategoryColor = (template: Template) => {
-    if (template.brandinglab) return 'bg-purple-500'
-    if (template.growthcopilot) return 'bg-blue-500'
-    if (template.copywriting) return 'bg-orange-500'
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'bg-purple-500'
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'bg-blue-500'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'bg-orange-500'
     return 'bg-gray-500'
   }
 
   const getCategoryName = (template: Template) => {
-    if (template.brandinglab) return 'Branding Lab'
-    if (template.growthcopilot) return 'Growth Co-pilot'
-    if (template.copywriting) return 'Copywriting'
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'Branding Lab'
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'Growth Co-pilot'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Copywriting'
     return 'Custom Template'
   }
 
@@ -158,16 +231,16 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
             <FileText className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
-            <p className="text-gray-600">Reusable frameworks and workflows for your business</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Templates</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Reusable frameworks and workflows for your business</p>
           </div>
         </div>
 
@@ -183,22 +256,28 @@ export default function TemplatesPage() {
       </div>
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search templates..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
+      <div className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Search templates..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              />
+            </div>
           </div>
+          <Button onClick={handleSearch} variant="outline" className="sm:w-auto">
+            <Filter className="w-4 h-4 mr-2" />
+            Search
+          </Button>
         </div>
-        
+
         {/* Category Filter */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant={selectedCategory === 'all' ? 'default' : 'outline'}
             size="sm"
@@ -257,33 +336,36 @@ export default function TemplatesPage() {
           </Button>
         </div>
 
-        <Button onClick={handleSearch} variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-        <Button className="bg-gray-600 hover:bg-gray-700">
-          <Plus className="w-4 h-4 mr-2" />
-          New Template
-        </Button>
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Refresh</span>
+          </Button>
+          <Button className="bg-gray-600 hover:bg-gray-700" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">New Template</span>
+            <span className="sm:hidden">New</span>
+          </Button>
+        </div>
       </div>
 
       {/* Templates Grid */}
       {templates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {templates.map((template) => {
             const Icon = getCategoryIcon(template)
             const categoryColor = getCategoryColor(template)
             const categoryName = getCategoryName(template)
 
             return (
-              <Card key={template.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer group">
+              <Card key={template.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${categoryColor} rounded-lg flex items-center justify-center`}>
-                      <Icon className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 ${categoryColor} rounded-lg flex items-center justify-center`}>
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{template.name}</h4>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{template.name}</h4>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Tag className="w-3 h-3" />
                         <span>{categoryName}</span>
@@ -293,7 +375,7 @@ export default function TemplatesPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </Button>
@@ -318,23 +400,25 @@ export default function TemplatesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-gray-100 gap-3 sm:gap-0">
                   <div className="flex items-center gap-1 text-xs text-gray-500">
                     <Clock className="w-3 h-3" />
                     <span>{formatDate(template.updatedAt)}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="ghost">
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Button size="sm" variant="ghost" className="flex-shrink-0">
                       <Edit className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="ghost">
+                    <Button size="sm" variant="ghost" className="flex-shrink-0">
                       <Copy className="w-3 h-3" />
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
+                      className="flex-1 sm:flex-none"
                     >
-                      Use Template
+                      <span className="hidden sm:inline">Use Template</span>
+                      <span className="sm:hidden">Use</span>
                     </Button>
                   </div>
                 </div>

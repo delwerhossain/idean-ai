@@ -175,16 +175,16 @@ export default function CopywritingPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-idean-navy rounded-lg flex items-center justify-center">
             <PenTool className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">AI Copywriting</h1>
-            <p className="text-gray-600">Content generation frameworks for campaigns and marketing</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AI Copywriting</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Content generation frameworks for campaigns and marketing</p>
           </div>
         </div>
 
@@ -200,7 +200,7 @@ export default function CopywritingPage() {
       </div>
 
       {/* Search and Filter */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -213,31 +213,68 @@ export default function CopywritingPage() {
             />
           </div>
         </div>
-        <Button onClick={handleSearch} variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-        <Button className="bg-idean-navy hover:bg-idean-navy-dark">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Framework
-        </Button>
+        <div className="flex gap-2 sm:gap-3">
+          <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
+            <Filter className="w-4 h-4 mr-2" />
+            Search
+          </Button>
+          <Button className="bg-idean-navy hover:bg-idean-navy-dark flex-1 sm:flex-none">
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Create Framework</span>
+            <span className="sm:hidden">Create</span>
+          </Button>
+        </div>
       </div>
 
+      {/* Predefined Copywriting Frameworks */}
+      <div className="mb-6 sm:mb-8">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Popular Copywriting Frameworks</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {predefinedFrameworks.map((framework) => {
+            const Icon = framework.icon
+            return (
+              <Card key={framework.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => handleFrameworkClick(framework)}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-4">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 ${framework.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">{framework.name}</h4>
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{framework.category}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed">
+                  {framework.description}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">{framework.estimatedTime}</span>
+                  <Button size="sm" variant="outline" className="group-hover:bg-idean-navy group-hover:text-white">
+                    <span className="hidden sm:inline">Start Framework</span>
+                    <span className="sm:hidden">Start</span>
+                  </Button>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      </div>
 
       {/* Custom Frameworks from Backend */}
       {copywritings.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Copywriting Frameworks</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Custom Copywriting Frameworks</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {copywritings.map((copywriting) => (
               <Card key={copywriting.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => handleCopywritingClick(copywriting)}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-                    <PenTool className="w-5 h-5 text-white" />
+                <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                    <PenTool className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{copywriting.name}</h4>
+                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{copywriting.name}</h4>
                     <p className="text-xs text-gray-500">Custom Framework</p>
                   </div>
                 </div>
@@ -261,8 +298,10 @@ export default function CopywritingPage() {
                       e.stopPropagation()
                       handleCopywritingClick(copywriting)
                     }}
+                    className="w-full sm:w-auto"
                   >
-                    Generate Copy
+                    <span className="hidden sm:inline">Generate Copy</span>
+                    <span className="sm:hidden">Generate</span>
                   </Button>
                 </div>
               </Card>
@@ -307,24 +346,24 @@ export default function CopywritingPage() {
       </div> */}
 
       {/* Quick Start Guide */}
-      <Card className="p-6 bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-idean-navy rounded-lg flex items-center justify-center">
-            <PenTool className="w-6 h-6 text-white" />
+      <Card className="p-4 sm:p-6 bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-idean-navy rounded-lg flex items-center justify-center">
+            <PenTool className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">Getting Started with AI Copywriting</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Getting Started with AI Copywriting</h3>
+            <p className="text-xs sm:text-sm text-gray-600 mb-3">
               Generate high-converting copy with proven frameworks from top marketers and behavioral psychology.
             </p>
-            <div className="flex items-center gap-4 text-xs text-gray-500">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
               <span>• 10-40 minutes per framework</span>
               <span>• Multiple copy variations</span>
               <span>• A/B testing templates</span>
             </div>
           </div>
           <Button
-            className="bg-idean-navy hover:bg-idean-navy-dark"
+            className="bg-idean-navy hover:bg-idean-navy-dark w-full sm:w-auto mt-3 sm:mt-0"
             onClick={() => {
               if (copywritings.length > 0) {
                 handleCopywritingClick(copywritings[0])
@@ -334,7 +373,8 @@ export default function CopywritingPage() {
               }
             }}
           >
-            Generate Your First Copy
+            <span className="hidden sm:inline">Generate Your First Copy</span>
+            <span className="sm:hidden">Get Started</span>
           </Button>
         </div>
       </Card>

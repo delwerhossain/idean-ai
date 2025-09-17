@@ -171,14 +171,14 @@ export default function CopywritingGenerationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Zap className="w-8 h-8 text-purple-600" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
           </div>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-700 font-medium">Loading copywriting framework...</p>
-          <p className="text-sm text-gray-500 mt-2">Setting up your AI-powered content studio</p>
+          <p className="mt-4 text-gray-700 font-medium text-sm sm:text-base">Loading copywriting framework...</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-2">Setting up your AI-powered content studio</p>
         </div>
       </div>
     )
@@ -187,27 +187,29 @@ export default function CopywritingGenerationPage() {
   if (error || !copywriting) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
-        <Card className="p-8 max-w-lg text-center shadow-lg">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
+        <Card className="p-6 sm:p-8 w-full max-w-lg text-center shadow-lg">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             Framework Not Found
           </h1>
-          <p className="text-gray-600 mb-6 leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-600 mb-6 leading-relaxed">
             {error || 'The copywriting framework you\'re looking for doesn\'t exist or may have been moved.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
               onClick={() => router.push('/dashboard/copywriting')}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 w-full sm:w-auto"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Copywriting
+              <span className="hidden sm:inline">Back to Copywriting</span>
+              <span className="sm:hidden">Back</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => window.location.reload()}
+              className="w-full sm:w-auto"
             >
               Try Again
             </Button>

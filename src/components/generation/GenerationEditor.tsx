@@ -257,88 +257,80 @@ ${editorContent}`
 
   return (
     <div className="h-full bg-white flex flex-col">
-      {/* Top Toolbar with Edit/Preview Toggle and Export */}
-      <div className="bg-white border-b px-4 py-4">
+      {/* Top Toolbar - Compact */}
+      <div className="bg-white border-b px-3 sm:px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Left: Edit/Preview Toggle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant={!isPreviewMode ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsPreviewMode(false)}
+              className="h-8 px-2 sm:px-3"
             >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline sm:ml-2">Edit</span>
             </Button>
             <Button
               variant={isPreviewMode ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsPreviewMode(true)}
+              className="h-8 px-2 sm:px-3"
             >
-              <Eye className="w-4 h-4 mr-2" />
-              Preview
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline sm:ml-2">Preview</span>
             </Button>
           </div>
 
-          {/* Center: Stats */}
-          <div className="text-sm text-gray-500 hidden sm:block">
-           {wordCount} words • {charCount} characters</div>
-           
+       
          
 
-          {/* Right Side - Actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            {/* Regenerate Button */}
-                {/* Quick Actions */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Right: Action Buttons - Compact */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyToClipboard}
+              className="h-8 px-2"
+            >
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden lg:inline lg:ml-2">Copy</span>
+            </Button>
+
+            {onSaveAsTemplate && hasContent && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleCopyToClipboard}
-                className="flex-1 sm:flex-none"
+                onClick={() => setShowSaveDialog(true)}
+                className="h-8 px-2"
               >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy All
+                <BookmarkPlus className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden lg:inline lg:ml-2">Save</span>
               </Button>
+            )}
 
-              {/* Save as Template Button */}
-              {onSaveAsTemplate && hasContent && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSaveDialog(true)}
-                  className="flex-1 sm:flex-none bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800"
-                >
-                  <BookmarkPlus className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Save Template</span>
-                  <span className="sm:hidden">Save</span>
-                </Button>
-              )}
-            </div>
             <Button
               variant="outline"
               size="sm"
               onClick={onRegenerateAll}
               disabled={isGenerating || !hasContent}
-              className="gap-1 sm:gap-2 px-2 sm:px-3"
+              className="h-8 px-2"
             >
               <Wand2 className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Regenerate</span>
-              <span className="sm:hidden">Regen</span>
+              <span className="hidden lg:inline lg:ml-2">Regen</span>
             </Button>
 
-            {/* Export Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
                   disabled={!hasContent}
-                  className="gap-1 sm:gap-2 px-2 sm:px-3"
+                  className="h-8 px-2"
                 >
                   <Download className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Export</span>
-                  <ChevronDown className="w-3 h-3" />
+                  <span className="hidden lg:inline lg:ml-2">Export</span>
+                  <ChevronDown className="w-2 h-2 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -434,19 +426,11 @@ ${editorContent}`
         </div>
       </div>
 
-      {/* Bottom Action Bar */}
-      <div className="border-t bg-gray-50 p-4">
+      {/* Bottom Stats Bar - Compact */}
+      <div className="border-t bg-gray-50 px-3 sm:px-4 py-1.5 sm:py-2">
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            {/* Detailed Stats */}
-            <div className="text-sm text-gray-500">
-              <span className="font-medium">Statistics:</span>
-              <span className="ml-2">
-                {wordCount} words • {charCount} characters • {lineCount} lines
-              </span>
-            </div>
-
-
+          <div className="text-xs text-gray-500 text-center sm:text-left">
+            {wordCount} words • {charCount} chars • {lineCount} lines
           </div>
         </div>
       </div>
