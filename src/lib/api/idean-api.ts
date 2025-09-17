@@ -38,6 +38,44 @@ export interface Copywriting {
   updatedAt: string
 }
 
+export interface CopywritingGenerateResponse {
+  success: boolean
+  message: string
+  data: {
+    generatedContent: string
+    copyWriting: {
+      id: string
+      name: string
+      description?: string
+    }
+    businessContext: {
+      businessId: string
+      businessName: string
+      industry: string
+    }
+    inputsUsed: {
+      userInputs: Record<string, any>
+      userSelections?: Record<string, any>
+      userPrompt?: string
+    }
+    generationMetadata: {
+      usage: {
+        completion_tokens: number
+        prompt_tokens: number
+        total_tokens: number
+        completion_tokens_details?: any
+        prompt_tokens_details?: any
+      }
+      model: string
+      finishReason: string
+    }
+    savedDocument?: {
+      id: string
+      name: string
+    }
+  }
+}
+
 export interface Template {
   id: string
   name: string
@@ -224,7 +262,7 @@ export const ideanApi = {
         saveDocument?: boolean
       }
     }) =>
-      apiClient.post<{ content: string }>(`/api/v1/copywriting/${id}/generate`, payload),
+      apiClient.post<CopywritingGenerateResponse>(`/api/v1/copywriting/${id}/generate`, payload),
   },
 
   // Templates API (Reusable Frameworks)

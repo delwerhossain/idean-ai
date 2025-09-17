@@ -128,22 +128,45 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
             throw new Error('Unsupported generation type')
         }
 
-        // Handle the API response format from the JSON file
-        const apiResponse = response
-        const generatedContent = apiResponse.content || 'Generated content will appear here.'
+        // Handle the backend API response format
+        console.log('Backend API Response:', response) // Debug logging
 
-        console.log('API Response:', apiResponse) // Debug logging
-
-        setGenerationResult({
-          content: generatedContent,
-          metadata: {
-            framework: framework.name,
-            inputs,
-            timestamp: new Date().toISOString(),
-            tokensUsed: (apiResponse as any).generationMetadata?.usage?.total_tokens || (apiResponse as any).usage?.total_tokens || 0,
-            model: (apiResponse as any).generationMetadata?.model || (apiResponse as any).model || 'gpt-4'
+        // Check if this is the new backend response format
+        if ('success' in response && 'data' in response) {
+          // New backend response format
+          if (!response.success) {
+            throw new Error(response.message || 'Generation failed')
           }
-        })
+
+          const generatedContent = response.data.generatedContent
+          const metadata = response.data.generationMetadata
+
+          setGenerationResult({
+            content: generatedContent,
+            metadata: {
+              framework: response.data.copyWriting.name,
+              inputs: response.data.inputsUsed.userInputs,
+              timestamp: new Date().toISOString(),
+              tokensUsed: metadata.usage.total_tokens,
+              model: metadata.model
+            }
+          })
+        } else {
+          // Legacy response format (for other API types)
+          const apiResponse = response as any
+          const generatedContent = apiResponse.content || 'Generated content will appear here.'
+
+          setGenerationResult({
+            content: generatedContent,
+            metadata: {
+              framework: framework.name,
+              inputs,
+              timestamp: new Date().toISOString(),
+              tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
+              model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4'
+            }
+          })
+        }
       }
 
       setCurrentStep('editing')
@@ -304,7 +327,7 @@ ${inputs.ctaText || 'Take action now!'}
           throw new Error('Unsupported generation type')
       }
 
-      const newSectionContent = (response as any).generatedContent || response.content
+      const newSectionContent = (response as any).data?.generatedContent || (response as any).generatedContent || (response as any).content
 
       if (newSectionContent && generationResult) {
         // Replace the section in the current content

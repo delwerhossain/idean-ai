@@ -254,7 +254,7 @@ ${editorContent}`
   return (
     <div className="h-full bg-white flex flex-col">
       {/* Top Toolbar with Edit/Preview Toggle and Export */}
-      <div className="bg-white border-b px-4 py-3">
+      <div className="bg-white border-b px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left: Edit/Preview Toggle */}
           <div className="flex items-center gap-2">
@@ -326,10 +326,10 @@ ${editorContent}`
       </div>
 
       {/* Content Display */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 overflow-auto min-h-0">
+        <div className="max-w-5xl mx-auto h-full">
           {isPreviewMode ? (
-            <div ref={printRef} className="p-6 sm:p-8">
+            <div ref={printRef} className="p-6 sm:p-8 h-full">
               {/* Print Header - Hidden on screen, visible when printing */}
               <div className="print:block hidden mb-8 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold text-gray-900">{framework.name}</h1>
@@ -339,7 +339,7 @@ ${editorContent}`
                 </p>
               </div>
 
-              <div className="prose max-w-none">
+              <div className="prose max-w-none h-auto">
                 <ReactMarkdown
                   components={{
                     h1: ({ children }) => (
@@ -389,10 +389,10 @@ ${editorContent}`
               </div>
             </div>
           ) : (
-            <div className="p-6 sm:p-8">
-              <Card className="p-4">
+            <div className="p-6 sm:p-8 h-full">
+              <Card className="p-4 h-full flex flex-col">
                 <textarea
-                  className="w-full min-h-[500px] p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent"
+                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent"
                   value={editorContent}
                   onChange={(e) => handleContentEdit(e.target.value)}
                   placeholder="Generated content will appear here..."

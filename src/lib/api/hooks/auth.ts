@@ -2,8 +2,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import AuthService from '@/lib/api/services/auth'
-import type { User, UserCreateRequest, UserUpdateRequest } from '@/types/api'
+import AuthService, { AuthResponse } from '@/lib/api/services/auth'
+import type { User, UserUpdateRequest } from '@/types/api'
 
 // Query keys for caching
 export const authKeys = {
@@ -31,22 +31,43 @@ export function useUser() {
 }
 
 /**
- * Hook to sync user with backend after Firebase auth
+ * Hook to login with backend using Firebase token
  */
-export function useSyncUser() {
+export function useLogin() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: (userData: UserCreateRequest) => AuthService.syncUser(userData),
-    onSuccess: (data: User) => {
+    mutationFn: ({ email, firebaseToken }: { email: string; firebaseToken: string }) =>
+      AuthService.login(email, firebaseToken),
+    onSuccess: (data: AuthResponse) => {
       // Update cached user data
-      queryClient.setQueryData(authKeys.user, data)
-      
-      // Session will be updated on next page load
-      // Note: NextAuth v5 doesn't have update function, session refreshes automatically
+      queryClient.setQueryData(authKeys.user, data.user)
     },
     onError: (error) => {
-      console.error('User sync failed:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Login failed:', error)
+      }
+    },
+  })
+}
+
+/**
+ * Hook to register new user
+ */
+export function useRegister() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userData: { email: string; name: string; password?: string; provider?: string }) =>
+      AuthService.register(userData),
+    onSuccess: (data: AuthResponse) => {
+      // Update cached user data
+      queryClient.setQueryData(authKeys.user, data.user)
+    },
+    onError: (error) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Registration failed:', error)
+      }
     },
   })
 }
@@ -67,142 +88,37 @@ export function useUpdateUser() {
       // Note: NextAuth v5 doesn't have update function, session refreshes automatically
     },
     onError: (error) => {
-      console.error('User update failed:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('User update failed:', error)
+      }
     },
   })
 }
 
 /**
- * Hook to delete user account
+ * Hook to refresh JWT token
  */
-export function useDeleteUser() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-  const { logout } = useAuth()
-
+export function useRefreshToken() {
   return useMutation({
-    mutationFn: () => AuthService.deleteUser(),
-    onSuccess: async () => {
-      // Clear all cached data
-      queryClient.clear()
-
-      // Sign out using Firebase auth
-      await logout()
-      router.push('/')
-    },
+    mutationFn: () => AuthService.refreshToken(),
     onError: (error) => {
-      console.error('User deletion failed:', error)
+      console.error('Token refresh failed:', error)
     },
   })
 }
 
 /**
- * Hook to check email availability
+ * Hook to verify JWT token
  */
-export function useCheckEmailAvailable() {
+export function useVerifyToken() {
   return useMutation({
-    mutationFn: (email: string) => AuthService.checkEmailAvailable(email),
-  })
-}
-
-/**
- * Hook to send email verification
- */
-export function useSendEmailVerification() {
-  return useMutation({
-    mutationFn: () => AuthService.sendEmailVerification(),
-  })
-}
-
-/**
- * Hook to verify email
- */
-export function useVerifyEmail() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: (token: string) => AuthService.verifyEmail(token),
-    onSuccess: () => {
-      // Refresh user data to get updated email verification status
-      queryClient.invalidateQueries({ queryKey: authKeys.user })
-      
-      // Session will be updated on next page load
+    mutationFn: () => AuthService.verifyToken(),
+    onError: (error) => {
+      console.error('Token verification failed:', error)
     },
   })
 }
 
-/**
- * Hook to request password reset
- */
-export function useRequestPasswordReset() {
-  return useMutation({
-    mutationFn: (email: string) => AuthService.requestPasswordReset(email),
-  })
-}
-
-/**
- * Hook to reset password
- */
-export function useResetPassword() {
-  return useMutation({
-    mutationFn: ({ token, password }: { token: string; password: string }) => 
-      AuthService.resetPassword(token, password),
-  })
-}
-
-/**
- * Hook to change password
- */
-export function useChangePassword() {
-  return useMutation({
-    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) => 
-      AuthService.changePassword(currentPassword, newPassword),
-  })
-}
-
-/**
- * Hook to get user sessions
- */
-export function useSessions() {
-  const { user } = useAuth()
-  
-  return useQuery({
-    queryKey: authKeys.sessions,
-    queryFn: () => AuthService.getSessions(),
-    enabled: !!user,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  })
-}
-
-/**
- * Hook to revoke a session
- */
-export function useRevokeSession() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: (sessionId: string) => AuthService.revokeSession(sessionId),
-    onSuccess: () => {
-      // Refresh sessions list
-      queryClient.invalidateQueries({ queryKey: authKeys.sessions })
-    },
-  })
-}
-
-/**
- * Hook to revoke all other sessions
- */
-export function useRevokeAllSessions() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: () => AuthService.revokeAllOtherSessions(),
-    onSuccess: () => {
-      // Refresh sessions list
-      queryClient.invalidateQueries({ queryKey: authKeys.sessions })
-    },
-  })
-}
 
 /**
  * Hook to handle complete logout (client + backend)
@@ -211,22 +127,24 @@ export function useLogout() {
   const { logout } = useAuth()
   const queryClient = useQueryClient()
   const router = useRouter()
-  
+
   return useMutation({
     mutationFn: async () => {
-      // Firebase handles token invalidation
+      // This will call AuthService.logout() and Firebase signOut
       await logout()
       return Promise.resolve()
     },
     onSuccess: async () => {
       // Clear all React Query cache
       queryClient.clear()
-      
+
       // Redirect to home
       router.push('/')
     },
     onError: (error) => {
-      console.error('Logout failed:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Logout failed:', error)
+      }
       // Still redirect on error
       router.push('/')
     },

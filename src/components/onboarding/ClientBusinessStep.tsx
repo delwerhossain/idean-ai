@@ -45,24 +45,11 @@ export default function ClientBusinessStep({
     setSuggestedNames(['Loading AI suggestions...'])
     
     try {
-      const response = await fetch('/api/generate-names', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          clientName: clientName,
-          industry: localStorage.getItem('industry') || '',
-          additionalContext: localStorage.getItem('additionalInfo') || ''
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate names')
-      }
-
-      const { names } = await response.json()
-      setSuggestedNames(names || AI_SUGGESTED_NAMES.slice(0, 6))
+      // Use fallback to predefined names since we're using Express.js backend
+      const suggestions = AI_SUGGESTED_NAMES
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 6)
+      setSuggestedNames(suggestions)
     } catch (error) {
       console.error('Error generating AI suggestions:', error)
       // Fallback to predefined names
