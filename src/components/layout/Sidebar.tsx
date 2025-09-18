@@ -143,23 +143,23 @@ export default function Sidebar({ className = '', isOpen = false, onToggle }: Si
 
   return (
     <>
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden touch-manipulation cursor-pointer"
-          onClick={onToggle}
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* Mobile Overlay - Only show on mobile when sidebar is open */}
       <div
         className={`
-          fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50
-          transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:relative lg:translate-x-0 lg:z-auto
+          fixed inset-0 bg-black transition-opacity duration-300 lg:hidden z-40
+          ${isOpen ? 'opacity-50 pointer-events-auto' : 'opacity-0 pointer-events-none'}
+        `}
+        onClick={onToggle}
+      />
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 flex flex-col
+          transition-all duration-300 ease-in-out
+          ${isOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full'}
+          lg:relative lg:translate-x-0 lg:z-auto lg:border-r
           ${isExpanded ? 'lg:w-72' : 'lg:w-16'}
-          flex flex-col
           ${className}
         `}
         onMouseEnter={() => setIsExpanded(true)}
@@ -235,7 +235,7 @@ export default function Sidebar({ className = '', isOpen = false, onToggle }: Si
 
         {/* Scrollable Navigation Content */}
         <div className={`flex-1 overflow-x-hidden ${isExpanded ? 'lg:overflow-y-auto' : 'lg:overflow-y-hidden'} overflow-y-auto`}>
-          <nav className="p-2 space-y-1">
+          <nav className="p-3 space-y-1">
             {filteredItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
@@ -244,19 +244,23 @@ export default function Sidebar({ className = '', isOpen = false, onToggle }: Si
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-3 lg:py-2 rounded-lg text-sm font-medium transition-colors group relative ${
+                  className={`flex items-center gap-4 px-4 py-4 lg:px-3 lg:py-2 rounded-xl lg:rounded-lg text-sm font-medium transition-all duration-200 group relative touch-manipulation ${
                     isActive
-                      ? 'bg-gray-50 text-idean-navy border border-gray-200'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-idean-navy border border-blue-100 shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100'
                   }`}
                   title={!isExpanded ? item.label : undefined}
                 >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
                   {/* Always show labels on mobile, conditionally on desktop */}
                   <div className={`flex items-center justify-between flex-1 ${isExpanded ? 'lg:flex' : 'lg:hidden'}`}>
-                    <span className="whitespace-nowrap">{item.label}</span>
+                    <span className="whitespace-nowrap font-medium">{item.label}</span>
                     {item.badge && (
-                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-idean-navy rounded-full font-medium flex-shrink-0">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${
+                        isActive
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
                         {item.badge}
                       </span>
                     )}
@@ -268,21 +272,21 @@ export default function Sidebar({ className = '', isOpen = false, onToggle }: Si
         </div>
 
         {/* Fixed Bottom Section */}
-        <div className="flex-shrink-0 p-2 border-t border-gray-200 space-y-1 relative">
+        <div className="flex-shrink-0 p-3 border-t border-gray-100 space-y-2 bg-gray-50/50">
           {/* Upgrade Button */}
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="flex items-center gap-3 w-full px-3 py-3 lg:py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group"
+            className="flex items-center gap-4 w-full px-4 py-3 lg:px-3 lg:py-2 rounded-xl lg:rounded-lg text-sm font-medium bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 hover:from-amber-100 hover:to-orange-100 border border-amber-200 transition-all duration-200 touch-manipulation shadow-sm"
           >
-            <Crown className="w-5 h-5 flex-shrink-0 text-yellow-600" />
-            <span className={`${isExpanded ? 'lg:block' : 'lg:hidden'}`}>Upgrade</span>
+            <Crown className="w-5 h-5 flex-shrink-0 text-amber-600" />
+            <span className={`font-medium ${isExpanded ? 'lg:block' : 'lg:hidden'}`}>Upgrade Plan</span>
           </button>
 
-          {/* User Profile with Dropdown */}
-          <div className="relative">
+          {/* User Profile with Dropdown - Hidden on mobile since it's in header */}
+          <div className="relative lg:block hidden">
             <button
               onClick={() => setShowAccountMenu(!showAccountMenu)}
-              className="flex items-center gap-3 w-full px-3 py-3 lg:py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
             >
               <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
                 <User className="w-3 h-3 text-gray-600" />
@@ -292,7 +296,7 @@ export default function Sidebar({ className = '', isOpen = false, onToggle }: Si
               </div>
             </button>
 
-            {/* Account Menu Dropdown - Always positioned properly */}
+            {/* Account Menu Dropdown - Desktop Only */}
             {showAccountMenu && (
               <div className={`absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1 min-w-48 ${
                 isExpanded ? 'lg:right-0' : 'lg:left-12'
@@ -324,7 +328,7 @@ export default function Sidebar({ className = '', isOpen = false, onToggle }: Si
           onClose={() => setShowUpgradeModal(false)}
           currentPlan={currentPlan}
         />
-      </div>
+      </aside>
     </>
   )
 }
