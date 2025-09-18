@@ -239,6 +239,7 @@ export default function UpgradeModal({
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 text-white hover:bg-white/10"
+              aria-label="Close"
             >
               <X className="w-4 h-4" />
             </Button>
