@@ -214,12 +214,18 @@ export default function CopywritingPage() {
             Search
           </Button>
           <Button
-            onClick={() => window.open('/dashboard/copywriting/create', '_blank')}
+            onClick={() => {
+              // Scroll down to show available frameworks
+              const frameworksSection = document.querySelector('[data-frameworks-section]');
+              if (frameworksSection) {
+                frameworksSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
             className="bg-idean-navy hover:bg-idean-navy-dark flex-1 sm:flex-none"
           >
             <Plus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Create Framework</span>
-            <span className="sm:hidden">Create</span>
+            <span className="hidden sm:inline">Browse Frameworks</span>
+            <span className="sm:hidden">Browse</span>
           </Button>
         </div>
       </div>
@@ -282,7 +288,13 @@ export default function CopywritingPage() {
               </div>
               <Button
                 size="sm"
-                onClick={() => window.open('/dashboard/copywriting/strategy', '_blank')}
+                onClick={() => {
+                  // Scroll down to show available frameworks
+                  const frameworksSection = document.querySelector('[data-frameworks-section]');
+                  if (frameworksSection) {
+                    frameworksSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
                 className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
@@ -291,6 +303,61 @@ export default function CopywritingPage() {
             </div>
           </Card>
         </div>
+      </div>
+
+      {/* Available Frameworks */}
+      <div className="mb-6 sm:mb-8" data-frameworks-section>
+        {copywritings.length > 0 ? (
+          <>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Available Frameworks</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {copywritings.map((copywriting) => (
+                <Card
+                  key={copywriting.id}
+                  className="p-4 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border-gray-200 hover:border-gray-300"
+                  onClick={() => handleCopywritingClick(copywriting)}
+                >
+                  <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <PenTool className="w-5 h-5 text-gray-600" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-semibold text-gray-900 text-base">{copywriting.name}</h4>
+                      <p className="text-xs text-gray-500 font-medium">Framework</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                    {copywriting.description || 'Advanced copywriting framework for creating compelling content.'}
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      Click to start
+                    </div>
+                    <Button size="sm" variant="outline">
+                      Use Framework
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Copywriting Frameworks</h3>
+            <Card className="p-6 text-center">
+              <PenTool className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">No frameworks available</h4>
+              <p className="text-gray-600 mb-4">
+                Connect to the backend to access our library of proven copywriting frameworks and templates.
+              </p>
+              <Button onClick={loadCopywritings} variant="outline">
+                Retry Loading
+              </Button>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   )
