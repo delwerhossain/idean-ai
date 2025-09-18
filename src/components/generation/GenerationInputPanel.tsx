@@ -40,6 +40,7 @@ interface GenerationInputPanelProps {
   onInputChange: (inputs: Record<string, any>) => void
   onOptionsChange: (options: any) => void
   onGenerate: () => void
+  onRetry?: () => void
   onBack?: () => void
 }
 
@@ -53,6 +54,7 @@ export function GenerationInputPanel({
   onInputChange,
   onOptionsChange,
   onGenerate,
+  onRetry,
   onBack
 }: GenerationInputPanelProps) {
   const [showAdvanced, setShowAdvanced] = useState(false)
@@ -179,7 +181,21 @@ export function GenerationInputPanel({
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-gray-50">
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+              {onRetry && !isGenerating && (
+                <Button
+                  onClick={onRetry}
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 border-red-300 hover:bg-red-100 shrink-0"
+                >
+                  Try Again
+                </Button>
+              )}
+            </div>
           </div>
         )}
 

@@ -11,13 +11,6 @@ import {
   Plus, 
   Search,
   Filter,
-  ArrowRight,
-  Sparkles,
-  Target,
-  Zap,
-  Mail,
-  Share2,
-  TrendingUp,
   AlertTriangle
 } from 'lucide-react'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
@@ -37,38 +30,31 @@ export default function CopywritingPage() {
       setLoading(true)
       setError(null)
 
-      // Load real copywriting data from backend
-      try {
-        const response = await ideanApi.copywriting.getAll({
-          limit: 50,
-          search: searchTerm
-        })
-
-        // Backend returns copyWritings array directly
-        const copywritingData = response.copyWritings || []
-        console.log('✅ Fetched copywriting data from backend:', copywritingData)
-        setCopywritings(copywritingData)
-
-        if (copywritingData.length > 0) {
-          console.log(`✅ Loaded ${copywritingData.length} custom copywriting frameworks from backend`)
-        } else {
-          console.log('ℹ️ No custom copywriting frameworks found - using predefined frameworks only')
-        }
-
-      } catch (err: any) {
-        console.log('⚠️ Backend copywriting data not available:', err?.message || 'Unknown error')
-        console.log('Using predefined frameworks only')
-        // No copywriting data available - that's fine, use predefined frameworks
+      if (!user) {
+        console.log('User not authenticated - no frameworks to load')
         setCopywritings([])
+        return
       }
+
+      // Load copywriting frameworks from backend
+      const response = await ideanApi.copywriting.getAll({
+        limit: 50,
+        search: searchTerm
+      })
+
+      const copywritingData = response.copyWritings || []
+      console.log('✅ Fetched copywriting frameworks:', copywritingData.length)
+      setCopywritings(copywritingData)
+
     } catch (err: unknown) {
       console.error('Failed to load copywriting frameworks:', err)
       setError('Failed to load copywriting frameworks. Please try again.')
+      setCopywritings([])
     } finally {
       setLoading(false)
       setHasLoaded(true)
     }
-  }, [hasLoaded, searchTerm])
+  }, [hasLoaded, searchTerm, user])
 
   useEffect(() => {
     if (!hasLoaded) {
@@ -80,73 +66,12 @@ export default function CopywritingPage() {
     setHasLoaded(false)
   }
 
-  const handleFrameworkClick = (framework: { id: string }) => {
-    // Navigate to the generation page with the framework ID
-    window.open(`/dashboard/copywriting/${framework.id}`, '_blank')
-  }
-
   const handleCopywritingClick = (copywriting: Copywriting) => {
     // Navigate to the generation page with the real copywriting framework ID
     window.open(`/dashboard/copywriting/${copywriting.id}`, '_blank')
   }
 
 
-  const predefinedFrameworks = [
-    {
-      id: 'neuro-copy',
-      name: 'NeuroCopywriting™',
-      description: 'Psychology-driven copywriting that triggers buying behavior',
-      category: 'Psychology',
-      icon: Zap,
-      color: 'bg-idean-navy',
-      estimatedTime: '15-20 minutes'
-    },
-    {
-      id: 'nuclear-content',
-      name: 'Nuclear Content™',
-      description: 'Viral content creation framework for maximum engagement',
-      category: 'Content',
-      icon: TrendingUp,
-      color: 'bg-idean-navy',
-      estimatedTime: '20-25 minutes'
-    },
-    {
-      id: 'email-sequences',
-      name: 'Email Sequence Builder',
-      description: 'Automated email campaigns that convert and nurture',
-      category: 'Email',
-      icon: Mail,
-      color: 'bg-gray-500',
-      estimatedTime: '25-30 minutes'
-    },
-    {
-      id: 'social-copy',
-      name: 'Social Media Copy',
-      description: 'Platform-optimized social media content generation',
-      category: 'Social',
-      icon: Share2,
-      color: 'bg-emerald-500',
-      estimatedTime: '10-15 minutes'
-    },
-    {
-      id: 'sales-pages',
-      name: 'Sales Page Framework',
-      description: 'High-converting sales pages with proven structures',
-      category: 'Sales',
-      icon: Target,
-      color: 'bg-idean-charcoal',
-      estimatedTime: '30-40 minutes'
-    },
-    {
-      id: 'ad-copy',
-      name: 'Ad Copy Generator',
-      description: 'Facebook, Google, and native ad copy that converts',
-      category: 'Advertising',
-      icon: Sparkles,
-      color: 'bg-gray-600',
-      estimatedTime: '12-18 minutes'
-    }
-  ]
 
   if (loading) {
     return (
@@ -226,45 +151,11 @@ export default function CopywritingPage() {
         </div>
       </div>
 
-      {/* Predefined Copywriting Frameworks */}
-      <div className="mb-6 sm:mb-8">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Popular Copywriting Frameworks</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {predefinedFrameworks.map((framework) => {
-            const Icon = framework.icon
-            return (
-              <Card key={framework.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => handleFrameworkClick(framework)}>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3 sm:mb-4">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 ${framework.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">{framework.name}</h4>
-                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{framework.category}</span>
-                  </div>
-                </div>
 
-                <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed">
-                  {framework.description}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">{framework.estimatedTime}</span>
-                  <Button size="sm" variant="outline" className="group-hover:bg-idean-navy group-hover:text-white">
-                    <span className="hidden sm:inline">Start Framework</span>
-                    <span className="sm:hidden">Start</span>
-                  </Button>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Custom Frameworks from Backend */}
-      {copywritings.length > 0 && (
+      {/* Copywriting Frameworks */}
+      {copywritings.length > 0 ? (
         <div className="mb-6 sm:mb-8">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Custom Copywriting Frameworks</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Available Copywriting Frameworks</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {copywritings.map((copywriting) => (
               <Card key={copywriting.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
@@ -275,7 +166,7 @@ export default function CopywritingPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{copywriting.name}</h4>
-                    <p className="text-xs text-gray-500">Custom Framework</p>
+                    <p className="text-xs text-gray-500">Framework</p>
                   </div>
                 </div>
 
@@ -308,77 +199,26 @@ export default function CopywritingPage() {
             ))}
           </div>
         </div>
-      )}
-
-      {/* Content Types Overview */}
-      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <Zap className="w-5 h-5 text-yellow-600" />
-          </div>
-          <h4 className="font-medium text-gray-900 text-sm mb-1">Sales Copy</h4>
-          <p className="text-xs text-gray-500">Converting sales pages</p>
-        </Card>
-
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <TrendingUp className="w-5 h-5 text-red-600" />
-          </div>
-          <h4 className="font-medium text-gray-900 text-sm mb-1">Viral Content</h4>
-          <p className="text-xs text-gray-500">Engaging social posts</p>
-        </Card>
-
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <Mail className="w-5 h-5 text-blue-600" />
-          </div>
-          <h4 className="font-medium text-gray-900 text-sm mb-1">Email Sequences</h4>
-          <p className="text-xs text-gray-500">Nurturing campaigns</p>
-        </Card>
-
-        <Card className="p-4 text-center">
-          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
-          </div>
-          <h4 className="font-medium text-gray-900 text-sm mb-1">Ad Copy</h4>
-          <p className="text-xs text-gray-500">Converting advertisements</p>
-        </Card>
-      </div> */}
-
-      {/* Quick Start Guide */}
-      <Card className="p-4 sm:p-6 bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-idean-navy rounded-lg flex items-center justify-center">
-            <PenTool className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Getting Started with AI Copywriting</h3>
-            <p className="text-xs sm:text-sm text-gray-600 mb-3">
-              Generate high-converting copy with proven frameworks from top marketers and behavioral psychology.
-            </p>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
-              <span>• 10-40 minutes per framework</span>
-              <span>• Multiple copy variations</span>
-              <span>• A/B testing templates</span>
-            </div>
-          </div>
-          <Button
-            className="bg-idean-navy hover:bg-idean-navy-dark w-full sm:w-auto mt-3 sm:mt-0"
-            onClick={() => {
-              if (copywritings.length > 0) {
-                handleCopywritingClick(copywritings[0])
-              } else {
-                // Fallback to first predefined framework if no backend data
-                handleFrameworkClick(predefinedFrameworks[0])
+      ) : (
+        <div className="mb-6 sm:mb-8">
+          <Card className="p-8 text-center">
+            <PenTool className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Copywriting Frameworks Found</h3>
+            <p className="text-gray-600 mb-4">
+              {user ? 
+                "No copywriting frameworks are available yet. Create your first framework to get started." :
+                "Please sign in to view and use copywriting frameworks."
               }
-            }}
-          >
-            <span className="hidden sm:inline">Generate Your First Copy</span>
-            <span className="sm:hidden">Get Started</span>
-          </Button>
+            </p>
+            {user && (
+              <Button className="bg-idean-navy hover:bg-idean-navy-dark">
+                <Plus className="w-4 h-4 mr-2" />
+                Create First Framework
+              </Button>
+            )}
+          </Card>
         </div>
-      </Card>
-
+      )}
     </div>
   )
 }

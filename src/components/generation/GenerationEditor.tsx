@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import ReactMarkdown from 'react-markdown'
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import { SaveTemplateDialog } from './SaveTemplateDialog'
 
 interface Framework {
@@ -97,7 +96,6 @@ ${editorContent}`
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
 
-      console.log('Markdown export completed successfully')
     } catch (error) {
       console.error('Failed to export markdown:', error)
       alert('Failed to export markdown file. Please try again.')
@@ -111,57 +109,151 @@ ${editorContent}`
     }
 
     try {
+      console.log('Starting PDF export...')
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       })
 
-      // Add title and metadata
+      // Basic settings
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 20
+      const contentWidth = pageWidth - (margin * 2)
+      let yPosition = 30
+
+      // Add title
       pdf.setFontSize(20)
       pdf.setFont('helvetica', 'bold')
-      pdf.text(framework.name, 20, 30)
+      pdf.text(framework.name, margin, yPosition)
+      yPosition += 15
 
+      // Add metadata
       pdf.setFontSize(10)
       pdf.setFont('helvetica', 'normal')
       pdf.setTextColor(100)
-      pdf.text(`Generated on: ${new Date().toLocaleString()}`, 20, 40)
-      pdf.text(`Word count: ${editorContent.split(' ').filter(w => w.trim()).length} words`, 20, 46)
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, yPosition)
+      yPosition += 6
 
-      // Add separator line
-      pdf.setDrawColor(200, 200, 200)
-      pdf.line(20, 50, 190, 50)
+      const wordCount = editorContent.split(/\s+/).filter(w => w.trim()).length
+      pdf.text(`Words: ${wordCount}`, margin, yPosition)
+      yPosition += 15
 
-      // Add content
+      // Add separator
+      pdf.setDrawColor(200)
+      pdf.line(margin, yPosition, pageWidth - margin, yPosition)
+      yPosition += 10
+
+      // Simple content processing
       pdf.setFontSize(11)
-      pdf.setTextColor(0)
       pdf.setFont('helvetica', 'normal')
+      pdf.setTextColor(0)
 
-      const lines = pdf.splitTextToSize(editorContent, 170)
-      let yPosition = 60
-      const pageHeight = pdf.internal.pageSize.height
-      const lineHeight = 6
+      const processContent = (text: string) => {
+        const lines = text.split('\n')
 
-      for (let i = 0; i < lines.length; i++) {
-        if (yPosition + lineHeight > pageHeight - 20) {
-          pdf.addPage()
-          yPosition = 20
+        for (let line of lines) {
+          if (!line.trim()) {
+            yPosition += 5
+            continue
+          }
+
+          // Check page break
+          if (yPosition > pageHeight - 30) {
+            pdf.addPage()
+            yPosition = 30
+          }
+
+          // Handle headers
+          if (line.startsWith('# ')) {
+            pdf.setFontSize(16)
+            pdf.setFont('helvetica', 'bold')
+            const headerText = line.substring(2)
+            const wrappedLines = pdf.splitTextToSize(headerText, contentWidth)
+            wrappedLines.forEach((wrappedLine: string) => {
+              pdf.text(wrappedLine, margin, yPosition)
+              yPosition += 8
+            })
+            yPosition += 5
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+          } else if (line.startsWith('## ')) {
+            pdf.setFontSize(14)
+            pdf.setFont('helvetica', 'bold')
+            const headerText = line.substring(3)
+            const wrappedLines = pdf.splitTextToSize(headerText, contentWidth)
+            wrappedLines.forEach((wrappedLine: string) => {
+              pdf.text(wrappedLine, margin, yPosition)
+              yPosition += 7
+            })
+            yPosition += 3
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+          } else if (line.startsWith('### ')) {
+            pdf.setFontSize(12)
+            pdf.setFont('helvetica', 'bold')
+            const headerText = line.substring(4)
+            const wrappedLines = pdf.splitTextToSize(headerText, contentWidth)
+            wrappedLines.forEach((wrappedLine: string) => {
+              pdf.text(wrappedLine, margin, yPosition)
+              yPosition += 6
+            })
+            yPosition += 2
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+          } else if (line.match(/^[-*+]\s/)) {
+            // Bullet list
+            const listText = line.replace(/^[-*+]\s/, '')
+            pdf.text('•', margin + 5, yPosition)
+            const wrappedLines = pdf.splitTextToSize(listText, contentWidth - 15)
+            wrappedLines.forEach((wrappedLine: string, idx: number) => {
+              pdf.text(wrappedLine, margin + 15, yPosition)
+              if (idx < wrappedLines.length - 1) yPosition += 5
+            })
+            yPosition += 6
+          } else {
+            // Regular text - remove markdown formatting for simple display
+            const cleanText = line
+              .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+              .replace(/\*(.*?)\*/g, '$1')     // Remove italic
+              .replace(/`(.*?)`/g, '$1')       // Remove code
+
+            const wrappedLines = pdf.splitTextToSize(cleanText, contentWidth)
+            wrappedLines.forEach((wrappedLine: string) => {
+              pdf.text(wrappedLine, margin, yPosition)
+              yPosition += 5
+            })
+            yPosition += 2
+          }
         }
-        pdf.text(lines[i], 20, yPosition)
-        yPosition += lineHeight
       }
 
-      // Save the PDF
-      pdf.save(`${framework.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`)
+      processContent(editorContent)
 
+      // Generate filename
+      const sanitizedName = framework.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 30)
+
+      const filename = `${sanitizedName}-${new Date().toISOString().split('T')[0]}.pdf`
+
+      console.log('Saving PDF:', filename)
+      pdf.save(filename)
       console.log('PDF export completed successfully')
+
     } catch (error) {
-      console.error('Failed to export PDF:', error)
-      alert('Failed to export PDF file. Please try again.')
+      console.error('PDF export error:', error)
+      alert(`PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
   const handleExport = (format: 'pdf' | 'markdown' | 'docx' | 'html') => {
+    console.log('handleExport called with format:', format)
+
     if (!editorContent.trim()) {
       console.warn('No content to export')
       return
@@ -169,15 +261,19 @@ ${editorContent}`
 
     // Use external export handler if provided, otherwise use internal methods
     if (onExport) {
+      console.log('Using external export handler')
       onExport(format)
       return
     }
 
+    console.log('Using internal export handler')
     switch (format) {
       case 'markdown':
+        console.log('Calling handleExportMarkdown')
         handleExportMarkdown()
         break
       case 'pdf':
+        console.log('Calling handleExportPDF')
         handleExportPDF()
         break
       default:
@@ -334,7 +430,8 @@ ${editorContent}`
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                <DropdownMenuItem    onClick={() => handleExportPDF()}
+              disabled={!hasContent}  data-export-pdf>
                   <Download className="w-4 h-4 mr-2" />
                   Export as PDF
                 </DropdownMenuItem>

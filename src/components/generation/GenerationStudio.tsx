@@ -41,7 +41,8 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [inputs, setInputs] = useState<Record<string, any>>({})
-  const [mobileView, setMobileView] = useState<'input' | 'editor'>('input') // Add mobile view state
+  const [mobileView, setMobileView] = useState<'input' | 'editor'>('input')
+  const [retryCount, setRetryCount] = useState(0)
   const [generationOptions, setGenerationOptions] = useState({
     tone: 'professional',
     length: 'medium',
@@ -67,240 +68,142 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
   }, [framework])
 
   const handleGenerate = async () => {
-    if (!framework) return
+    if (!framework || !user) {
+      setError('Authentication required to generate content.')
+      return
+    }
 
     try {
       setIsGenerating(true)
       setError(null)
       setCurrentStep('generating')
 
-      // Check if this is a predefined framework (no backend call needed)
-      const predefinedFrameworkIds = ['neuro-copy', 'nuclear-content', 'sales-pages', 'email-sequences', 'social-copy', 'ad-copy']
-      const isPredefinedFramework = predefinedFrameworkIds.includes(framework.id)
+      // Prepare API payload
+      const apiPayload = {
+        userInputs: inputs,
+        userSelections: {
+          tone: generationOptions.tone,
+          length: generationOptions.length,
+          audience: generationOptions.audience
+        },
+        userPrompt: inputs.additionalInstructions || '',
+        businessContext: generationOptions.includeBusinessContext,
+        generationOptions: {
+          temperature: generationOptions.temperature,
+          maxTokens: generationOptions.maxTokens,
+          topP: 0.9,
+          saveDocument: generationOptions.saveDocument
+        }
+      }
 
-      if (isPredefinedFramework || !user) {
-        // Use mock generation for predefined frameworks or when user is not authenticated
-        await new Promise(resolve => setTimeout(resolve, 3000)) // Simulate AI generation
+      let response
 
-        const mockContent = generateMockContent(framework, inputs, generationOptions)
+      // Call appropriate API based on type
+      switch (type) {
+        case 'copywriting':
+          response = await ideanApi.copywriting.generate(framework.id, apiPayload)
+          break
+        case 'growth-copilot':
+          response = await ideanApi.growthCopilot.generate(framework.id, apiPayload)
+          break
+        case 'branding-lab':
+          response = await ideanApi.brandingLab.generate(framework.id, apiPayload)
+          break
+        default:
+          throw new Error('Unsupported generation type')
+      }
+
+      // Handle the backend API response format
+      if ('success' in response && 'data' in response) {
+        // New backend response format
+        if (!response.success) {
+          throw new Error(response.message || 'Generation failed')
+        }
+
+        const generatedContent = response.data.generatedContent
+        const metadata = response.data.generationMetadata
+
+        // Extract document ID from usedDocuments or savedDocument
+        const usedDocuments = (response.data as any).usedDocuments || []
+        const savedDocument = response.data.savedDocument
+        const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : savedDocument?.id
 
         setGenerationResult({
-          content: mockContent,
+          content: generatedContent,
+          documentId: documentId,
+          metadata: {
+            framework: response.data.copyWriting.name,
+            inputs: response.data.inputsUsed.userInputs,
+            timestamp: new Date().toISOString(),
+            tokensUsed: metadata.usage.total_tokens,
+            model: metadata.model
+          }
+        })
+      } else {
+        // Legacy response format (for other API types)
+        const apiResponse = response as any
+        const generatedContent = apiResponse.content || apiResponse.generatedContent
+
+        if (!generatedContent) {
+          throw new Error('No content received from API')
+        }
+
+        // Extract document ID from usedDocuments array if available
+        const usedDocuments = apiResponse.usedDocuments || []
+        const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : undefined
+
+        setGenerationResult({
+          content: generatedContent,
+          documentId: documentId,
           metadata: {
             framework: framework.name,
             inputs,
             timestamp: new Date().toISOString(),
-            tokensUsed: Math.floor(Math.random() * 500) + 200,
-            model: 'mock-generation'
+            tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
+            model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4'
           }
         })
-      } else {
-        // Use real backend API for authenticated users with backend frameworks
-        const apiPayload = {
-          userInputs: inputs,
-          userSelections: {
-            tone: generationOptions.tone,
-            length: generationOptions.length,
-            audience: generationOptions.audience
-          },
-          userPrompt: inputs.additionalInstructions || '',
-          businessContext: generationOptions.includeBusinessContext,
-          generationOptions: {
-            temperature: generationOptions.temperature,
-            maxTokens: generationOptions.maxTokens,
-            topP: 0.9,
-            saveDocument: generationOptions.saveDocument
-          }
-        }
-
-        let response
-
-        // Call appropriate API based on type
-        switch (type) {
-          case 'copywriting':
-            response = await ideanApi.copywriting.generate(framework.id, apiPayload)
-            break
-          case 'growth-copilot':
-            response = await ideanApi.growthCopilot.generate(framework.id, apiPayload)
-            break
-          case 'branding-lab':
-            response = await ideanApi.brandingLab.generate(framework.id, apiPayload)
-            break
-          default:
-            throw new Error('Unsupported generation type')
-        }
-
-        // Handle the backend API response format
-        console.log('Backend API Response:', response) // Debug logging
-
-        // Check if this is the new backend response format
-        if ('success' in response && 'data' in response) {
-          // New backend response format
-          if (!response.success) {
-            throw new Error(response.message || 'Generation failed')
-          }
-
-          const generatedContent = response.data.generatedContent
-          const metadata = response.data.generationMetadata
-
-          // Extract document ID from usedDocuments or savedDocument
-          const usedDocuments = (response.data as any).usedDocuments || []
-          const savedDocument = response.data.savedDocument
-          const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : savedDocument?.id
-
-          setGenerationResult({
-            content: generatedContent,
-            documentId: documentId, // Capture document ID for template creation
-            metadata: {
-              framework: response.data.copyWriting.name,
-              inputs: response.data.inputsUsed.userInputs,
-              timestamp: new Date().toISOString(),
-              tokensUsed: metadata.usage.total_tokens,
-              model: metadata.model
-            }
-          })
-        } else {
-          // Legacy response format (for other API types)
-          const apiResponse = response as any
-          const generatedContent = apiResponse.content || 'Generated content will appear here.'
-
-          // Extract document ID from usedDocuments array if available
-          const usedDocuments = apiResponse.usedDocuments || []
-          const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : undefined
-
-          setGenerationResult({
-            content: generatedContent,
-            documentId: documentId, // Capture document ID for template creation
-            metadata: {
-              framework: framework.name,
-              inputs,
-              timestamp: new Date().toISOString(),
-              tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
-              model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4'
-            }
-          })
-        }
       }
 
       setCurrentStep('editing')
+      setRetryCount(0) // Reset retry count on success
       // Auto-switch to editor view on mobile after generation
       setMobileView('editor')
     } catch (err: any) {
       console.error('Generation failed:', err)
-      setError(err.message || 'Failed to generate content. Please try again.')
+      let errorMessage = 'Failed to generate content. Please try again.'
+      
+      // Provide more specific error messages based on error type
+      if (err.status === 401) {
+        errorMessage = 'Authentication expired. Please refresh and try again.'
+      } else if (err.status === 403) {
+        errorMessage = 'You don\'t have permission to use this framework.'
+      } else if (err.status === 429) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.'
+      } else if (err.status >= 500) {
+        errorMessage = 'Server error. Please try again in a few moments.'
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+
+      setError(errorMessage)
       setCurrentStep('input')
+      setRetryCount(prev => prev + 1)
     } finally {
       setIsGenerating(false)
     }
   }
 
-  // Mock content generation function (from old working GenerationModal)
-  const generateMockContent = (framework: any, inputs: Record<string, any>, options: any) => {
-    const { name } = framework
-    const { tone, length, audience } = options
-
-    // Mock content generation based on framework
-    switch (name) {
-      case 'NeuroCopywriting™':
-        return `# Psychology-Driven Copy for ${inputs.productName || 'Your Product'}
-
-## Hook (Attention Grabber)
-${inputs.painPoint ? `Tired of ${inputs.painPoint}? You're not alone.` : 'Stop struggling with ineffective results.'}
-
-## Problem Agitation
-${inputs.painPoint ? `Every day you delay solving ${inputs.painPoint}, you're losing potential customers, revenue, and peace of mind. The frustration builds, and your competitors get ahead.` : 'The problem is real, and it\'s costing you daily.'}
-
-## Solution Presentation
-Introducing ${inputs.productName || 'our solution'} - the ${tone} approach that ${inputs.mainBenefit || 'delivers results'}.
-
-## Proof & Authority
-✅ Proven psychological triggers
-✅ ${audience === 'business' ? 'B2B tested' : 'Consumer validated'} approach
-✅ ${length === 'long' ? 'Comprehensive' : 'Quick'} implementation
-
-## Call to Action
-${inputs.ctaText || 'Get started today'} and transform your ${inputs.targetOutcome || 'results'}.
-
-*Generated using NeuroCopywriting™ framework*`
-
-      case 'Nuclear Content™':
-        return `# Viral Content: ${inputs.contentTopic || 'Your Topic'}
-
-## Viral Hook
-🚀 ${inputs.contentTopic ? `This ${inputs.contentTopic} secret` : 'This one trick'} will ${inputs.desiredOutcome || 'change everything'}
-
-## Value Explosion
-${inputs.mainPoint ? inputs.mainPoint : 'Here\'s what most people don\'t know...'}
-
-${length === 'long' ? `
-### The Complete Method:
-1. First, understand the psychology
-2. Then, apply the framework
-3. Finally, optimize for sharing
-` : `
-Quick method:
-• Apply the principle
-• Test the response
-• Scale what works
-`}
-
-## Social Proof
-💬 "This actually works!" - ${audience === 'business' ? 'CEO' : 'User'}
-📈 ${Math.floor(Math.random() * 10000) + 1000}+ people have tried this
-
-## Engagement Driver
-${inputs.engagementQuestion || 'What\'s your experience with this?'}
-Comment below! 👇
-
-#${inputs.hashtag1 || 'viral'} #${inputs.hashtag2 || 'content'} #${inputs.hashtag3 || 'marketing'}
-
-*Created with Nuclear Content™ framework*`
-
-      case 'Sales Page Framework':
-        return `# Sales Page: ${inputs.productName || 'Your Product'}
-
-## Headline
-${inputs.mainBenefit || 'Transform Your Business'} - The ${tone} Solution That ${inputs.desiredOutcome || 'Delivers Results'}
-
-## Problem Statement
-${inputs.problemDescription || 'You\'re struggling with challenges that are holding you back...'}
-
-## Solution Benefits
-${inputs.solutionBenefits || 'Our proven system eliminates these problems and delivers:'}
-• Benefit 1: Immediate results
-• Benefit 2: Long-term success
-• Benefit 3: Peace of mind
-
-## Social Proof
-"${inputs.testimonial || 'This changed everything for my business!'}" - Satisfied Customer
-
-## Pricing
-${inputs.pricePoint ? `Special offer: ${inputs.pricePoint}` : 'Get started today at an exclusive price'}
-
-## Call to Action
-${inputs.ctaText || 'Order Now'} - Limited time offer!
-
-*Built with Sales Page Framework*`
-
-      default:
-        return `# Generated Copy: ${name}
-
-${inputs.mainMessage || 'Your compelling message goes here...'}
-
-## Key Benefits:
-${inputs.benefit1 ? `• ${inputs.benefit1}` : '• Benefit 1'}
-${inputs.benefit2 ? `• ${inputs.benefit2}` : '• Benefit 2'}
-${inputs.benefit3 ? `• ${inputs.benefit3}` : '• Benefit 3'}
-
-## Call to Action:
-${inputs.ctaText || 'Take action now!'}
-
-*Generated with ${name} framework*`
-    }
+  const handleRetryGeneration = () => {
+    setError(null)
+    handleGenerate()
   }
 
   const handleRegenerateSection = async (sectionText: string) => {
-    if (!framework || !sectionText.trim()) return
+    if (!framework || !sectionText.trim() || !user) {
+      setError('Authentication required to regenerate content.')
+      return
+    }
 
     try {
       setIsGenerating(true)
@@ -352,6 +255,8 @@ ${inputs.ctaText || 'Take action now!'}
           ...generationResult,
           content: updatedContent
         })
+      } else {
+        throw new Error('No regenerated content received')
       }
     } catch (err: any) {
       console.error('Section regeneration failed:', err)
@@ -420,10 +325,9 @@ ${inputs.ctaText || 'Take action now!'}
       }
     } catch (err) {
       console.error('Export failed:', err)
-      // Fallback to clipboard
+      // Copy to clipboard as fallback
       try {
         await navigator.clipboard.writeText(generationResult.content)
-        console.log('Copied to clipboard as fallback')
       } catch (clipboardErr) {
         console.error('Clipboard fallback also failed:', clipboardErr)
       }
@@ -474,8 +378,6 @@ ${inputs.ctaText || 'Take action now!'}
       }
 
       const result = await ideanApi.copywriting.createTemplate(framework.id, templateData)
-
-      console.log('✅ Template created successfully:', data.name)
 
       // Show success message (you can implement a toast notification here)
       alert(`Template "${data.name}" saved successfully! You can find it in your Templates dashboard.`)
@@ -552,6 +454,7 @@ ${inputs.ctaText || 'Take action now!'}
             onInputChange={setInputs}
             onOptionsChange={setGenerationOptions}
             onGenerate={handleGenerate}
+            onRetry={handleRetryGeneration}
             onBack={onBack}
           />
         </div>
