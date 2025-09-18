@@ -445,7 +445,9 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   const [currentItem, setCurrentItem] = useState<HelpItem | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  console.log('HelpModal render:', { isOpen, currentSection, currentItem });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('HelpModal render:', { isOpen, currentSection, currentItem });
+  }
 
   if (!isOpen) return null;
 
