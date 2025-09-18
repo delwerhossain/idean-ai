@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -156,7 +157,7 @@ function TemplatesSkeletonLoader() {
 }
 
 // Memoized Template Card Component
-const TemplateCard = memo(({ template }: { template: Template }) => {
+const TemplateCard = memo(({ template, onUseTemplate }: { template: Template; onUseTemplate: (template: Template) => void }) => {
   const getCategoryIcon = (template: Template) => {
     if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return Palette
     if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return TrendingUp
@@ -192,7 +193,7 @@ const TemplateCard = memo(({ template }: { template: Template }) => {
   const categoryName = getCategoryName(template)
 
   return (
-    <Card className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group">
+    <Card className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => onUseTemplate(template)}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           <div className={`w-8 h-8 sm:w-10 sm:h-10 ${categoryColor} rounded-lg flex items-center justify-center`}>
@@ -247,6 +248,10 @@ const TemplateCard = memo(({ template }: { template: Template }) => {
             size="sm"
             variant="outline"
             className="flex-1 sm:flex-none"
+            onClick={(e) => {
+              e.stopPropagation()
+              onUseTemplate(template)
+            }}
           >
             <span className="hidden sm:inline">Use Template</span>
             <span className="sm:hidden">Use</span>
@@ -261,6 +266,7 @@ TemplateCard.displayName = 'TemplateCard'
 
 export default function TemplatesPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [cardsLoading, setCardsLoading] = useState(false)
@@ -418,6 +424,55 @@ export default function TemplatesPage() {
   const handleCategoryChange = useCallback((category: typeof selectedCategory) => {
     setSelectedCategory(category)
   }, [])
+
+  // Handle template usage - navigate to appropriate editor
+  const handleUseTemplate = useCallback((template: Template) => {
+    console.log('Using template:', template)
+
+    // Determine the service type and navigate to appropriate editor
+    let serviceType = template.serviceType
+    let serviceId = template.serviceId
+
+    // Fallback logic for older templates
+    if (!serviceType) {
+      if (template.copywritingId) {
+        serviceType = 'copywriting'
+        serviceId = template.copywritingId
+      } else if (template.brandinglabId) {
+        serviceType = 'brandinglab'
+        serviceId = template.brandinglabId
+      } else if (template.growthcopilotId) {
+        serviceType = 'growthcopilot'
+        serviceId = template.growthcopilotId
+      }
+    }
+
+    // Navigate to the appropriate service with template data
+    if (serviceType && serviceId) {
+      const templateParams = new URLSearchParams({
+        templateId: template.id,
+        templateName: template.name
+      })
+
+      switch (serviceType) {
+        case 'copywriting':
+          router.push(`/dashboard/copywriting/${serviceId}?${templateParams.toString()}`)
+          break
+        case 'brandinglab':
+          router.push(`/dashboard/branding-lab/${serviceId}?${templateParams.toString()}`)
+          break
+        case 'growthcopilot':
+          router.push(`/dashboard/growth-copilot/${serviceId}?${templateParams.toString()}`)
+          break
+        default:
+          console.error('Unknown service type:', serviceType)
+      }
+    } else {
+      console.error('Template missing service information:', template)
+      // Fallback: try to determine from available data
+      alert('This template is missing service information. Please contact support.')
+    }
+  }, [router])
 
   // Memoized filtered templates
   const filteredTemplates = useMemo(() => {
@@ -613,7 +668,11 @@ export default function TemplatesPage() {
       ) : filteredTemplates.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {filteredTemplates.map((template) => (
-            <TemplateCard key={template.id} template={template} />
+            <TemplateCard
+              key={template.id}
+              template={template}
+              onUseTemplate={handleUseTemplate}
+            />
           ))}
         </div>
       ) : (
