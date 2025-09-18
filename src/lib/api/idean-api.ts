@@ -38,6 +38,50 @@ export interface Copywriting {
   updatedAt: string
 }
 
+// Response type for regeneratespecific endpoint
+export interface RegenerateSpecificResponse {
+  success: boolean
+  message: string
+  data: {
+    modifiedContent: string
+    copyWriting: {
+      id: string
+      name: string
+      description: string
+    }
+    modificationDetails: {
+      originalDocumentId: string
+      userInstruction: string
+      documentTextLength: number
+      modifiedTextLength: number
+    }
+    generationMetadata: {
+      usage: {
+        completion_tokens: number
+        completion_tokens_details: {
+          accepted_prediction_tokens: number
+          audio_tokens: number
+          reasoning_tokens: number
+          rejected_prediction_tokens: number
+        }
+        prompt_tokens: number
+        prompt_tokens_details: {
+          audio_tokens: number
+          cached_tokens: number
+        }
+        total_tokens: number
+      }
+      model: string
+      finishReason: string
+    }
+    savedDocument?: {
+      id: string
+      name: string
+      action: string
+    }
+  }
+}
+
 export interface CopywritingGenerateResponse {
   success: boolean
   message: string
@@ -266,6 +310,19 @@ export const ideanApi = {
       }
     }) =>
       apiClient.post<CopywritingGenerateResponse>(`/api/v1/copywriting/${id}/generate`, payload),
+
+    // Regenerate specific parts of existing content
+    regenerateSpecific: (id: string, data: {
+      documentText: string
+      userInstruction: string
+      documentId?: string
+      saveDocument?: boolean
+      generationOptions?: {
+        temperature?: number
+        maxTokens?: number
+      }
+    }) =>
+      apiClient.post<RegenerateSpecificResponse>(`/api/v1/copywriting/${id}/regeneratespecific`, data),
 
     // Create template from copywriting framework
     createTemplate: (id: string, data: {
@@ -721,7 +778,6 @@ export const ideanUtils = {
   getLanguageOptions: () => [
     { code: 'en', name: 'English' },
     { code: 'bn', name: 'Bengali (বাংলা)' },
-    { code: 'hi', name: 'Hindi (हिन्दी)' },
   ],
 
   // Get module options

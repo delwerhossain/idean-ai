@@ -14,11 +14,27 @@ import {
 import ReactMarkdown from 'react-markdown'
 import jsPDF from 'jspdf'
 import { SaveTemplateDialog } from './SaveTemplateDialog'
+import { FloatingRegenerateToolbar } from './FloatingRegenerateToolbar'
+import { RegeneratePromptModal } from './RegeneratePromptModal'
+import { ideanApi } from '@/lib/api/idean-api'
+import './text-regeneration.css'
 
 interface Framework {
   id: string
   name: string
   description?: string
+}
+
+interface TextSelection {
+  text: string
+  start: number
+  end: number
+  rect: DOMRect
+}
+
+interface GenerationOptions {
+  temperature: number
+  maxTokens: number
 }
 
 interface GenerationEditorProps {
@@ -32,6 +48,7 @@ interface GenerationEditorProps {
   hasContent?: boolean
   onExport?: (format: 'pdf' | 'markdown' | 'docx' | 'html') => void
   onSaveAsTemplate?: (data: { name: string; description?: string }) => Promise<void>
+  documentId?: string
 }
 
 export function GenerationEditor({
@@ -44,12 +61,17 @@ export function GenerationEditor({
   onRegenerateAll,
   hasContent = false,
   onExport,
-  onSaveAsTemplate
+  onSaveAsTemplate,
+  documentId
 }: GenerationEditorProps) {
   const [editorContent, setEditorContent] = useState(content)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [textSelection, setTextSelection] = useState<TextSelection | null>(null)
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setEditorContent(content)
@@ -59,6 +81,342 @@ export function GenerationEditor({
     setEditorContent(newContent)
     onContentChange?.(newContent)
   }
+
+  // Handle text selection for regeneration - improved version
+  const handleTextSelection = () => {
+    // Small delay to ensure selection is complete
+    setTimeout(() => {
+      const selection = window.getSelection()
+
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        setTextSelection(null)
+        return
+      }
+
+      const range = selection.getRangeAt(0)
+      const selectedText = selection.toString().trim()
+
+      // Must have actual text and be within our editor
+      if (!selectedText || selectedText.length < 3) {
+        setTextSelection(null)
+        return
+      }
+
+      // Check if selection is within our editor
+      const editorElement = editorRef.current
+      if (!editorElement) {
+        setTextSelection(null)
+        return
+      }
+
+      // More robust check for selection within editor
+      let isWithinEditor = false
+      try {
+        isWithinEditor = editorElement.contains(range.commonAncestorContainer) ||
+                        editorElement === range.commonAncestorContainer
+      } catch (e) {
+        setTextSelection(null)
+        return
+      }
+
+      if (!isWithinEditor) {
+        setTextSelection(null)
+        return
+      }
+
+      const rect = range.getBoundingClientRect()
+
+      // Debug logging
+      console.log('Selection debug:', {
+        selectedText: selectedText.substring(0, 50),
+        rect: {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+          bottom: rect.bottom,
+          right: rect.right
+        },
+        scrollY: window.scrollY,
+        scrollX: window.scrollX
+      })
+
+      // Ensure we have a valid rect
+      if (rect.width === 0 && rect.height === 0) {
+        console.log('Invalid rect detected, selection cancelled')
+        setTextSelection(null)
+        return
+      }
+
+      // Ensure rect is actually visible (not completely off-screen)
+      if (rect.bottom < 0 || rect.top > window.innerHeight ||
+          rect.right < 0 || rect.left > window.innerWidth) {
+        console.log('Selection rect is off-screen')
+        setTextSelection(null)
+        return
+      }
+
+      // Calculate text positions more accurately
+      let start = 0
+      let end = selectedText.length
+
+      try {
+        const beforeRange = document.createRange()
+        beforeRange.setStart(editorElement, 0)
+        beforeRange.setEnd(range.startContainer, range.startOffset)
+        start = beforeRange.toString().length
+        end = start + selectedText.length
+        beforeRange.detach()
+      } catch (e) {
+        // Fallback calculation
+        const fullText = editorElement.textContent || ''
+        start = fullText.indexOf(selectedText)
+        end = start + selectedText.length
+      }
+
+      const newSelection = {
+        text: selectedText,
+        start: Math.max(0, start),
+        end: Math.max(selectedText.length, end),
+        rect: {
+          ...rect,
+          // Add some padding for better positioning
+          top: rect.top - 5,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height + 5
+        } as DOMRect
+      }
+
+      setTextSelection(newSelection)
+
+      console.log('✅ Text selection successfully set:', {
+        text: selectedText.substring(0, 50) + (selectedText.length > 50 ? '...' : ''),
+        length: selectedText.length,
+        hasSelection: !!newSelection.text
+      })
+    }, 50) // Small delay to ensure selection is stable
+  }
+
+  // Handle regenerate toolbar click
+  const handleRegenerateToolbarClick = (selectedText: string, start: number, end: number) => {
+    console.log('🎯 Toolbar clicked with:', {
+      selectedText: selectedText.substring(0, 50) + '...',
+      textSelectionState: textSelection?.text?.substring(0, 50) + '...',
+      hasTextSelection: !!textSelection
+    })
+
+    // Ensure we have a valid text selection before opening modal
+    if (!textSelection || !textSelection.text) {
+      console.error('❌ No text selection available for regeneration')
+      return
+    }
+
+    setShowRegenerateModal(true)
+  }
+
+  // Handle regeneration with custom instruction
+  const handleRegenerateWithInstruction = async (instruction: string, options: GenerationOptions) => {
+    if (!textSelection) {
+      console.error('No text selection found')
+      return
+    }
+
+    try {
+      setIsRegenerating(true)
+      console.log('🔄 Starting regeneration with:', {
+        selectedText: textSelection.text.substring(0, 100),
+        instruction,
+        options
+      })
+
+      // Call the regenerate specific API
+      const response = await ideanApi.copywriting.regenerateSpecific(framework.id, {
+        documentText: textSelection.text, // Send only the selected text
+        userInstruction: instruction,
+        documentId,
+        saveDocument: true,
+        generationOptions: {
+          temperature: options.temperature,
+          maxTokens: options.maxTokens
+        }
+      })
+
+      console.log('✅ API Response:', response)
+
+      if (response.success && response.data?.modifiedContent) {
+        // Extract the modified content, removing document markers if present
+        let modifiedContent = response.data.modifiedContent
+
+        // Remove document start/end markers
+        modifiedContent = modifiedContent
+          .replace(/^===== DOCUMENT START =====\n?/g, '')
+          .replace(/\n?===== DOCUMENT END =====$/g, '')
+          .trim()
+
+        console.log('📝 Extracted modified content:', modifiedContent.substring(0, 100))
+
+        // Replace only the selected text with the new content
+        await replaceSelectedText(modifiedContent)
+
+        // Close modal and clear selection
+        setShowRegenerateModal(false)
+        setTextSelection(null)
+      } else {
+        throw new Error('No modified content received from API')
+      }
+    } catch (error: any) {
+      console.error('❌ Regeneration failed:', error)
+      // You could show an error toast here
+      alert(`Regeneration failed: ${error.message || 'Unknown error'}`)
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
+  // Function to replace only the selected text with new content
+  const replaceSelectedText = async (newContent: string) => {
+    if (!textSelection || !editorRef.current) {
+      console.error('Missing selection or editor ref for text replacement')
+      return
+    }
+
+    try {
+      const { text: oldText, start, end } = textSelection
+      const currentContent = editorContent
+
+      console.log('🔀 Replacing text:', {
+        oldText: oldText.substring(0, 50) + '...',
+        newContent: newContent.substring(0, 50) + '...',
+        positions: { start, end }
+      })
+
+      // Create new content by replacing the selected portion
+      let updatedContent: string
+
+      if (start >= 0 && end > start) {
+        // Use position-based replacement
+        updatedContent = currentContent.substring(0, start) + newContent + currentContent.substring(end)
+      } else {
+        // Fallback: use text-based replacement
+        updatedContent = currentContent.replace(oldText, newContent)
+      }
+
+      // Animate the replacement with smooth transition
+      await animateTextReplacement(updatedContent)
+
+      console.log('✅ Text replacement completed')
+    } catch (error) {
+      console.error('❌ Error during text replacement:', error)
+      throw error
+    }
+  }
+
+  // Simplified and reliable text replacement animation
+  const animateTextReplacement = async (newContent: string) => {
+    if (!editorRef.current) return
+
+    try {
+      // Add subtle pulse animation to indicate change
+      editorRef.current.classList.add('animate-pulse-highlight')
+
+      // Wait for animation start
+      await new Promise(resolve => setTimeout(resolve, 150))
+
+      // Update content
+      setEditorContent(newContent)
+      onContentChange?.(newContent)
+
+      // Clear any existing selection
+      const selection = window.getSelection()
+      if (selection) {
+        selection.removeAllRanges()
+      }
+
+      // Add success glow effect
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.classList.remove('animate-pulse-highlight')
+          editorRef.current.classList.add('success-glow')
+
+          // Clean up after success animation
+          setTimeout(() => {
+            if (editorRef.current) {
+              editorRef.current.classList.remove('success-glow')
+            }
+          }, 1000)
+        }
+      }, 300)
+    } catch (error) {
+      console.error('Animation error:', error)
+      // Still update content even if animation fails
+      setEditorContent(newContent)
+      onContentChange?.(newContent)
+    }
+  }
+
+  // Enhanced selection handling with better event management
+  const handleEditorMouseUp = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    handleTextSelection()
+  }
+
+  const handleEditorKeyUp = (e: React.KeyboardEvent) => {
+    // Handle keyboard selection (Shift+Arrow keys, etc.)
+    if (e.shiftKey || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      handleTextSelection()
+    }
+  }
+
+  const handleEditorFocus = () => {
+    // Don't clear selection when modal is open
+    if (showRegenerateModal) {
+      console.log('🚫 Preserving selection on focus - modal is open')
+      return
+    }
+
+    // Clear selection when editor gets focus if no valid selection
+    setTimeout(() => {
+      const selection = window.getSelection()
+      if (!selection || selection.isCollapsed) {
+        console.log('🗑️ Clearing selection on focus - no valid selection')
+        setTextSelection(null)
+      }
+    }, 100)
+  }
+
+  // Clear selection when clicking outside editor (but preserve for modal)
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      // Don't clear selection if modal is open
+      if (showRegenerateModal) {
+        console.log('🚫 Preserving selection - modal is open')
+        return
+      }
+
+      // Don't clear selection if clicking on toolbar or modal elements
+      const target = e.target as Element
+      if (target.closest('[data-floating-toolbar]') ||
+          target.closest('[data-regenerate-modal]') ||
+          target.closest('[role="dialog"]')) {
+        console.log('🚫 Preserving selection - clicked on UI element')
+        return
+      }
+
+      // Only clear if clicking outside the editor
+      if (editorRef.current && !editorRef.current.contains(e.target as Node)) {
+        console.log('🗑️ Clearing selection - clicked outside editor')
+        setTextSelection(null)
+      }
+    }
+
+    document.addEventListener('click', handleDocumentClick)
+
+    return () => {
+      document.removeEventListener('click', handleDocumentClick)
+    }
+  }, [showRegenerateModal])
 
   const handleCopyToClipboard = async () => {
     try {
@@ -509,15 +867,43 @@ ${editorContent}`
               </div>
             </div>
           ) : (
-            <div className="p-6 sm:p-8 h-full">
+            <div className="p-6 sm:p-8 h-full relative">
               <Card className="p-4 h-full flex flex-col">
-                <textarea
-                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent"
-                  value={editorContent}
-                  onChange={(e) => handleContentEdit(e.target.value)}
-                  placeholder="Generated content will appear here..."
-                />
+                <div
+                  ref={editorRef}
+                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent overflow-auto select-text"
+                  contentEditable
+                  suppressContentEditableWarning
+                  onInput={(e) => handleContentEdit(e.currentTarget.textContent || '')}
+                  onMouseUp={handleEditorMouseUp}
+                  onKeyUp={handleEditorKeyUp}
+                  onFocus={handleEditorFocus}
+                  onDoubleClick={handleTextSelection} // Handle double-click selection
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    userSelect: 'text',
+                    WebkitUserSelect: 'text',
+                    MozUserSelect: 'text',
+                    msUserSelect: 'text'
+                  }}
+                >
+                  {editorContent || "Generated content will appear here..."}
+                </div>
               </Card>
+
+              {/* Regenerate Prompt Modal */}
+              <RegeneratePromptModal
+                isOpen={showRegenerateModal}
+                onClose={() => {
+                  console.log('🚪 Closing regeneration modal')
+                  setShowRegenerateModal(false)
+                  // Don't clear selection immediately - let user see the result
+                  setTimeout(() => setTextSelection(null), 100)
+                }}
+                selectedText={textSelection?.text || ''}
+                onRegenerate={handleRegenerateWithInstruction}
+                isLoading={isRegenerating}
+              />
             </div>
           )}
         </div>
@@ -541,6 +927,13 @@ ${editorContent}`
           frameworkName={framework.name}
         />
       )}
+
+      {/* Floating Regenerate Toolbar - Positioned at root level for proper z-indexing */}
+      <FloatingRegenerateToolbar
+        selection={textSelection}
+        onRegenerate={handleRegenerateToolbarClick}
+        isRegenerating={isRegenerating}
+      />
     </div>
   )
 }
