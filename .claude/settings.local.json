@@ -76,7 +76,8 @@
       "Bash(del \"E:\\test\\other\\ai\\idea-ai\\src\\app\\(dashboard)\\dashboard\\blueprints\\page.tsx\")",
       "Bash(rm:*)",
       "Bash(pnmp:*)",
-      "WebFetch(domain:www.ideanconsulting.com)"
+      "WebFetch(domain:www.ideanconsulting.com)",
+      "WebFetch(domain:azure.microsoft.com)"
     ],
     "deny": [],
     "ask": [],
