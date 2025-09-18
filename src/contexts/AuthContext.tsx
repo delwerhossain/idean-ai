@@ -41,6 +41,7 @@ interface AuthContextType {
   isNewUser: boolean;
   setIsNewUser: (value: boolean) => void;
   createBusiness: (data: BusinessCreateRequest) => Promise<void>;
+  refreshUser: () => Promise<void>;
   isHydrated: boolean;
   isAuthReady: boolean; // Combined state for full authentication readiness
 }
@@ -451,6 +452,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Refresh user data (useful when business info changes)
+  const refreshUser = async () => {
+    try {
+      authLogger.debug('Manual refresh: Updating user data');
+      const userResponse = await measureAuthTime(
+        () => AuthService.getCurrentUser(),
+        'Manual user refresh'
+      );
+      if (userResponse) {
+        setUser(userResponse);
+        const storedToken = localStorage.getItem('authToken');
+        if (storedToken) {
+          setCachedUserData(userResponse, storedToken);
+        }
+        authLogger.success('Manual refresh: User data updated successfully');
+      }
+    } catch (error) {
+      authLogger.error('Manual user refresh failed:', error);
+      // Don't throw - let the UI handle the error gracefully
+    }
+  };
+
   const value: AuthContextType = {
     firebaseUser,
     user,
@@ -462,6 +485,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isNewUser,
     setIsNewUser,
     createBusiness,
+    refreshUser,
     isHydrated,
     isAuthReady,
   };

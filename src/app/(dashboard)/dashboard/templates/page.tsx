@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
 import {
   FileText,
@@ -13,7 +12,6 @@ import {
   Filter,
   MoreVertical,
   Edit,
-  Copy,
   Palette,
   PenTool,
   TrendingUp,
@@ -24,6 +22,138 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { ideanApi, Template } from '@/lib/api/idean-api'
+
+// Skeleton Loading Component for Templates Page
+function TemplatesSkeletonLoader() {
+  const shimmerClasses = "animate-pulse bg-gradient-to-r from-gray-200 via-gray-50 to-gray-200"
+
+  return (
+    <div className="p-3 sm:p-6">
+      {/* Header Skeleton */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
+          <div className={`w-10 h-10 rounded-lg ${shimmerClasses}`}></div>
+          <div>
+            <div className={`h-8 rounded w-32 mb-2 ${shimmerClasses}`}></div>
+            <div className={`h-4 rounded w-80 ${shimmerClasses}`}></div>
+          </div>
+        </div>
+        <div className={`h-6 rounded w-80 mt-4 ${shimmerClasses}`}></div>
+      </div>
+
+      {/* Search and Filter Skeleton */}
+      <div className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <div className="flex-1 max-w-md">
+            <div className={`h-10 rounded-md ${shimmerClasses}`}></div>
+          </div>
+          <div className={`h-10 rounded w-20 ${shimmerClasses}`}></div>
+        </div>
+
+        {/* Category Filter Skeleton */}
+        <div className="flex flex-wrap items-center gap-2">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className={`h-8 rounded w-16 ${shimmerClasses}`}></div>
+          ))}
+        </div>
+
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
+          <div className={`h-8 rounded w-20 ${shimmerClasses}`}></div>
+          <div className={`h-8 rounded w-28 ${shimmerClasses}`}></div>
+        </div>
+      </div>
+
+      {/* Templates Grid Skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        {[...Array(6)].map((_, index) => (
+          <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+            {/* Template Card Header */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${shimmerClasses}`}></div>
+                <div className="min-w-0 flex-1">
+                  <div className={`h-4 rounded w-32 mb-2 ${shimmerClasses}`}></div>
+                  <div className={`h-3 rounded w-20 ${shimmerClasses}`}></div>
+                </div>
+              </div>
+              <div className={`w-8 h-8 rounded ${shimmerClasses}`}></div>
+            </div>
+
+            {/* Template Description */}
+            <div className="mb-4">
+              <div className="space-y-2 mb-2">
+                <div className={`h-3 rounded w-full ${shimmerClasses}`}></div>
+                <div className={`h-3 rounded w-4/5 ${shimmerClasses}`}></div>
+                <div className={`h-3 rounded w-3/5 ${shimmerClasses}`}></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className={`h-3 rounded w-12 ${shimmerClasses}`}></div>
+                <div className={`h-3 rounded w-16 ${shimmerClasses}`}></div>
+              </div>
+            </div>
+
+            {/* Template Footer */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-gray-100 gap-3 sm:gap-0">
+              <div className={`h-3 rounded w-20 ${shimmerClasses}`}></div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className={`h-8 rounded w-8 ${shimmerClasses}`}></div>
+                <div className={`h-8 rounded w-24 ${shimmerClasses}`}></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Template Creation Guide Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {[...Array(3)].map((_, index) => (
+          <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 text-center shadow-sm">
+            <div className={`w-12 h-12 rounded-lg mx-auto mb-4 ${shimmerClasses}`}></div>
+            <div className={`h-4 rounded w-32 mx-auto mb-2 ${shimmerClasses}`}></div>
+            <div className="space-y-1 mb-4">
+              <div className={`h-3 rounded w-full ${shimmerClasses}`}></div>
+              <div className={`h-3 rounded w-4/5 mx-auto ${shimmerClasses}`}></div>
+            </div>
+            <div className={`h-8 rounded w-32 mx-auto ${shimmerClasses}`}></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Start Guide Skeleton */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-lg ${shimmerClasses}`}></div>
+          <div className="flex-1">
+            <div className={`h-4 rounded w-40 mb-1 ${shimmerClasses}`}></div>
+            <div className="space-y-1 mb-3">
+              <div className={`h-3 rounded w-full ${shimmerClasses}`}></div>
+              <div className={`h-3 rounded w-3/4 ${shimmerClasses}`}></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className={`h-3 rounded w-32 ${shimmerClasses}`}></div>
+              <div className={`h-3 rounded w-28 ${shimmerClasses}`}></div>
+              <div className={`h-3 rounded w-24 ${shimmerClasses}`}></div>
+            </div>
+          </div>
+          <div className={`h-10 rounded w-32 ${shimmerClasses}`}></div>
+        </div>
+      </div>
+
+      {/* Enhanced Loading Indicator */}
+      <div className="flex flex-col items-center justify-center mt-8 space-y-4">
+        <div className="flex items-center space-x-1">
+          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+          <div className="w-2 h-2 bg-gray-700 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-600 font-medium">Loading templates...</p>
+          <p className="text-sm text-gray-500 mt-1">Preparing your reusable business frameworks</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Memoized Template Card Component
 const TemplateCard = memo(({ template }: { template: Template }) => {
@@ -330,14 +460,7 @@ export default function TemplatesPage() {
   }
 
   if (loading) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-gray-600">Loading templates...</span>
-        </div>
-      </div>
-    )
+    return <TemplatesSkeletonLoader />
   }
 
   if (error) {

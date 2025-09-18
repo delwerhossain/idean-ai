@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -10,19 +10,17 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Building,
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  Trash2,
+  Save,
+  AlertTriangle,
+  CheckCircle2,
   Globe,
   Tag,
   Users,
-  AlertTriangle,
-  X,
-  Save
+  BookOpen,
+  RefreshCw
 } from 'lucide-react'
-import { ideanApi, Business, ideanUtils } from '@/lib/api/idean-api'
+import { ideanApi, ideanUtils } from '@/lib/api/idean-api'
+import { Business } from '@/types/api'
 
 interface BusinessFormData {
   business_name: string
@@ -37,15 +35,79 @@ interface BusinessFormData {
   readiness_checklist: string
 }
 
-export default function BusinessPage() {
-  const { user } = useAuth()
-  const [businesses, setBusinesses] = useState<Business[]>([])
+// Business Knowledge Skeleton Loading Component
+function BusinessSkeletonLoader() {
+  const shimmerClasses = "animate-pulse bg-gradient-to-r from-gray-200 via-gray-50 to-gray-200"
+
+  return (
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6 sm:space-y-8">
+      {/* Header Skeleton */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-lg ${shimmerClasses}`}></div>
+          <div>
+            <div className={`h-8 rounded w-64 mb-2 ${shimmerClasses}`}></div>
+            <div className={`h-4 rounded w-80 ${shimmerClasses}`}></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Business Info Card Skeleton */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className={`w-5 h-5 rounded ${shimmerClasses}`}></div>
+          <div className={`h-6 rounded w-40 ${shimmerClasses}`}></div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {[...Array(6)].map((_, index) => (
+            <div key={index}>
+              <div className={`h-4 rounded w-32 mb-2 ${shimmerClasses}`}></div>
+              <div className={`h-10 rounded w-full ${shimmerClasses}`}></div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          <div className={`h-4 rounded w-32 mb-2 ${shimmerClasses}`}></div>
+          <div className={`h-24 rounded w-full ${shimmerClasses}`}></div>
+        </div>
+
+        <div className="mt-6">
+          <div className={`h-10 rounded w-32 ${shimmerClasses}`}></div>
+        </div>
+      </div>
+
+      {/* Documents Section Skeleton */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className={`w-5 h-5 rounded ${shimmerClasses}`}></div>
+          <div className={`h-6 rounded w-48 ${shimmerClasses}`}></div>
+        </div>
+
+        <div className="space-y-3">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+              <div className={`w-8 h-8 rounded ${shimmerClasses}`}></div>
+              <div className="flex-1">
+                <div className={`h-4 rounded w-48 mb-1 ${shimmerClasses}`}></div>
+                <div className={`h-3 rounded w-24 ${shimmerClasses}`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function BusinessKnowledgePage() {
+  const { user, refreshUser } = useAuth()
+  const [business, setBusiness] = useState<Business | null>(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [success, setSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState<BusinessFormData>({
     business_name: '',
     website_url: '',
@@ -58,55 +120,122 @@ export default function BusinessPage() {
   })
 
   useEffect(() => {
-    loadBusinesses()
-  }, [])
+    loadBusinessData()
+  }, [user])
 
-  const loadBusinesses = async () => {
+  const loadBusinessData = useCallback(async () => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
 
-      const response = await ideanApi.business.getAll({
-        limit: 50
-      })
+      console.log('Loading business data for user:', user.email)
+
+      // Get user's current business data
+      let response = null
+
+      try {
+        // First try getting user data which includes business
+        const userResponse = await ideanApi.user.getMe()
+        console.log('User data response:', userResponse)
+
+        if (userResponse?.business) {
+          response = userResponse.business
+          console.log('Found business in user data:', response)
+        } else if (userResponse?.businessId) {
+          // If user has businessId but no nested business, fetch it directly
+          try {
+            response = await ideanApi.business.getById(userResponse.businessId)
+            console.log('Fetched business by ID:', response)
+          } catch (getByIdError) {
+            console.log('Failed to fetch business by ID:', getByIdError)
+          }
+        }
+      } catch (userError) {
+        console.log('User data fetch failed, trying business.getMine:', userError)
+
+        // Fallback: try direct business fetch
+        try {
+          response = await ideanApi.business.getMine()
+          console.log('Got business from getMine:', response)
+        } catch (getMineError) {
+          console.log('getMine also failed:', getMineError)
+        }
+      }
 
       if (response) {
-        setBusinesses(response.items || [])
+        setBusiness(response as Business)
+        setFormData({
+          business_name: response.business_name || '',
+          website_url: response.website_url || '',
+          industry_tag: response.industry_tag || '',
+          business_context: response.business_context || '',
+          language: response.language || 'en',
+          mentor_approval: response.mentor_approval || 'pending',
+          module_select: (response.module_select === 'pro' ? 'pro' : 'standard') as 'standard' | 'pro',
+          readiness_checklist: response.readiness_checklist || 'incomplete',
+          business_documents: response.business_documents || [],
+          adds_history: response.adds_history || []
+        })
+        console.log('✅ Business data loaded successfully:', response.business_name)
+
+        // Clear any existing errors
+        setError(null)
+      } else {
+        // No business data found - this is normal for new users
+        console.log('No business profile found - user may need to set one up')
+        setError(null) // Don't show error for missing business profile
       }
-    } catch (err) {
-      console.error('Failed to load businesses:', err)
-      setError('Failed to load businesses. Please try again.')
+
+    } catch (err: any) {
+      console.error('Failed to load business data:', err)
+      setError('Unable to load business information. Please try refreshing the page.')
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSearch = () => {
-    loadBusinesses()
-  }
+  }, [user])
 
   const resetForm = () => {
-    setFormData({
-      business_name: '',
-      website_url: '',
-      industry_tag: '',
-      business_context: '',
-      language: 'en',
-      mentor_approval: 'pending',
-      module_select: 'standard',
-      readiness_checklist: 'incomplete'
-    })
-    setEditingBusiness(null)
-    setShowCreateForm(false)
+    if (business) {
+      setFormData({
+        business_name: business.business_name || '',
+        website_url: business.website_url || '',
+        industry_tag: business.industry_tag || '',
+        business_context: business.business_context || '',
+        language: business.language || 'en',
+        mentor_approval: business.mentor_approval || 'pending',
+        module_select: business.module_select || 'standard',
+        readiness_checklist: business.readiness_checklist || 'incomplete',
+        business_documents: business.business_documents || [],
+        adds_history: business.adds_history || []
+      })
+    }
+    setError(null)
+    setSuccess(null)
   }
 
   const handleInputChange = (field: keyof BusinessFormData, value: string) => {
+    // Auto-format website URL
+    if (field === 'website_url' && value.trim()) {
+      // Remove any existing protocol first
+      let cleanUrl = value.trim().replace(/^https?:\/\//, '')
+      
+      // Only add https:// if there's actually a URL value
+      if (cleanUrl) {
+        value = `https://${cleanUrl}`
+      }
+    }
+    
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate form data
     const validation = ideanUtils.validateBusinessData(formData)
     if (!validation.isValid) {
@@ -115,57 +244,62 @@ export default function BusinessPage() {
     }
 
     try {
-      setIsSubmitting(true)
+      setSaving(true)
       setError(null)
+      setSuccess(null)
 
-      if (editingBusiness) {
+      console.log('Submitting business data:', formData)
+
+      let response
+      if (business?.id) {
         // Update existing business
-        await ideanApi.business.update(editingBusiness.id, formData)
+        console.log('Updating business with ID:', business.id)
+        response = await ideanApi.business.update(business.id, formData)
+        setSuccess('Business information updated successfully!')
+        console.log('✅ Business updated successfully:', response)
+
+        // Refresh user data in AuthContext to update sidebar and other components
+        await refreshUser()
       } else {
         // Create new business
-        await ideanApi.business.create(formData)
+        console.log('Creating new business')
+        response = await ideanApi.business.create(formData)
+        setSuccess('Business profile created successfully!')
+        console.log('✅ Business created successfully:', response)
+
+        // Refresh user data in AuthContext to update sidebar and other components
+        await refreshUser()
       }
 
-      // Reload businesses and reset form
-      await loadBusinesses()
-      resetForm()
-    } catch (err: unknown) {
+      // Handle response - it might be wrapped in different formats
+      const businessData = (response as any)?.business || response
+      if (businessData) {
+        setBusiness(businessData as Business)
+
+        // Update form data with any server-side changes
+        setFormData({
+          business_name: businessData.business_name || '',
+          website_url: businessData.website_url || '',
+          industry_tag: businessData.industry_tag || '',
+          business_context: businessData.business_context || '',
+          language: businessData.language || 'en',
+          mentor_approval: businessData.mentor_approval || 'pending',
+          module_select: businessData.module_select || 'standard',
+          readiness_checklist: businessData.readiness_checklist || 'incomplete',
+          business_documents: businessData.business_documents || [],
+          adds_history: businessData.adds_history || []
+        })
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(null), 3000)
+      }
+
+    } catch (err: any) {
       console.error('Failed to save business:', err)
-      setError(err instanceof Error ? err.message : 'Failed to save business. Please try again.')
+      const errorMessage = err.response?.data?.message || err.message || `Failed to ${business ? 'update' : 'create'} business information. Please try again.`
+      setError(errorMessage)
     } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleEdit = (business: Business) => {
-    setFormData({
-      business_name: business.business_name,
-      website_url: business.website_url,
-      industry_tag: business.industry_tag,
-      business_documents: business.business_documents,
-      business_context: business.business_context || '',
-      language: business.language,
-      mentor_approval: business.mentor_approval,
-      adds_history: business.adds_history,
-      module_select: business.module_select,
-      readiness_checklist: business.readiness_checklist
-    })
-    setEditingBusiness(business)
-    setShowCreateForm(true)
-  }
-
-  const handleDelete = async (businessId: string) => {
-    if (!confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
-      return
-    }
-
-    try {
-      setError(null)
-      await ideanApi.business.delete(businessId)
-      await loadBusinesses()
-    } catch (err: unknown) {
-      console.error('Failed to delete business:', err)
-      setError(err instanceof Error ? err.message : 'Failed to delete business. Please try again.')
+      setSaving(false)
     }
   }
 
@@ -178,108 +312,93 @@ export default function BusinessPage() {
     })
   }
 
-  const getModuleBadgeColor = (module: string) => {
-    return module === 'pro' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
+  const getPlanBadge = (module: string) => {
+    return module === 'pro'
+      ? <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">Pro Plan</span>
+      : <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Standard Plan</span>
   }
 
   if (loading) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-gray-600">Loading businesses...</span>
-        </div>
-      </div>
-    )
+    return <BusinessSkeletonLoader />
   }
 
   return (
-    <div className="p-3 sm:p-6">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Building className="w-5 h-5 text-white" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-idean-navy rounded-lg flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Business Knowledge</h1>
+              <p className="text-gray-600 text-sm sm:text-base">Update your business information and context</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Business Management</h1>
-            <p className="text-gray-600 text-sm sm:text-base">Manage business profiles and configurations</p>
-          </div>
-        </div>
 
-        {user ? (
-          <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-md inline-block">
-            ✅ Backend connected - Full business management available
-          </div>
-        ) : (
-          <div className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-md inline-block">
-            ⚡ Demo mode - Connect backend for business operations
-          </div>
-        )}
+          {business && (
+            <div className="flex items-center gap-3">
+              {getPlanBadge(business.module_select)}
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                business.mentor_approval === 'approved'
+                  ? 'bg-green-100 text-green-700'
+                  : business.mentor_approval === 'rejected'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-yellow-100 text-yellow-700'
+              }`}>
+                {business.mentor_approval === 'approved' ? 'Approved' : business.mentor_approval === 'rejected' ? 'Rejected' : 'Pending'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Error Display */}
+      {/* Status Messages */}
       {error && (
-        <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-red-50 border-red-200">
-          <div className="flex items-center gap-2 text-red-700">
-            <AlertTriangle className="w-4 h-4" />
-            <span className="text-sm flex-1">{error}</span>
+        <Card className="p-4 mb-6 border-red-200 bg-red-50">
+          <div className="flex items-center justify-between text-red-700">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="text-sm font-medium">{error}</span>
+            </div>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setError(null)}
-              className="ml-auto flex-shrink-0"
+              onClick={loadBusinessData}
+              className="text-red-700 hover:text-red-800 hover:bg-red-100 p-1"
             >
-              <X className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" />
             </Button>
           </div>
         </Card>
       )}
 
-      {/* Search and Actions */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search businesses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
+      {success && (
+        <Card className="p-4 mb-6 border-green-200 bg-green-50">
+          <div className="flex items-center gap-2 text-green-700">
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="text-sm font-medium">{success}</span>
           </div>
-        </div>
+        </Card>
+      )}
 
-        <div className="flex gap-2 sm:gap-3">
-          <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
-            <Filter className="w-4 h-4 mr-2" />
-            Search
-          </Button>
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 flex-1 sm:flex-none"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">New Business</span>
-            <span className="sm:hidden">New</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Create/Edit Form */}
-      {showCreateForm && (
+      {/* Business Information Form */}
+      {business || (!business && !loading) ? (
         <Card className="p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-              {editingBusiness ? 'Edit Business' : 'Create New Business'}
-            </h3>
-            <Button variant="ghost" size="sm" onClick={resetForm}>
-              <X className="w-4 h-4" />
+            <div className="flex items-center gap-3">
+              <Building className="w-5 h-5 text-idean-navy" />
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                {business ? 'Business Information' : 'Create Business Profile'}
+              </h3>
+            </div>
+            <Button variant="outline" size="sm" onClick={resetForm}>
+              Reset Changes
             </Button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Business Name */}
               <div>
@@ -301,15 +420,23 @@ export default function BusinessPage() {
                 <Label htmlFor="website_url" className="text-sm font-medium text-gray-700">
                   Website URL *
                 </Label>
-                <Input
-                  id="website_url"
-                  type="url"
-                  value={formData.website_url}
-                  onChange={(e) => handleInputChange('website_url', e.target.value)}
-                  placeholder="https://example.com"
-                  required
-                  className="mt-1"
-                />
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <span className="text-gray-500 text-sm">https://</span>
+                  </div>
+                  <Input
+                    id="website_url"
+                    type="text"
+                    value={formData.website_url.replace(/^https?:\/\//, '')}
+                    onChange={(e) => handleInputChange('website_url', e.target.value)}
+                    placeholder="example.com"
+                    required
+                    className="pl-16"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter your website domain (https:// will be added automatically)
+                </p>
               </div>
 
               {/* Industry */}
@@ -322,12 +449,26 @@ export default function BusinessPage() {
                   value={formData.industry_tag}
                   onChange={(e) => handleInputChange('industry_tag', e.target.value)}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-idean-navy focus:border-idean-navy bg-white"
                 >
                   <option value="">Select Industry</option>
-                  {ideanUtils.getIndustryOptions().map(industry => (
-                    <option key={industry} value={industry}>{industry}</option>
-                  ))}
+                  <option value="Technology & Software">Technology & Software</option>
+                  <option value="E-commerce">E-commerce</option>
+                  <option value="SaaS">SaaS</option>
+                  <option value="Consulting">Consulting</option>
+                  <option value="Digital Marketing">Digital Marketing</option>
+                  <option value="Education">Education</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Real Estate">Real Estate</option>
+                  <option value="Food & Beverage">Food & Beverage</option>
+                  <option value="Fashion & Beauty">Fashion & Beauty</option>
+                  <option value="Travel & Tourism">Travel & Tourism</option>
+                  <option value="Manufacturing">Manufacturing</option>
+                  <option value="Agriculture">Agriculture</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Non-profit">Non-profit</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
@@ -341,7 +482,7 @@ export default function BusinessPage() {
                   value={formData.language}
                   onChange={(e) => handleInputChange('language', e.target.value)}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-idean-navy focus:border-idean-navy bg-white"
                 >
                   {ideanUtils.getLanguageOptions().map(lang => (
                     <option key={lang.code} value={lang.code}>{lang.name}</option>
@@ -350,16 +491,16 @@ export default function BusinessPage() {
               </div>
 
               {/* Module Select */}
-              <div>
+              {/* <div>
                 <Label htmlFor="module_select" className="text-sm font-medium text-gray-700">
-                  Module Tier *
+                  Plan Tier *
                 </Label>
                 <select
                   id="module_select"
                   value={formData.module_select}
                   onChange={(e) => handleInputChange('module_select', e.target.value as 'standard' | 'pro')}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-idean-navy focus:border-idean-navy bg-white"
                 >
                   {ideanUtils.getModuleOptions().map(module => (
                     <option key={module.value} value={module.value}>
@@ -367,182 +508,104 @@ export default function BusinessPage() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
 
-              {/* Mentor Approval */}
-              <div>
-                <Label htmlFor="mentor_approval" className="text-sm font-medium text-gray-700">
-                  Mentor Approval Status *
+              {/* Readiness Status */}
+              {/* <div>
+                <Label htmlFor="readiness_checklist" className="text-sm font-medium text-gray-700">
+                  Setup Status *
                 </Label>
                 <select
-                  id="mentor_approval"
-                  value={formData.mentor_approval}
-                  onChange={(e) => handleInputChange('mentor_approval', e.target.value)}
+                  id="readiness_checklist"
+                  value={formData.readiness_checklist}
+                  onChange={(e) => handleInputChange('readiness_checklist', e.target.value)}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-idean-navy focus:border-idean-navy bg-white"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
+                  <option value="incomplete">Incomplete</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
                 </select>
-              </div>
+              </div> */}
             </div>
 
             {/* Business Context */}
             <div>
               <Label htmlFor="business_context" className="text-sm font-medium text-gray-700">
-                Business Context
+                Business Context & Knowledge
               </Label>
               <Textarea
                 id="business_context"
                 value={formData.business_context}
                 onChange={(e) => handleInputChange('business_context', e.target.value)}
-                placeholder="Describe your business, target audience, and key objectives..."
-                rows={4}
+                placeholder="Describe your business, target audience, key objectives, products/services, unique value proposition, and any other relevant context that will help AI understand your business better..."
+                rows={6}
                 className="mt-1"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                This information helps AI generate more relevant and personalized content for your business.
+              </p>
             </div>
 
-            {/* Readiness Checklist */}
-            <div>
-              <Label htmlFor="readiness_checklist" className="text-sm font-medium text-gray-700">
-                Readiness Status *
-              </Label>
-              <select
-                id="readiness_checklist"
-                value={formData.readiness_checklist}
-                onChange={(e) => handleInputChange('readiness_checklist', e.target.value)}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="incomplete">Incomplete</option>
-                <option value="in_progress">In Progress</option>
-                <option value="complete">Complete</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-6 border-t border-gray-100">
               <Button
                 type="submit"
-                disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+                disabled={saving || !business}
+                className="bg-idean-navy hover:bg-idean-navy-dark w-full sm:w-auto"
               >
-                {isSubmitting ? (
+                {saving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
-                    {editingBusiness ? 'Updating...' : 'Creating...'}
+                    Updating Business...
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    {editingBusiness ? 'Update Business' : 'Create Business'}
+                    {business ? 'Update Business Information' : 'Create Business Profile'}
                   </>
                 )}
               </Button>
               <Button type="button" variant="outline" onClick={resetForm} className="w-full sm:w-auto">
-                Cancel
+                Reset to Original
               </Button>
             </div>
           </form>
         </Card>
+      ) : (
+        <Card className="p-8 text-center">
+          <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Business Profile Found</h3>
+          <p className="text-gray-600 mb-4">
+            You don't have a business profile set up yet. Please complete your business setup first.
+          </p>
+          <Button className="bg-idean-navy hover:bg-idean-navy-dark">
+            Set Up Business Profile
+          </Button>
+        </Card>
       )}
 
-      {/* Business List */}
-      {businesses.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {businesses.map((business) => (
-            <Card key={business.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
-              <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-3 sm:gap-0">
-                <div className="flex items-center gap-2 sm:gap-3 flex-1">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Building className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{business.business_name}</h4>
-                    <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
-                      <Globe className="w-3 h-3" />
-                      <span className="truncate">{business.website_url}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(business)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(business.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2 sm:space-y-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                  <span className="text-xs sm:text-sm text-gray-600">{business.industry_tag}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                  <span className="text-xs sm:text-sm text-gray-600">{business.language === 'en' ? 'English' : business.language === 'bn' ? 'Bengali' : 'Hindi'}</span>
-                </div>
-
-                {business.business_context && (
-                  <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
-                    {business.business_context}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getModuleBadgeColor(business.module_select)}`}>
-                    {business.module_select.toUpperCase()}
-                  </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    business.mentor_approval === 'approved' 
-                      ? 'bg-green-100 text-green-700'
-                      : business.mentor_approval === 'rejected'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {business.mentor_approval}
-                  </span>
-                </div>
-                <span className="text-xs text-gray-500">
-                  {formatDate(business.updatedAt)}
-                </span>
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Building className="w-10 h-10 text-gray-400" />
+      {/* Business Documents */}
+      {business && business.business_documents && business.business_documents.length > 0 && (
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <BookOpen className="w-5 h-5 text-idean-navy" />
+            <h3 className="text-lg font-semibold text-gray-900">Business Documents</h3>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Businesses Found</h3>
-          <p className="text-gray-600 mb-6">
-            {searchTerm 
-              ? 'Try adjusting your search criteria'
-              : 'Create your first business profile to get started'}
-          </p>
-          <Button 
-            onClick={() => setShowCreateForm(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Your First Business
-          </Button>
-        </div>
+
+          <div className="space-y-3">
+            {business.business_documents.map((doc, index) => (
+              <div key={index} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <div className="w-8 h-8 bg-idean-navy/10 rounded flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-idean-navy" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">Document {index + 1}</p>
+                  <p className="text-xs text-gray-500">Uploaded knowledge base document</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
     </div>
   )

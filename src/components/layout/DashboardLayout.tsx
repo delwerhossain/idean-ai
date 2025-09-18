@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useCallback } from 'react'
 import { Menu, User, Settings, Crown, LogOut, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
@@ -104,9 +104,9 @@ function MobileAccountMenu() {
 export default function DashboardLayout({ children, className = '' }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  const handleToggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
-  }
+  const handleToggleSidebar = useCallback(() => {
+    setIsSidebarOpen(prev => !prev)
+  }, [])
 
   return (
     <ProtectedRoute requiredRoles={['owner', 'admin', 'user']}>
@@ -116,9 +116,9 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
           onToggle={handleToggleSidebar}
         />
 
-        <div className="flex flex-col flex-1 lg:ml-0">
+        <div className="flex flex-col flex-1 lg:ml-0 transition-all duration-200 ease-out">
           {/* Mobile Header */}
-          <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between min-h-[60px]">
+          <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between min-h-[60px] relative z-10">
             {/* Left: Menu Button */}
             <button
               onClick={handleToggleSidebar}
@@ -148,7 +148,7 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
           </main>
         </div>
 
-        <TestUserPanel />
+        {/* <TestUserPanel /> */}
         <AuthStateDebug showInProduction={true} />
       </div>
     </ProtectedRoute>
