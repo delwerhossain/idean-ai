@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { GenerationInputPanel } from './GenerationInputPanel'
 import { GenerationEditor } from './GenerationEditor'
-import { ideanApi } from '@/lib/api/idean-api'
+import { ideanApi, Template } from '@/lib/api/idean-api'
+import { Button } from '@/components/ui/button'
 
 interface Framework {
   id: string
@@ -19,11 +20,13 @@ interface Framework {
 interface GenerationStudioProps {
   type: 'copywriting' | 'growth-copilot' | 'branding-lab'
   framework: Framework
+  template?: Template | null
   onBack?: () => void
 }
 
 interface GenerationResult {
   content: string
+  documentId?: string // Add document ID for template creation
   metadata?: {
     framework: string
     inputs: Record<string, any>
@@ -33,236 +36,204 @@ interface GenerationResult {
   }
 }
 
-export function GenerationStudio({ type, framework, onBack }: GenerationStudioProps) {
+export function GenerationStudio({ type, framework, template, onBack }: GenerationStudioProps) {
   const { user } = useAuth()
   const [isGenerating, setIsGenerating] = useState(false)
   const [currentStep, setCurrentStep] = useState<'input' | 'generating' | 'editing'>('input')
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [inputs, setInputs] = useState<Record<string, any>>({})
-  const [generationOptions, setGenerationOptions] = useState({
-    tone: 'professional',
-    length: 'medium',
-    audience: 'business',
-    temperature: 0.7,
-    maxTokens: 2000,
-    includeBusinessContext: true,
-    saveDocument: true
+  const [mobileView, setMobileView] = useState<'input' | 'editor'>('input')
+  const [retryCount, setRetryCount] = useState(0)
+  // Initialize generation options with template data if available
+  const [generationOptions, setGenerationOptions] = useState(() => {
+    const defaultOptions = {
+      tone: 'professional',
+      length: 'medium',
+      audience: 'business',
+      temperature: 0.7,
+      maxTokens: 2000,
+      includeBusinessContext: true,
+      saveDocument: true
+    }
+
+    // Load dropdown selections from template if available
+    if (template?.drop_down) {
+      const dropDownOptions = template.drop_down
+      return {
+        ...defaultOptions,
+        tone: dropDownOptions[0] || defaultOptions.tone,
+        length: dropDownOptions[1] || defaultOptions.length,
+        audience: dropDownOptions[2] || defaultOptions.audience
+      }
+    }
+
+    return defaultOptions
   })
 
-  // Initialize inputs based on framework fields
+  // Initialize inputs based on framework fields and template data
   useEffect(() => {
     const initialInputs: Record<string, any> = {}
 
     if (framework.input_fields) {
-      framework.input_fields.forEach(field => {
+      framework.input_fields.forEach((field, index) => {
         const fieldName = field.includes(':') ? field.split(':')[0] : field
-        initialInputs[fieldName] = ''
+
+        // Use template data if available
+        if (template?.text_input_given && template.text_input_given[index]) {
+          initialInputs[fieldName] = template.text_input_given[index]
+        } else {
+          initialInputs[fieldName] = ''
+        }
       })
     }
 
+    // Load template's additional prompt if available
+    if (template?.user_given_prompt) {
+      initialInputs.additionalInstructions = template.user_given_prompt
+    }
+
+    console.log('🎨 Initialized inputs:', template ? 'with template data' : 'without template', initialInputs)
     setInputs(initialInputs)
-  }, [framework])
+  }, [framework, template])
 
   const handleGenerate = async () => {
-    if (!framework) return
+    if (!framework || !user) {
+      setError('Authentication required to generate content.')
+      return
+    }
 
     try {
       setIsGenerating(true)
       setError(null)
       setCurrentStep('generating')
 
-      // Check if this is a predefined framework (no backend call needed)
-      const predefinedFrameworkIds = ['neuro-copy', 'nuclear-content', 'sales-pages', 'email-sequences', 'social-copy', 'ad-copy']
-      const isPredefinedFramework = predefinedFrameworkIds.includes(framework.id)
+      // Prepare API payload
+      const apiPayload = {
+        userInputs: inputs,
+        userSelections: {
+          tone: generationOptions.tone,
+          length: generationOptions.length,
+          audience: generationOptions.audience
+        },
+        userPrompt: inputs.additionalInstructions || '',
+        businessContext: generationOptions.includeBusinessContext,
+        generationOptions: {
+          temperature: generationOptions.temperature,
+          maxTokens: generationOptions.maxTokens,
+          topP: 0.9,
+          saveDocument: generationOptions.saveDocument
+        }
+      }
 
-      if (isPredefinedFramework || !user) {
-        // Use mock generation for predefined frameworks or when user is not authenticated
-        await new Promise(resolve => setTimeout(resolve, 3000)) // Simulate AI generation
+      let response
 
-        const mockContent = generateMockContent(framework, inputs, generationOptions)
+      // Call appropriate API based on type
+      switch (type) {
+        case 'copywriting':
+          response = await ideanApi.copywriting.generate(framework.id, apiPayload)
+          break
+        case 'growth-copilot':
+          response = await ideanApi.growthCopilot.generate(framework.id, apiPayload)
+          break
+        case 'branding-lab':
+          response = await ideanApi.brandingLab.generate(framework.id, apiPayload)
+          break
+        default:
+          throw new Error('Unsupported generation type')
+      }
 
-        setGenerationResult({
-          content: mockContent,
-          metadata: {
-            framework: framework.name,
-            inputs,
-            timestamp: new Date().toISOString(),
-            tokensUsed: Math.floor(Math.random() * 500) + 200,
-            model: 'mock-generation'
-          }
-        })
-      } else {
-        // Use real backend API for authenticated users with backend frameworks
-        const apiPayload = {
-          userInputs: inputs,
-          userSelections: {
-            tone: generationOptions.tone,
-            length: generationOptions.length,
-            audience: generationOptions.audience
-          },
-          userPrompt: inputs.additionalInstructions || '',
-          businessContext: generationOptions.includeBusinessContext,
-          generationOptions: {
-            temperature: generationOptions.temperature,
-            maxTokens: generationOptions.maxTokens,
-            topP: 0.9,
-            saveDocument: generationOptions.saveDocument
-          }
+      // Handle the backend API response format
+      if ('success' in response && 'data' in response) {
+        // New backend response format
+        if (!response.success) {
+          throw new Error(response.message || 'Generation failed')
         }
 
-        let response
+        const generatedContent = response.data.generatedContent
+        const metadata = response.data.generationMetadata
 
-        // Call appropriate API based on type
-        switch (type) {
-          case 'copywriting':
-            response = await ideanApi.copywriting.generate(framework.id, apiPayload)
-            break
-          case 'growth-copilot':
-            response = await ideanApi.growthCopilot.generate(framework.id, apiPayload)
-            break
-          case 'branding-lab':
-            response = await ideanApi.brandingLab.generate(framework.id, apiPayload)
-            break
-          default:
-            throw new Error('Unsupported generation type')
-        }
-
-        // Handle the API response format from the JSON file
-        const apiResponse = response
-        const generatedContent = apiResponse.content || 'Generated content will appear here.'
-
-        console.log('API Response:', apiResponse) // Debug logging
+        // Extract document ID from usedDocuments or savedDocument
+        const usedDocuments = (response.data as any).usedDocuments || []
+        const savedDocument = response.data.savedDocument
+        const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : savedDocument?.id
 
         setGenerationResult({
           content: generatedContent,
+          documentId: documentId,
+          metadata: {
+            framework: response.data.copyWriting.name,
+            inputs: response.data.inputsUsed.userInputs,
+            timestamp: new Date().toISOString(),
+            tokensUsed: metadata.usage.total_tokens,
+            model: metadata.model
+          }
+        })
+      } else {
+        // Legacy response format (for other API types)
+        const apiResponse = response as any
+        const generatedContent = apiResponse.content || apiResponse.generatedContent
+
+        if (!generatedContent) {
+          throw new Error('No content received from API')
+        }
+
+        // Extract document ID from usedDocuments array if available
+        const usedDocuments = apiResponse.usedDocuments || []
+        const documentId = usedDocuments.length > 0 ? usedDocuments[0].id : undefined
+
+        setGenerationResult({
+          content: generatedContent,
+          documentId: documentId,
           metadata: {
             framework: framework.name,
             inputs,
             timestamp: new Date().toISOString(),
-            tokensUsed: (apiResponse as any).generationMetadata?.usage?.total_tokens || (apiResponse as any).usage?.total_tokens || 0,
-            model: (apiResponse as any).generationMetadata?.model || (apiResponse as any).model || 'gpt-4'
+            tokensUsed: apiResponse.generationMetadata?.usage?.total_tokens || apiResponse.usage?.total_tokens || 0,
+            model: apiResponse.generationMetadata?.model || apiResponse.model || 'gpt-4'
           }
         })
       }
 
       setCurrentStep('editing')
+      setRetryCount(0) // Reset retry count on success
+      // Auto-switch to editor view on mobile after generation
+      setMobileView('editor')
     } catch (err: any) {
       console.error('Generation failed:', err)
-      setError(err.message || 'Failed to generate content. Please try again.')
+      let errorMessage = 'Failed to generate content. Please try again.'
+      
+      // Provide more specific error messages based on error type
+      if (err.status === 401) {
+        errorMessage = 'Authentication expired. Please refresh and try again.'
+      } else if (err.status === 403) {
+        errorMessage = 'You don\'t have permission to use this framework.'
+      } else if (err.status === 429) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.'
+      } else if (err.status >= 500) {
+        errorMessage = 'Server error. Please try again in a few moments.'
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+
+      setError(errorMessage)
       setCurrentStep('input')
+      setRetryCount(prev => prev + 1)
     } finally {
       setIsGenerating(false)
     }
   }
 
-  // Mock content generation function (from old working GenerationModal)
-  const generateMockContent = (framework: any, inputs: Record<string, any>, options: any) => {
-    const { name } = framework
-    const { tone, length, audience } = options
-
-    // Mock content generation based on framework
-    switch (name) {
-      case 'NeuroCopywriting™':
-        return `# Psychology-Driven Copy for ${inputs.productName || 'Your Product'}
-
-## Hook (Attention Grabber)
-${inputs.painPoint ? `Tired of ${inputs.painPoint}? You're not alone.` : 'Stop struggling with ineffective results.'}
-
-## Problem Agitation
-${inputs.painPoint ? `Every day you delay solving ${inputs.painPoint}, you're losing potential customers, revenue, and peace of mind. The frustration builds, and your competitors get ahead.` : 'The problem is real, and it\'s costing you daily.'}
-
-## Solution Presentation
-Introducing ${inputs.productName || 'our solution'} - the ${tone} approach that ${inputs.mainBenefit || 'delivers results'}.
-
-## Proof & Authority
-✅ Proven psychological triggers
-✅ ${audience === 'business' ? 'B2B tested' : 'Consumer validated'} approach
-✅ ${length === 'long' ? 'Comprehensive' : 'Quick'} implementation
-
-## Call to Action
-${inputs.ctaText || 'Get started today'} and transform your ${inputs.targetOutcome || 'results'}.
-
-*Generated using NeuroCopywriting™ framework*`
-
-      case 'Nuclear Content™':
-        return `# Viral Content: ${inputs.contentTopic || 'Your Topic'}
-
-## Viral Hook
-🚀 ${inputs.contentTopic ? `This ${inputs.contentTopic} secret` : 'This one trick'} will ${inputs.desiredOutcome || 'change everything'}
-
-## Value Explosion
-${inputs.mainPoint ? inputs.mainPoint : 'Here\'s what most people don\'t know...'}
-
-${length === 'long' ? `
-### The Complete Method:
-1. First, understand the psychology
-2. Then, apply the framework
-3. Finally, optimize for sharing
-` : `
-Quick method:
-• Apply the principle
-• Test the response
-• Scale what works
-`}
-
-## Social Proof
-💬 "This actually works!" - ${audience === 'business' ? 'CEO' : 'User'}
-📈 ${Math.floor(Math.random() * 10000) + 1000}+ people have tried this
-
-## Engagement Driver
-${inputs.engagementQuestion || 'What\'s your experience with this?'}
-Comment below! 👇
-
-#${inputs.hashtag1 || 'viral'} #${inputs.hashtag2 || 'content'} #${inputs.hashtag3 || 'marketing'}
-
-*Created with Nuclear Content™ framework*`
-
-      case 'Sales Page Framework':
-        return `# Sales Page: ${inputs.productName || 'Your Product'}
-
-## Headline
-${inputs.mainBenefit || 'Transform Your Business'} - The ${tone} Solution That ${inputs.desiredOutcome || 'Delivers Results'}
-
-## Problem Statement
-${inputs.problemDescription || 'You\'re struggling with challenges that are holding you back...'}
-
-## Solution Benefits
-${inputs.solutionBenefits || 'Our proven system eliminates these problems and delivers:'}
-• Benefit 1: Immediate results
-• Benefit 2: Long-term success
-• Benefit 3: Peace of mind
-
-## Social Proof
-"${inputs.testimonial || 'This changed everything for my business!'}" - Satisfied Customer
-
-## Pricing
-${inputs.pricePoint ? `Special offer: ${inputs.pricePoint}` : 'Get started today at an exclusive price'}
-
-## Call to Action
-${inputs.ctaText || 'Order Now'} - Limited time offer!
-
-*Built with Sales Page Framework*`
-
-      default:
-        return `# Generated Copy: ${name}
-
-${inputs.mainMessage || 'Your compelling message goes here...'}
-
-## Key Benefits:
-${inputs.benefit1 ? `• ${inputs.benefit1}` : '• Benefit 1'}
-${inputs.benefit2 ? `• ${inputs.benefit2}` : '• Benefit 2'}
-${inputs.benefit3 ? `• ${inputs.benefit3}` : '• Benefit 3'}
-
-## Call to Action:
-${inputs.ctaText || 'Take action now!'}
-
-*Generated with ${name} framework*`
-    }
+  const handleRetryGeneration = () => {
+    setError(null)
+    handleGenerate()
   }
 
   const handleRegenerateSection = async (sectionText: string) => {
-    if (!framework || !sectionText.trim()) return
+    if (!framework || !sectionText.trim() || !user) {
+      setError('Authentication required to regenerate content.')
+      return
+    }
 
     try {
       setIsGenerating(true)
@@ -304,7 +275,7 @@ ${inputs.ctaText || 'Take action now!'}
           throw new Error('Unsupported generation type')
       }
 
-      const newSectionContent = (response as any).generatedContent || response.content
+      const newSectionContent = (response as any).data?.generatedContent || (response as any).generatedContent || (response as any).content
 
       if (newSectionContent && generationResult) {
         // Replace the section in the current content
@@ -314,6 +285,8 @@ ${inputs.ctaText || 'Take action now!'}
           ...generationResult,
           content: updatedContent
         })
+      } else {
+        throw new Error('No regenerated content received')
       }
     } catch (err: any) {
       console.error('Section regeneration failed:', err)
@@ -382,60 +355,243 @@ ${inputs.ctaText || 'Take action now!'}
       }
     } catch (err) {
       console.error('Export failed:', err)
-      // Fallback to clipboard
+      // Copy to clipboard as fallback
       try {
         await navigator.clipboard.writeText(generationResult.content)
-        console.log('Copied to clipboard as fallback')
       } catch (clipboardErr) {
         console.error('Clipboard fallback also failed:', clipboardErr)
       }
     }
   }
 
-  return (
-    <div className="flex flex-col lg:flex-row h-full w-full">
-      {/* Left Panel - Input Form (40% on desktop, hidden when editing on mobile) */}
-      <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col ${
-        currentStep === 'editing' ? 'hidden lg:flex' : 'flex'
-      }`}>
-        <GenerationInputPanel
-          framework={framework}
-          inputs={inputs}
-          generationOptions={generationOptions}
-          currentStep={currentStep}
-          isGenerating={isGenerating}
-          error={error}
-          onInputChange={setInputs}
-          onOptionsChange={setGenerationOptions}
-          onGenerate={handleGenerate}
-          onBack={onBack}
-        />
-      </div>
+  const handleSaveAsTemplate = async (data: { name: string; description?: string }) => {
+    if (!framework || !generationResult?.content || !user) {
+      console.error('Missing required data for template creation')
+      return
+    }
 
-      {/* Right Panel - Editor Canvas (60% on desktop, full width when editing on mobile) */}
-      <div className={`flex flex-col bg-gray-50 ${
-        currentStep === 'editing' ? 'flex-1' : 'flex-1 hidden lg:flex'
-      }`}>
-        {/* Editor Content - Now handles its own toolbar and status */}
-        <div className="flex-1 overflow-hidden">
-          <GenerationEditor
-            content={generationResult?.content || ''}
-            isGenerating={isGenerating}
-            currentStep={currentStep}
+    try {
+      // Only support template creation for copywriting type for now
+      if (type !== 'copywriting') {
+        console.error('Template creation only supported for copywriting frameworks')
+        return
+      }
+
+      console.log('Creating template from copywriting framework:', framework.id)
+
+      // Transform inputs to match backend format
+      const inputFields = framework.input_fields || []
+      const text_input_queries: string[] = []
+      const text_input_given: string[] = []
+
+      // Extract field names and values from inputs
+      inputFields.forEach(field => {
+        const fieldName = field.includes(':') ? field.split(':')[0] : field
+        text_input_queries.push(fieldName)
+        text_input_given.push(inputs[fieldName] || '')
+      })
+
+      // Transform dropdown selections
+      const drop_down: string[] = [
+        generationOptions.tone,
+        generationOptions.length,
+        generationOptions.audience
+      ].filter(Boolean)
+
+      const templateData = {
+        name: data.name,
+        user_given_prompt: data.description || inputs.additionalInstructions || `Template for ${framework.name}`,
+        text_input_queries,
+        text_input_given,
+        drop_down,
+        documentIds: generationResult.documentId ? [generationResult.documentId] : []
+      }
+
+      const result = await ideanApi.copywriting.createTemplate(framework.id, templateData)
+
+      // Show success message (you can implement a toast notification here)
+      alert(`Template "${data.name}" saved successfully! You can find it in your Templates dashboard.`)
+    } catch (error) {
+      console.error('❌ Failed to create template:', error)
+      // You could show an error toast notification here
+      throw error // Re-throw so the dialog can handle the error
+    }
+  }
+
+  // Handle updating existing template with new content
+  const handleUpdateTemplate = async () => {
+    if (!template || !framework || !generationResult?.content || !user) {
+      console.error('Missing required data for template update')
+      return
+    }
+
+    try {
+      console.log('Updating template:', template.id)
+
+      // Transform current inputs to match backend format
+      const inputFields = framework.input_fields || []
+      const text_input_queries: string[] = []
+      const text_input_given: string[] = []
+
+      // Extract field names and values from current inputs
+      inputFields.forEach(field => {
+        const fieldName = field.includes(':') ? field.split(':')[0] : field
+        text_input_queries.push(fieldName)
+        text_input_given.push(inputs[fieldName] || '')
+      })
+
+      // Transform current dropdown selections
+      const drop_down: string[] = [
+        generationOptions.tone,
+        generationOptions.length,
+        generationOptions.audience
+      ].filter(Boolean)
+
+      const updateData = {
+        name: template.name, // Keep existing name
+        user_given_prompt: inputs.additionalInstructions || template.user_given_prompt || `Updated template for ${framework.name}`,
+        text_input_queries,
+        text_input_given,
+        drop_down,
+        documentIds: generationResult.documentId ? [generationResult.documentId] : template.documentIds || []
+      }
+
+      await ideanApi.templates.update(template.id, updateData)
+
+      // Show success message
+      alert(`Template "${template.name}" updated successfully!`)
+    } catch (error) {
+      console.error('❌ Failed to update template:', error)
+      alert('Failed to update template. Please try again.')
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-full w-full">
+      {/* Template Header - Show when loaded from template */}
+      {template && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">T</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900">🎨 Using Template: {template.name}</h3>
+                <p className="text-xs text-blue-600">Modify the inputs below and regenerate to update your template</p>
+              </div>
+            </div>
+            <Button
+              onClick={handleUpdateTemplate}
+              size="sm"
+              variant="outline"
+              className="border-blue-300 text-blue-700 hover:bg-blue-50"
+            >
+              Save Template Changes
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Navigation Bar - Enhanced Design */}
+      {currentStep === 'editing' && (
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base font-semibold text-gray-900 truncate">{framework.name}</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Tap to switch views</p>
+            </div>
+          </div>
+
+          {/* Enhanced Toggle Buttons */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setMobileView('input')}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                mobileView === 'input'
+                  ? 'bg-white text-blue-600 shadow-sm border border-blue-100'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <div className={`w-2 h-2 rounded-full transition-colors ${
+                  mobileView === 'input' ? 'bg-blue-500' : 'bg-gray-400'
+                }`} />
+                Inputs
+              </div>
+            </button>
+            <button
+              onClick={() => setMobileView('editor')}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                mobileView === 'editor'
+                  ? 'bg-white text-blue-600 shadow-sm border border-blue-100'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <div className={`w-2 h-2 rounded-full transition-colors ${
+                  mobileView === 'editor' ? 'bg-blue-500' : 'bg-gray-400'
+                }`} />
+                Editor
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-1 lg:flex-row h-full min-h-0">
+        {/* Left Panel - Input Form */}
+        <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
+          // Desktop: hide when editing, Mobile: show based on mobileView
+          currentStep === 'editing'
+            ? `${mobileView === 'input' ? 'flex' : 'hidden'} lg:flex`
+            : 'flex'
+        }`}>
+          <GenerationInputPanel
             framework={framework}
-            onRegenerateSection={handleRegenerateSection}
-            onRegenerateAll={() => handleGenerate()}
-            hasContent={!!generationResult?.content}
-            onExport={handleExport}
-            onContentChange={(newContent) => {
-              if (generationResult) {
-                setGenerationResult({
-                  ...generationResult,
-                  content: newContent
-                })
-              }
-            }}
+            inputs={inputs}
+            generationOptions={generationOptions}
+            currentStep={currentStep}
+            isGenerating={isGenerating}
+            error={error}
+            onInputChange={setInputs}
+            onOptionsChange={setGenerationOptions}
+            onGenerate={handleGenerate}
+            onRetry={handleRetryGeneration}
+            onBack={onBack}
           />
+        </div>
+
+        {/* Right Panel - Editor Canvas */}
+        <div className={`flex flex-col bg-gray-50 transition-all duration-300 ${
+          // Desktop: hide when not editing, Mobile: show based on mobileView
+          currentStep === 'editing'
+            ? `${mobileView === 'editor' ? 'flex-1' : 'hidden'} lg:flex-1`
+            : 'flex-1 hidden lg:flex'
+        }`}>
+          {/* Editor Content */}
+          <div className="flex-1 overflow-hidden">
+            <GenerationEditor
+              content={generationResult?.content || ''}
+              isGenerating={isGenerating}
+              currentStep={currentStep}
+              framework={framework}
+              onRegenerateSection={handleRegenerateSection}
+              onRegenerateAll={() => handleGenerate()}
+              hasContent={!!generationResult?.content}
+              onExport={handleExport}
+              onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
+              documentId={generationResult?.documentId}
+              onContentChange={(newContent) => {
+                if (generationResult) {
+                  setGenerationResult({
+                    ...generationResult,
+                    content: newContent
+                  })
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

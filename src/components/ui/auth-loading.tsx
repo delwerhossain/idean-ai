@@ -1,65 +1,88 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface AuthLoadingProps {
   message?: string
   className?: string
-  timeout?: number
+  showProgress?: boolean
 }
 
 export default function AuthLoading({
   message = "Loading...",
   className = "min-h-screen",
-  timeout = 5000 // 5 seconds default timeout
+  showProgress = false
 }: AuthLoadingProps) {
-  const [showTimeout, setShowTimeout] = useState(false)
-  const router = useRouter()
+  const [progress, setProgress] = useState(0)
+  const [currentMessage, setCurrentMessage] = useState(message)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowTimeout(true)
-    }, timeout)
+    if (!showProgress) return
 
-    return () => clearTimeout(timer)
-  }, [timeout])
+    // Progress simulation for better UX
+    const messages = [
+      "Checking authentication...",
+      "Validating session...",
+      "Loading dashboard..."
+    ]
 
-  const handleRetry = () => {
-    window.location.reload()
-  }
+    let step = 0
+    const interval = setInterval(() => {
+      if (step < messages.length) {
+        setCurrentMessage(messages[step])
+        setProgress((step + 1) * 33)
+        step++
+      } else {
+        clearInterval(interval)
+      }
+    }, 500)
 
-  const handleLogin = () => {
-    router.push('/login')
-  }
+    return () => clearInterval(interval)
+  }, [showProgress])
 
   return (
-    <div className={`flex items-center justify-center bg-gray-50 ${className}`}>
-      <div className="text-center max-w-md mx-auto p-6">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-idean-navy mx-auto mb-4"></div>
-        <p className="text-gray-600 text-sm mb-4">{message}</p>
-
-        {showTimeout && (
-          <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <p className="text-gray-600 text-sm mb-4">
-              Authentication is taking longer than expected.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={handleRetry}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm"
-              >
-                Retry
-              </button>
-              <button
-                onClick={handleLogin}
-                className="px-4 py-2 bg-idean-navy text-idean-white rounded-md hover:bg-idean-navy-dark text-sm"
-              >
-                Go to Login
-              </button>
-            </div>
+    <div className={`flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 ${className}`}>
+      <div className="text-center max-w-md mx-auto p-8">
+        {/* Logo or branding area */}
+        <div className="mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
-        )}
+          <h1 className="text-2xl font-bold text-gray-900">Idean AI</h1>
+        </div>
+
+        {/* Loading spinner */}
+        <div className="relative mb-6">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+          {showProgress && progress > 0 && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs font-medium text-blue-600">{Math.round(progress)}%</span>
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic message */}
+        <div className="space-y-2">
+          <p className="text-gray-700 font-medium">{currentMessage}</p>
+          {showProgress && (
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div
+                className="bg-blue-600 h-1.5 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          )}
+          <p className="text-gray-500 text-sm">Please wait a moment...</p>
+        </div>
+
+        {/* Skeleton content preview */}
+        <div className="mt-8 space-y-3 opacity-30">
+          <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+          <div className="h-4 bg-gray-300 rounded animate-pulse w-3/4"></div>
+          <div className="h-4 bg-gray-300 rounded animate-pulse w-1/2"></div>
+        </div>
       </div>
     </div>
   )

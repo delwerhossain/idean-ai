@@ -38,6 +38,88 @@ export interface Copywriting {
   updatedAt: string
 }
 
+// Response type for regeneratespecific endpoint
+export interface RegenerateSpecificResponse {
+  success: boolean
+  message: string
+  data: {
+    modifiedContent: string
+    copyWriting: {
+      id: string
+      name: string
+      description: string
+    }
+    modificationDetails: {
+      originalDocumentId: string
+      userInstruction: string
+      documentTextLength: number
+      modifiedTextLength: number
+    }
+    generationMetadata: {
+      usage: {
+        completion_tokens: number
+        completion_tokens_details: {
+          accepted_prediction_tokens: number
+          audio_tokens: number
+          reasoning_tokens: number
+          rejected_prediction_tokens: number
+        }
+        prompt_tokens: number
+        prompt_tokens_details: {
+          audio_tokens: number
+          cached_tokens: number
+        }
+        total_tokens: number
+      }
+      model: string
+      finishReason: string
+    }
+    savedDocument?: {
+      id: string
+      name: string
+      action: string
+    }
+  }
+}
+
+export interface CopywritingGenerateResponse {
+  success: boolean
+  message: string
+  data: {
+    generatedContent: string
+    copyWriting: {
+      id: string
+      name: string
+      description?: string
+    }
+    businessContext: {
+      businessId: string
+      businessName: string
+      industry: string
+    }
+    inputsUsed: {
+      userInputs: Record<string, any>
+      userSelections?: Record<string, any>
+      userPrompt?: string
+    }
+    generationMetadata: {
+      usage: {
+        completion_tokens: number
+        prompt_tokens: number
+        total_tokens: number
+        completion_tokens_details?: any
+        prompt_tokens_details?: any
+      }
+      model: string
+      finishReason: string
+    }
+    savedDocument?: {
+      id: string
+      name: string
+    }
+  }
+}
+
 export interface Template {
   id: string
   name: string
@@ -56,6 +138,9 @@ export interface Template {
   brandinglab?: BrandingLab
   growthcopilot?: GrowthCopilot
   copywriting?: Copywriting
+  // New fields from the API response
+  serviceType?: 'copywriting' | 'brandinglab' | 'growthcopilot'
+  serviceId?: string
 }
 
 export interface Document {
@@ -224,7 +309,35 @@ export const ideanApi = {
         saveDocument?: boolean
       }
     }) =>
-      apiClient.post<{ content: string }>(`/api/v1/copywriting/${id}/generate`, payload),
+      apiClient.post<CopywritingGenerateResponse>(`/api/v1/copywriting/${id}/generate`, payload),
+
+    // Regenerate specific parts of existing content
+    regenerateSpecific: (id: string, data: {
+      documentText: string
+      userInstruction: string
+      documentId?: string
+      saveDocument?: boolean
+      generationOptions?: {
+        temperature?: number
+        maxTokens?: number
+      }
+    }) =>
+      apiClient.post<RegenerateSpecificResponse>(`/api/v1/copywriting/${id}/regeneratespecific`, data),
+
+    // Create template from copywriting framework
+    createTemplate: (id: string, data: {
+      name: string
+      user_given_prompt: string
+      text_input_queries: string[]
+      text_input_given: string[]
+      drop_down: string[]
+      documentIds?: string[]
+    }) =>
+      apiClient.post<Template>(`/api/v1/copywriting/${id}/templates`, data),
+
+    // Get copywriting templates for current user - use general templates endpoint with copywriting filter
+    getTemplates: (params?: PaginationParams) =>
+      apiClient.safeGet<PaginatedResponse<Template>>('/api/v1/templates/category/copywriting', params, true),
   },
 
   // Templates API (Reusable Frameworks)
@@ -262,6 +375,30 @@ export const ideanApi = {
     // Get templates by category
     getByCategory: (category: 'brandinglab' | 'growthcopilot' | 'copywriting', params?: PaginationParams) =>
       apiClient.getPaginated<Template>(`/api/v1/templates/category/${category}`, params),
+
+    // Get current user's templates
+    getMyTemplates: (params?: PaginationParams) =>
+      apiClient.safeGet<{
+        success: boolean
+        message: string
+        data: {
+          templates: Template[]
+          pagination: {
+            total: number
+            page: number
+            limit: number
+            pages: number
+            hasNext: boolean
+            hasPrev: boolean
+          }
+          summary: {
+            totalTemplates: number
+            copywritingTemplates: number
+            brandinglabTemplates: number
+            growthcopilotTemplates: number
+          }
+        }
+      }>('/api/v1/templates/my-templates', params, true),
   },
 
   // Documents API (Knowledge Base)
@@ -641,7 +778,6 @@ export const ideanUtils = {
   getLanguageOptions: () => [
     { code: 'en', name: 'English' },
     { code: 'bn', name: 'Bengali (বাংলা)' },
-    { code: 'hi', name: 'Hindi (हिन्दी)' },
   ],
 
   // Get module options

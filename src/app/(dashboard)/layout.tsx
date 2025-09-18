@@ -26,24 +26,26 @@ function BusinessStatusChecker({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Check business status
-    console.log('✅ User authenticated, checking business status...')
-    checkBusinessStatus()
+    // Use JWT data for business status (no API call needed)
+    console.log('✅ User authenticated, checking business status from JWT...')
+    checkBusinessStatusFromJWT()
   }, [user, isAuthReady, router])
 
-  const checkBusinessStatus = async () => {
+  const checkBusinessStatusFromJWT = () => {
     try {
-      // Check user profile which includes business information
-      const userResponse = await ideanApi.user.getMe()
+      // Check if user has business data from JWT
+      const hasBusiness = user?.businessId || user?.business
 
-      if (!userResponse.business) {
+      if (!hasBusiness) {
         // No business found - redirect to onboarding
-        console.log('📋 No business found, redirecting to onboarding')
-        router.push('/dashboard/onboarding')
+        console.log('📋 No business found in JWT, redirecting to onboarding')
+        if (window.location.pathname !== '/dashboard/onboarding') {
+          router.push('/dashboard/onboarding')
+        }
         return
       }
 
-      console.log('✅ Business found:', userResponse.business.business_name)
+      console.log('✅ Business found in JWT:', user?.business?.business_name || `ID: ${user?.businessId}`)
 
       // Check if we're on the onboarding page but have a business
       if (window.location.pathname === '/dashboard/onboarding') {
@@ -53,31 +55,22 @@ function BusinessStatusChecker({ children }: { children: React.ReactNode }) {
       }
 
     } catch (error: any) {
-      // If it's a 404 or similar, user likely doesn't have a business
-      if (error.status === 404 || error.status === 400) {
-        // Only redirect to onboarding if not already there
-        if (window.location.pathname !== '/dashboard/onboarding') {
-          console.log('📋 No business found (API error), redirecting to onboarding')
-          router.push('/dashboard/onboarding')
-        }
-        return
-      }
-
-      // For other errors (500, network, etc.), log but don't redirect
       console.warn('⚠️ Business status check failed:', error.message)
-
-      // Could show a toast or error message here instead of blocking access
+      // Fallback to onboarding if something goes wrong
+      if (window.location.pathname !== '/dashboard/onboarding') {
+        router.push('/dashboard/onboarding')
+      }
     }
   }
 
   // Show loading UI while authentication is being resolved
   if (!isAuthReady) {
-    return <AuthLoading message="Authenticating..." timeout={3000} />
+    return <AuthLoading message="Authenticating..." showProgress={true} />
   }
 
   // If no user after auth is ready, let the redirect happen
   if (!user) {
-    return <AuthLoading message="Redirecting to login..." timeout={2000} />
+    return <AuthLoading message="Redirecting to login..." showProgress={false} />
   }
 
   // Render children - the business status check happens in the background

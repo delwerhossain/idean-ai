@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, User as FirebaseUser } from 'firebase/auth';
 
+// Use environment variables directly to avoid import-time validation race condition
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -8,22 +9,16 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
-
-console.log('Firebase Config:', {
-  apiKey: firebaseConfig.apiKey ? 'Present' : 'Missing',
-  authDomain: firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId,
-  storageBucket: firebaseConfig.storageBucket,
-  messagingSenderId: firebaseConfig.messagingSenderId,
-  appId: firebaseConfig.appId
-});
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-console.log('Firebase initialized successfully');
+if (process.env.NODE_ENV === 'development') {
+  console.log('Firebase initialized successfully');
+}
 
 // Configure Google provider
 googleProvider.addScope('email');
@@ -34,7 +29,9 @@ googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
 
-console.log('Google provider configured with scopes:', googleProvider);
+if (process.env.NODE_ENV === 'development') {
+  console.log('Google provider configured with scopes:', googleProvider);
+}
 
 // Utility functions for Firebase Auth
 export const getCurrentFirebaseUser = (): FirebaseUser | null => {
@@ -48,7 +45,9 @@ export const getCurrentFirebaseToken = async (): Promise<string | null> => {
   try {
     return await user.getIdToken();
   } catch (error) {
-    console.error('Error getting Firebase token:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error getting Firebase token:', error);
+    }
     return null;
   }
 };
@@ -67,7 +66,9 @@ export const getStoredUser = (): any | null => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   } catch (error) {
-    console.error('Error parsing stored user:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error parsing stored user:', error);
+    }
     return null;
   }
 };
