@@ -81,11 +81,11 @@ export function RegeneratePromptModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl" data-regenerate-modal="true">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
-            Regenerate Selected Text
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 m-4 sm:m-6" data-regenerate-modal="true">
+        <DialogHeader className="pb-2 sm:pb-4">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 flex-shrink-0" />
+            <span className="truncate">Regenerate Selected Text</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -115,24 +115,47 @@ export function RegeneratePromptModal({
             </div>
           )}
 
-          {/* Instruction Input */}
-          <div className="space-y-3">
-            <Label htmlFor="instruction" className="text-sm font-medium">
+          {/* Instruction Input - Mobile Optimized */}
+          <div className="space-y-2 sm:space-y-3">
+            <Label htmlFor="instruction" className="text-xs sm:text-sm font-medium break-words">
               How would you like to improve this text?
             </Label>
             <Textarea
               id="instruction"
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
-              placeholder="Describe how you want to modify the selected text..."
-              className="min-h-[100px] resize-none"
+              onKeyDown={(e) => {
+                // Handle Enter key to submit (Ctrl+Enter or Cmd+Enter)
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                  e.preventDefault()
+                  if (instruction.trim() && selectedText.trim() && !isLoading) {
+                    handleSubmit()
+                  }
+                }
+                // Handle plain Enter key for single-line quick submissions
+                if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                  // Only auto-submit if the instruction is not empty and text is short (single line intent)
+                  const lines = instruction.split('\n').length
+                  if (instruction.trim() && selectedText.trim() && !isLoading && lines === 1) {
+                    e.preventDefault()
+                    handleSubmit()
+                  }
+                }
+              }}
+              placeholder="Describe how you want to modify the selected text... (Press Enter to regenerate or Shift+Enter for new line)"
+              className="min-h-[80px] sm:min-h-[100px] resize-none text-sm"
               disabled={isLoading}
             />
 
-            {/* Suggested Prompts - Enhanced */}
-            <div className="space-y-3">
-              <Label className="text-xs text-gray-600 font-medium">💡 Quick suggestions:</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Suggested Prompts - Mobile Optimized */}
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs text-gray-600 font-medium">💡 Quick suggestions:</Label>
+                <span className="text-xs text-gray-500 hidden sm:inline">
+                  Tip: Press Enter to regenerate quickly
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                 {suggestedPrompts.map((prompt, index) => (
                   <Button
                     key={index}
@@ -140,79 +163,84 @@ export function RegeneratePromptModal({
                     size="sm"
                     onClick={() => setInstruction(prompt)}
                     disabled={isLoading}
-                    className="text-xs py-2 px-3 h-auto text-left justify-start hover:bg-indigo-50 hover:border-indigo-300 transition-all"
+                    className="text-xs py-2.5 px-3 h-auto text-left justify-start hover:bg-indigo-50 hover:border-indigo-300 transition-all min-h-[36px] sm:min-h-[40px]"
                   >
-                    <span className="truncate">{prompt}</span>
+                    <span className="line-clamp-2 text-left break-words">{prompt}</span>
                   </Button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Generation Options */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
+          {/* Generation Options - Mobile Optimized */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-2 sm:space-y-3">
+              <Label className="text-xs sm:text-sm font-medium break-words">
                 Creativity: {temperature[0].toFixed(1)}
               </Label>
-              <Slider
-                value={temperature}
-                onValueChange={setTemperature}
-                max={1}
-                min={0}
-                step={0.1}
-                disabled={isLoading}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="px-1">
+                <Slider
+                  value={temperature}
+                  onValueChange={setTemperature}
+                  max={1}
+                  min={0}
+                  step={0.1}
+                  disabled={isLoading}
+                  className="w-full touch-pan-x"
+                />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 px-1">
                 <span>Focused</span>
                 <span>Creative</span>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
+            <div className="space-y-2 sm:space-y-3">
+              <Label className="text-xs sm:text-sm font-medium break-words">
                 Max Length: {maxTokens[0]} tokens
               </Label>
-              <Slider
-                value={maxTokens}
-                onValueChange={setMaxTokens}
-                max={1000}
-                min={100}
-                step={50}
-                disabled={isLoading}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="px-1">
+                <Slider
+                  value={maxTokens}
+                  onValueChange={setMaxTokens}
+                  max={1000}
+                  min={100}
+                  step={50}
+                  disabled={isLoading}
+                  className="w-full touch-pan-x"
+                />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 px-1">
                 <span>Short</span>
                 <span>Long</span>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+          {/* Action Buttons - Mobile Optimized */}
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t">
             <Button
               variant="outline"
               onClick={handleClose}
               disabled={isLoading}
+              className="w-full sm:w-auto min-h-[44px] touch-manipulation"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={!instruction.trim() || !selectedText.trim() || isLoading}
-              className="bg-indigo-600 hover:bg-indigo-700"
+              className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto min-h-[44px] touch-manipulation"
             >
               {isLoading ? (
                 <>
                   <LoadingSpinner size="sm" />
-                  <span className="ml-2">Regenerating...</span>
+                  <span className="ml-2 text-sm">Regenerating...</span>
                 </>
               ) : (
                 <>
-                  <Wand2 className="w-4 h-4 mr-2" />
-                  Regenerate Text
+                  <Wand2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="text-sm">Regenerate Text</span>
                 </>
               )}
             </Button>
