@@ -3,8 +3,10 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkles, Target, Rocket, PenTool, Building, FileText, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Home() {
+  const { user } = useAuth()
 
   return (
     <div className="min-h-screen bg-white">
@@ -20,16 +22,26 @@ export default function Home() {
               />
             </Link>
             <div className="flex items-center space-x-6">
-              <Link href="/dashboard/onboarding">
-                <Button className="bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium">
-                  Get Started
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button variant="ghost" className="text-gray-700 hover:text-gray-900 font-medium">
-                  Login
-                </Button>
-              </Link>
+              {user ? (
+                <Link href="/dashboard">
+                  <Button className="bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium">
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/dashboard/onboarding">
+                    <Button className="bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium">
+                      Get Started
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button variant="ghost" className="text-gray-700 hover:text-gray-900 font-medium">
+                      Login
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -46,24 +58,38 @@ export default function Home() {
               Transform business ideas into actionable strategies with proven frameworks from iMarketing, GrowthX, and iMBA programs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dashboard/onboarding">
-                <Button
-                  size="lg"
-                  className="bg-idean-navy hover:bg-idean-navy-dark text-white px-8 py-4 text-lg font-medium"
-                >
-                  Get Started
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium"
-                >
-                  Sign In
-                </Button>
-              </Link>
+              {user ? (
+                <Link href="/dashboard">
+                  <Button
+                    size="lg"
+                    className="bg-idean-navy hover:bg-idean-navy-dark text-white px-8 py-4 text-lg font-medium"
+                  >
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/dashboard/onboarding">
+                    <Button
+                      size="lg"
+                      className="bg-idean-navy hover:bg-idean-navy-dark text-white px-8 py-4 text-lg font-medium"
+                    >
+                      Get Started
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -120,12 +146,21 @@ export default function Home() {
           </div>
 
           <div className="text-center">
-            <Link href="/dashboard/onboarding">
-              <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-medium">
-                Start Creating Content
-                <Sparkles className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/dashboard/copywriting">
+                <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-medium">
+                  Start Creating Content
+                  <Sparkles className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/dashboard/onboarding">
+                <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-medium">
+                  Start Creating Content
+                  <Sparkles className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -182,11 +217,19 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-6">Get started with Brand & Content Studio today and be the first to access new features as they launch.</p>
-            <Link href="/dashboard/onboarding">
-              <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
-                Join Early Access
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/dashboard">
+                <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
+                  Go to Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/dashboard/onboarding">
+                <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
+                  Join Early Access
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -197,15 +240,27 @@ export default function Home() {
           <h2 className="text-3xl font-semibold text-white mb-6">
             Ready to get started?
           </h2>
-          <Link href="/dashboard/onboarding">
-            <Button
-              size="lg"
-              className="bg-idean-white text-idean-navy hover:bg-gray-50 px-8 py-3 text-base font-medium"
-            >
-              Start Now
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-          </Link>
+          {user ? (
+            <Link href="/dashboard">
+              <Button
+                size="lg"
+                className="bg-idean-white text-idean-navy hover:bg-gray-50 px-8 py-3 text-base font-medium"
+              >
+                Go to Dashboard
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/dashboard/onboarding">
+              <Button
+                size="lg"
+                className="bg-idean-white text-idean-navy hover:bg-gray-50 px-8 py-3 text-base font-medium"
+              >
+                Start Now
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

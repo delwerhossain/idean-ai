@@ -476,9 +476,17 @@ export default function Sidebar({
 
               {/* Fixed Icon Container - Always Same Position */}
               <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
-                <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
-                  <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
-                </div>
+                {user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.name || 'User'}
+                    className="w-6 h-6 rounded-full object-cover group-hover:ring-2 group-hover:ring-gray-400 transition-all"
+                  />
+                ) : (
+                  <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
+                    <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
+                  </div>
+                )}
               </div>
 
               {/* Text Content */}
@@ -490,7 +498,7 @@ export default function Sidebar({
                 }`}
               >
                 <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">
-                  Account
+                  {user?.name || 'Account'}
                 </p>
               </div>
             </button>
