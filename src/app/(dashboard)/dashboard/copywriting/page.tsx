@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Input } from '@/components/ui/input'
 import { 
   PenTool, 
@@ -14,6 +13,83 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
+
+// Skeleton Loading Component with Pulse Animation
+function CopywritingSkeletonLoader() {
+  const shimmerClasses = "animate-pulse bg-gradient-to-r from-gray-200 via-gray-50 to-gray-200"
+
+  return (
+    <div className="p-3 sm:p-6">
+      {/* Header Skeleton */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
+          <div className={`w-10 h-10 rounded-lg ${shimmerClasses}`}></div>
+          <div>
+            <div className={`h-8 rounded w-48 mb-2 ${shimmerClasses}`}></div>
+            <div className={`h-4 rounded w-80 ${shimmerClasses}`}></div>
+          </div>
+        </div>
+        <div className={`h-6 rounded w-64 mt-4 ${shimmerClasses}`}></div>
+      </div>
+
+      {/* Search and Filter Skeleton */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="flex-1 max-w-md">
+          <div className={`h-10 rounded-md ${shimmerClasses}`}></div>
+        </div>
+        <div className="flex gap-2 sm:gap-3">
+          <div className={`h-10 rounded w-24 ${shimmerClasses}`}></div>
+          <div className={`h-10 rounded w-32 ${shimmerClasses}`}></div>
+        </div>
+      </div>
+
+      {/* Frameworks Grid Skeleton */}
+      <div className="mb-6 sm:mb-8">
+        <div className={`h-6 rounded w-64 mb-3 sm:mb-4 ${shimmerClasses}`}></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+              {/* Card Header */}
+              <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${shimmerClasses}`}></div>
+                <div className="flex-1">
+                  <div className={`h-4 rounded w-32 mb-1 ${shimmerClasses}`}></div>
+                  <div className={`h-3 rounded w-16 ${shimmerClasses}`}></div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-4 space-y-2">
+                <div className={`h-3 rounded w-full ${shimmerClasses}`}></div>
+                <div className={`h-3 rounded w-4/5 ${shimmerClasses}`}></div>
+                <div className={`h-3 rounded w-3/5 ${shimmerClasses}`}></div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between">
+                <div className={`h-3 rounded w-16 ${shimmerClasses}`}></div>
+                <div className={`h-8 rounded w-24 ${shimmerClasses}`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Enhanced Loading Indicator */}
+      <div className="flex flex-col items-center justify-center mt-8 space-y-4">
+        <div className="flex items-center space-x-1">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+          <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-600 font-medium">Loading copywriting frameworks...</p>
+          <p className="text-sm text-gray-500 mt-1">Preparing your AI-powered content generation tools</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function CopywritingPage() {
   const { user } = useAuth()
@@ -74,14 +150,7 @@ export default function CopywritingPage() {
 
 
   if (loading) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-gray-600">Loading copywriting frameworks...</span>
-        </div>
-      </div>
-    )
+    return <CopywritingSkeletonLoader />
   }
 
   if (error) {
@@ -158,41 +227,43 @@ export default function CopywritingPage() {
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Available Copywriting Frameworks</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {copywritings.map((copywriting) => (
-              <Card key={copywriting.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              <Card key={copywriting.id}
+                    className=" p-4 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border-gray-200 hover:border-idean-navy/20 touch-manipulation"
                     onClick={() => handleCopywritingClick(copywriting)}>
-                <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-                    <PenTool className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                  <div className="w-10 h-10 bg-orange-500 text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                    <PenTool className="w-5 h-5 text-white" />
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{copywriting.name}</h4>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-semibold text-gray-900 text-base truncate">{copywriting.name}</h4>
                     <p className="text-xs text-gray-500">Framework</p>
                   </div>
                 </div>
 
                 {copywriting.description && (
                   <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                    {copywriting.description}
+                    {copywriting.description.length > 100
+                      ? copywriting.description.substring(0, 100) + '...'
+                      : copywriting.description}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     {copywriting.input_fields && (
-                      <span>{copywriting.input_fields.length} inputs</span>
+                      <span>{copywriting.input_fields.length} inputs required</span>
                     )}
                   </div>
                   <Button
                     size="sm"
-                    variant="outline"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleCopywritingClick(copywriting)
                     }}
-                    className="w-full sm:w-auto"
+                    className="bg-white hover:bg-black hover:text-white text-black border w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
                   >
-                    <span className="hidden sm:inline">Generate Copy</span>
-                    <span className="sm:hidden">Generate</span>
+                    <PenTool className="w-4 h-4 mr-2" />
+                    <span>Generate Copy</span>
                   </Button>
                 </div>
               </Card>
@@ -201,17 +272,17 @@ export default function CopywritingPage() {
         </div>
       ) : (
         <div className="mb-6 sm:mb-8">
-          <Card className="p-8 text-center">
+          <Card className="p-6 sm:p-8 text-center">
             <PenTool className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Copywriting Frameworks Found</h3>
-            <p className="text-gray-600 mb-4">
-              {user ? 
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
+              {user ?
                 "No copywriting frameworks are available yet. Create your first framework to get started." :
                 "Please sign in to view and use copywriting frameworks."
               }
             </p>
             {user && (
-              <Button className="bg-idean-navy hover:bg-idean-navy-dark">
+              <Button className="bg-idean-navy hover:bg-idean-navy-dark w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Create First Framework
               </Button>
