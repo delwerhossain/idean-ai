@@ -17,8 +17,10 @@ import {
   Building,
   Plus,
   X,
+  HelpCircle,
 } from "lucide-react";
 import UpgradeModal from "@/components/modals/UpgradeModal";
+import HelpModal from "@/components/modals/HelpModal";
 
 interface SidebarProps {
   className?: string;
@@ -96,6 +98,7 @@ export default function Sidebar({
   const router = useRouter();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const [currentPlan, setCurrentPlan] = useState("free");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(true); // Default to mobile for better mobile UX
@@ -392,6 +395,37 @@ export default function Sidebar({
 
         {/* Fixed Bottom Section */}
         <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-2">
+          {/* Help Button */}
+          <button
+            onClick={() => setShowHelpModal(true)}
+            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 mb-2"
+          >
+            {/* Expandable Background */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100"
+                  : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+              }`}
+            />
+
+            {/* Fixed Icon Container - Always Same Position */}
+            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+              <HelpCircle className="text-blue-600 w-5 h-5" />
+            </div>
+
+            {/* Text Label */}
+            <span
+              className={`relative z-10 ml-3 font-semibold lg:font-medium text-blue-700 transition-all duration-200 ease-out ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100 translate-x-0"
+                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
+              } ${isMobile ? "text-base" : "text-sm"}`}
+            >
+              Help & Guide
+            </span>
+          </button>
+
           {/* Upgrade Button */}
           <button
             onClick={() => setShowUpgradeModal(true)}
@@ -487,6 +521,12 @@ export default function Sidebar({
             )}
           </div>
         </div>
+
+        {/* Help Modal */}
+        <HelpModal
+          isOpen={showHelpModal}
+          onClose={() => setShowHelpModal(false)}
+        />
 
         {/* Upgrade Modal */}
         <UpgradeModal
