@@ -221,75 +221,71 @@ export default function CopywritingPage() {
       </div>
 
 
-      {/* Copywriting Frameworks */}
-      {copywritings.length > 0 ? (
-        <div className="mb-6 sm:mb-8">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Available Copywriting Frameworks</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {copywritings.map((copywriting) => (
-              <Card key={copywriting.id}
-                    className=" p-4 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border-gray-200 hover:border-idean-navy/20 touch-manipulation"
-                    onClick={() => handleCopywritingClick(copywriting)}>
-                <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                  <div className="w-10 h-10 bg-orange-500 text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                    <PenTool className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-semibold text-gray-900 text-base truncate">{copywriting.name}</h4>
-                    <p className="text-xs text-gray-500">Framework</p>
-                  </div>
-                </div>
+      {/* Content Assistants */}
+      <div className="mb-6 sm:mb-8">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Content Assistants</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          {/* Copywriting Assistant */}
+          <Card className="p-4 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border-gray-200 hover:border-orange-300 touch-manipulation group">
+            <div className="flex items-center gap-3 mb-3 sm:mb-4">
+              <div className="w-10 h-10 bg-orange-500 text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-600 transition-colors">
+                <PenTool className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-gray-900 text-base">Copywriting Assistant</h4>
+                <p className="text-xs text-orange-600 font-medium">AI Assistant</p>
+              </div>
+            </div>
 
-                {copywriting.description && (
-                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                    {copywriting.description.length > 100
-                      ? copywriting.description.substring(0, 100) + '...'
-                      : copywriting.description}
-                  </p>
-                )}
-
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    {copywriting.input_fields && (
-                      <span>{copywriting.input_fields.length} inputs required</span>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleCopywritingClick(copywriting)
-                    }}
-                    className="bg-white hover:bg-black hover:text-white text-black border w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
-                  >
-                    <PenTool className="w-4 h-4 mr-2" />
-                    <span>Generate Copy</span>
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="mb-6 sm:mb-8">
-          <Card className="p-6 sm:p-8 text-center">
-            <PenTool className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Copywriting Frameworks Found</h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-4">
-              {user ?
-                "No copywriting frameworks are available yet. Create your first framework to get started." :
-                "Please sign in to view and use copywriting frameworks."
-              }
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              Create compelling copy for any purpose with AI-powered writing assistance. Perfect for ads, landing pages, product descriptions, and more.
             </p>
-            {user && (
-              <Button className="bg-idean-navy hover:bg-idean-navy-dark w-full sm:w-auto">
-                <Plus className="w-4 h-4 mr-2" />
-                Create First Framework
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>Interactive AI chat</span>
+              </div>
+              <Button
+                size="sm"
+                className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500 w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
+              >
+                <PenTool className="w-4 h-4 mr-2" />
+                <span>Start Writing</span>
               </Button>
-            )}
+            </div>
+          </Card>
+
+          {/* Content Marketing Assistant */}
+          <Card className="p-4 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border-gray-200 hover:border-blue-300 touch-manipulation group">
+            <div className="flex items-center gap-3 mb-3 sm:mb-4">
+              <div className="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-gray-900 text-base">Content Marketing Assistant</h4>
+                <p className="text-xs text-blue-600 font-medium">AI Assistant</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              Develop comprehensive content marketing strategies, campaigns, and editorial calendars with AI guidance tailored to your business goals.
+            </p>
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>Strategic planning</span>
+              </div>
+              <Button
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                <span>Plan Strategy</span>
+              </Button>
+            </div>
           </Card>
         </div>
-      )}
+      </div>
     </div>
   )
 }
