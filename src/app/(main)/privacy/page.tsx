@@ -5,11 +5,12 @@ export default function PrivacyPolicy() {
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <span className="text-sm font-bold text-white">iA</span>
-            </div>
-            <span className="text-xl font-semibold text-gray-900">iDEAN AI</span>
+          <Link href="/">
+            <img
+              src="/ideanai_logo.png"
+              alt="iDEAN AI"
+              className="h-10 w-auto hover:opacity-80 transition-opacity"
+            />
           </Link>
           <div className="flex space-x-6">
             <Link

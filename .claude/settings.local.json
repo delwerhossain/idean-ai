@@ -77,8 +77,7 @@
       "Bash(rm:*)",
       "Bash(pnmp:*)",
       "WebFetch(domain:www.ideanconsulting.com)",
-      "Bash(NODE_ENV=production pnpm build)",
-      "Bash(echo:*)"
+      "WebFetch(domain:azure.microsoft.com)"
     ],
     "deny": [],
     "ask": [],

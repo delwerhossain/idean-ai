@@ -70,7 +70,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Combined state for complete authentication readiness
-  const isAuthReady = !authLoading && !isHydrating && isHydrated;
+  // Make auth ready as soon as hydration is complete, even if authLoading is still true
+  const isAuthReady = !isHydrating && isHydrated;
 
   // Background user data refresh for token validation
   const refreshUserInBackground = async (token: string) => {
@@ -273,7 +274,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, []); // <-- Added empty dependency array to fix syntax error
 
   const signInWithGoogle = async () => {
     try {

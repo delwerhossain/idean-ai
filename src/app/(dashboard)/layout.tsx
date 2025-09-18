@@ -70,7 +70,7 @@ function BusinessStatusChecker({ children }: { children: React.ReactNode }) {
 
   // If no user after auth is ready, let the redirect happen
   if (!user) {
-    return null // Don't render children while redirecting
+    return <AuthLoading message="Redirecting to login..." showProgress={false} />
   }
 
   // Render children - the business status check happens in the background

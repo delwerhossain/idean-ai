@@ -234,9 +234,9 @@ export default function DashboardPage() {
   const greeting = currentTime < 12 ? 'Good morning' : currentTime < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div className="p-3 sm:p-6 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
+    <div className="p-3 space-y-4 max-w-7xl mx-auto">
       {/* Hero Section - Business Welcome */}
-      <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8">
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-4 mb-4">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-0">
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
@@ -244,9 +244,9 @@ export default function DashboardPage() {
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">Welcome to iDEAN AI: Your Growth Co-Pilot! 🚀</h1>
                 <p className="text-gray-600 text-base sm:text-lg">
-                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic command center
+                  Powering <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic success
                 </p>
               </div>
             </div>
@@ -286,165 +286,134 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Three Core Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
-        {/* Growth Co-Pilot Card */}
-        <Card className="p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200 group cursor-pointer md:col-span-2 lg:col-span-1"
-              onClick={() => router.push('/dashboard/growth-copilot')}>
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-            </div>
-            <span className="text-xs bg-gray-100 text-idean-navy px-2 sm:px-3 py-1 rounded-full font-medium">Strategy DNA</span>
-          </div>
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Growth Co-Pilot</h3>
-          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-            Strategic frameworks for business growth including Customer Value Journey, Blue Ocean Strategy, and Niche Fortune™
-          </p>
-          
-          {/* Quick Stats */}
-          <div className="space-y-3 mb-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Frameworks Available</span>
-              <span className="font-medium">4 Active</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Completion Rate</span>
-              <span className="font-medium text-green-600">75%</span>
-            </div>
-          </div>
-          
-          <Button className="w-full group-hover:bg-idean-navy group-hover:text-idean-white" variant="outline">
-            Start Strategic Planning
-            <Rocket className="w-4 h-4 ml-2" />
-          </Button>
-        </Card>
-
-        {/* Branding Lab Card */}
-        <Card className="p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 group cursor-pointer"
-              onClick={() => router.push('/dashboard/branding-lab')}>
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Palette className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-            </div>
-            <span className="text-xs bg-gray-100 text-idean-navy px-2 sm:px-3 py-1 rounded-full font-medium">Brand DNA</span>
-          </div>
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Branding Lab</h3>
-          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-            Strategic brand frameworks including Brand Foundation, NeuroBranding™, and Voice & Messaging systems
-          </p>
-          
-          {/* Quick Stats */}
-          <div className="space-y-3 mb-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Brand Elements</span>
-              <span className="font-medium">3 Defined</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Brand Score</span>
-              <span className="font-medium text-purple-600">85%</span>
-            </div>
-          </div>
-          
-          <Button className="w-full group-hover:bg-idean-navy group-hover:text-idean-white" variant="outline">
-            Build Your Brand
-            <Crown className="w-4 h-4 ml-2" />
-          </Button>
-        </Card>
-
-        {/* AI Copywriting Card */}
-        <Card className="p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-orange-200 group cursor-pointer md:col-span-2 lg:col-span-1"
+      {/* Core Module Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        {/* Brand & Content Studio Card - Prominent */}
+        <Card className="p-4 hover:shadow-xl transition-all duration-300 border-2 border-orange-300 hover:border-orange-400 group cursor-pointer md:col-span-2 lg:col-span-2 bg-gradient-to-br from-orange-50 to-amber-50"
               onClick={() => router.push('/dashboard/copywriting')}>
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PenTool className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+              <PenTool className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xs bg-orange-100 text-orange-700 px-2 sm:px-3 py-1 rounded-full font-medium">Content DNA</span>
+            <span className="text-xs bg-orange-500 text-white px-2 py-1 rounded-full font-medium shadow-sm">Available Now</span>
           </div>
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">AI Copywriting</h3>
-          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-            Content generation frameworks including NeuroCopywriting™, Nuclear Content™, and conversion-focused copy systems
+          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">Brand & Content Studio</h3>
+          <p className="text-gray-700 text-sm mb-3 leading-relaxed">
+            Create powerful brand content with AI-powered copywriting, design frameworks, and marketing materials. Generate everything from social posts to complete campaigns.
           </p>
-          
-          {/* Quick Stats */}
-          <div className="space-y-3 mb-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Copy Frameworks</span>
-              <span className="font-medium">6 Ready</span>
+
+          {/* Enhanced Stats */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-white/50 rounded-lg p-2">
+              <div className="text-base font-bold text-orange-600">12+</div>
+              <div className="text-xs text-gray-600">Content Types</div>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Content Created</span>
-              <span className="font-medium text-orange-600">24 Pieces</span>
+            <div className="bg-white/50 rounded-lg p-2">
+              <div className="text-base font-bold text-orange-600">AI-Powered</div>
+              <div className="text-xs text-gray-600">Generation</div>
             </div>
           </div>
-          
-          <Button className="w-full group-hover:bg-idean-navy group-hover:text-white" variant="outline">
-            Generate Content
+
+          <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 text-sm">
+            Start Creating Content
             <Sparkles className="w-4 h-4 ml-2" />
           </Button>
         </Card>
+
+        {/* Coming Soon Cards */}
+        <div className="space-y-3">
+          {/* Growth Co-Pilot Card - Coming Soon */}
+          <Card className="p-3 opacity-60 border-2 border-dashed border-gray-300 cursor-not-allowed">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-8 h-8 bg-gray-300 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-gray-500" />
+              </div>
+              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">Coming Soon</span>
+            </div>
+            <h3 className="text-sm font-bold text-gray-600 mb-2">Growth Co-Pilot</h3>
+            <p className="text-gray-500 text-xs mb-3 leading-relaxed">
+              Strategic frameworks for business growth including Customer Value Journey and Blue Ocean Strategy
+            </p>
+            <Button className="w-full py-1 text-xs" variant="outline" disabled>
+              Coming Soon
+              <Clock className="w-3 h-3 ml-1" />
+            </Button>
+          </Card>
+
+          {/* Branding Lab Card - Coming Soon */}
+          <Card className="p-3 opacity-60 border-2 border-dashed border-gray-300 cursor-not-allowed">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-8 h-8 bg-gray-300 rounded-xl flex items-center justify-center">
+                <Palette className="w-4 h-4 text-gray-500" />
+              </div>
+              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">Coming Soon</span>
+            </div>
+            <h3 className="text-sm font-bold text-gray-600 mb-2">Branding Lab</h3>
+            <p className="text-gray-500 text-xs mb-3 leading-relaxed">
+              Strategic brand frameworks including Brand Foundation and Voice & Messaging systems
+            </p>
+            <Button className="w-full py-1 text-xs" variant="outline" disabled>
+              Coming Soon
+              <Clock className="w-3 h-3 ml-1" />
+            </Button>
+          </Card>
+        </div>
       </div>
 
       {/* Quick Start Wizard */}
-      <Card className="p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200 mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-600 rounded-xl flex items-center justify-center">
-            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+      <Card className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200 mb-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
+            <Rocket className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Quick Start: What do you want to create today?</h3>
-            <p className="text-gray-600 text-sm sm:text-base">Choose your goal and let iDEAN AI guide you through the perfect framework</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Quick Start: Create powerful content today</h3>
+            <p className="text-gray-600 text-sm">Jump into our Brand & Content Studio and start creating engaging content</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          <Button
-            variant={selectedQuickAction === 'strategy' ? 'default' : 'outline'}
-            className="h-auto p-3 sm:p-4 justify-start w-full"
-            onClick={() => {
-              setSelectedQuickAction('strategy')
-              setTimeout(() => router.push('/dashboard/growth-copilot'), 300)
-            }}
-          >
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Target className="w-4 h-4 sm:w-5 sm:h-5" />
-              <div className="text-left">
-                <div className="font-medium text-sm sm:text-base">Business Strategy</div>
-                <div className="text-xs opacity-80">Growth frameworks & planning</div>
-              </div>
-            </div>
-          </Button>
-          
-          <Button
-            variant={selectedQuickAction === 'brand' ? 'default' : 'outline'}
-            className="h-auto p-3 sm:p-4 justify-start w-full"
-            onClick={() => {
-              setSelectedQuickAction('brand')
-              setTimeout(() => router.push('/dashboard/branding-lab'), 300)
-            }}
-          >
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
-              <div className="text-left">
-                <div className="font-medium text-sm sm:text-base">Brand Identity</div>
-                <div className="text-xs opacity-80">Brand positioning & voice</div>
-              </div>
-            </div>
-          </Button>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <Button
             variant={selectedQuickAction === 'content' ? 'default' : 'outline'}
-            className="h-auto p-3 sm:p-4 justify-start w-full sm:col-span-2 lg:col-span-1"
+            className="h-auto p-3 justify-start w-full bg-orange-500 hover:bg-orange-600 text-white border-orange-500"
             onClick={() => {
               setSelectedQuickAction('content')
               setTimeout(() => router.push('/dashboard/copywriting'), 300)
             }}
           >
-            <div className="flex items-center gap-2 sm:gap-3">
-              <PenTool className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="flex items-center gap-3">
+              <PenTool className="w-4 h-4" />
               <div className="text-left">
-                <div className="font-medium text-sm sm:text-base">Marketing Content</div>
-                <div className="text-xs opacity-80">Copy, campaigns & content</div>
+                <div className="font-medium text-sm">Brand & Content Studio</div>
+                <div className="text-xs opacity-90">Copy, campaigns & content</div>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto p-3 justify-start w-full opacity-60 cursor-not-allowed"
+            disabled
+          >
+            <div className="flex items-center gap-3">
+              <Target className="w-4 h-4" />
+              <div className="text-left">
+                <div className="font-medium text-sm">Business Strategy</div>
+                <div className="text-xs opacity-80">Coming Soon</div>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto p-3 justify-start w-full opacity-60 cursor-not-allowed"
+            disabled
+          >
+            <div className="flex items-center gap-3">
+              <Palette className="w-4 h-4" />
+              <div className="text-left">
+                <div className="font-medium text-sm">Brand Identity</div>
+                <div className="text-xs opacity-80">Coming Soon</div>
               </div>
             </div>
           </Button>
@@ -452,9 +421,9 @@ export default function DashboardPage() {
       </Card>
 
       {/* Business Health Dashboard & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Business Health Dashboard */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-green-600" />
@@ -499,7 +468,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Recent Activity & Templates */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -546,57 +515,57 @@ export default function DashboardPage() {
       </div>
 
       {/* Analytics & Usage Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <Card className="p-4 sm:p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 text-blue-600" />
             </div>
-            <span className="text-xl sm:text-2xl font-bold text-gray-900">
+            <span className="text-xl font-bold text-gray-900">
               {dashboardData.analytics.usage.aiCredits.used}
             </span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">AI Credits Used</h3>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm">AI Credits Used</h3>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-            <div 
-              className="bg-idean-navy h-2 rounded-full" 
+            <div
+              className="bg-idean-navy h-2 rounded-full"
               style={{ width: `${(dashboardData.analytics.usage.aiCredits.used / dashboardData.analytics.usage.aiCredits.total) * 100}%` }}
             ></div>
           </div>
-          <p className="text-xs sm:text-sm text-gray-600">of {dashboardData.analytics.usage.aiCredits.total} monthly</p>
+          <p className="text-xs text-gray-600">of {dashboardData.analytics.usage.aiCredits.total} monthly</p>
         </Card>
 
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-green-600" />
             </div>
-            <span className="text-xl sm:text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
+            <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Frameworks</h3>
-          <p className="text-xs sm:text-sm text-gray-600">Completed this month</p>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm">Frameworks</h3>
+          <p className="text-xs text-gray-600">Completed this month</p>
         </Card>
 
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Building className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Building className="w-5 h-5 text-purple-600" />
             </div>
-            <span className="text-xl sm:text-2xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
+            <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Documents</h3>
-          <p className="text-xs sm:text-sm text-gray-600">In knowledge base</p>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm">Documents</h3>
+          <p className="text-xs text-gray-600">In knowledge base</p>
         </Card>
 
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Globe className="w-5 h-5 text-orange-600" />
             </div>
-            <span className="text-lg sm:text-2xl font-bold text-gray-900">{industry}</span>
+            <span className="text-lg font-bold text-gray-900">{industry}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Industry</h3>
-          <p className="text-xs sm:text-sm text-gray-600">Business vertical</p>
+          <h3 className="font-medium text-gray-900 mb-1 text-sm">Industry</h3>
+          <p className="text-xs text-gray-600">Business vertical</p>
         </Card>
       </div>
     </div>

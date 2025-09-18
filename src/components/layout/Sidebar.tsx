@@ -17,8 +17,10 @@ import {
   Building,
   Plus,
   X,
+  HelpCircle,
 } from "lucide-react";
 import UpgradeModal from "@/components/modals/UpgradeModal";
+import HelpModal from "@/components/modals/HelpModal";
 
 interface SidebarProps {
   className?: string;
@@ -45,27 +47,27 @@ const navigationItems: NavigationItem[] = [
   },
   {
     icon: PenTool,
-    label: "AI Copywriting",
+    label: "Brand & Content Studio",
     href: "/dashboard/copywriting",
     roles: ["user", "admin", "owner"],
-    badge: "Content",
+    badge: "Studio",
   },
-  {
-    icon: TrendingUp,
-    label: "Growth Co-Pilot",
-    href: "/dashboard/growth-copilot",
-    roles: ["user", "admin", "owner"],
-    modules: ["growthx"],
-    badge: "Strategy",
-  },
-  {
-    icon: Palette,
-    label: "Branding Lab",
-    href: "/dashboard/branding-lab",
-    roles: ["user", "admin", "owner"],
-    modules: ["imarketing"],
-    badge: "Brand",
-  },
+  // {
+  //   icon: TrendingUp,
+  //   label: "Growth Co-Pilot",
+  //   href: "/dashboard/growth-copilot",
+  //   roles: ["user", "admin", "owner"],
+  //   modules: ["growthx"],
+  //   badge: "Strategy",
+  // },
+  // {
+  //   icon: Palette,
+  //   label: "Branding Lab",
+  //   href: "/dashboard/branding-lab",
+  //   roles: ["user", "admin", "owner"],
+  //   modules: ["imarketing"],
+  //   badge: "Brand",
+  // },
   {
     icon: FileText,
     label: "Templates",
@@ -74,7 +76,7 @@ const navigationItems: NavigationItem[] = [
   },
   {
     icon: Building,
-    label: "Business Knowledged",
+    label: "Business Knowledge",
     href: "/dashboard/business",
     roles: ["admin", "owner"],
   },
@@ -96,6 +98,7 @@ export default function Sidebar({
   const router = useRouter();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const [currentPlan, setCurrentPlan] = useState("free");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(true); // Default to mobile for better mobile UX
@@ -199,80 +202,64 @@ export default function Sidebar({
           }
         }}
       >
-        {/* Mobile Header with Close Button */}
-        <div className={`flex-shrink-0 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white transition-all duration-200 ${
-          isMobile ? "p-5" : isExpanded ? "p-4" : "px-2 py-4"
-        }`}>
-          <div className={`flex items-center transition-all duration-200 ${
-            isMobile ? "gap-3" : isExpanded ? "gap-2" : "gap-0 justify-center"
-          }`}>
-            {/* Close Button (Mobile Only) */}
-            <button
-              onClick={onToggle}
-              className="lg:hidden p-3 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-all duration-300 touch-manipulation shadow-md"
-              aria-label="Close menu"
-              type="button"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
+        {/* Header with Logo */}
+        <div className="flex-shrink-0 border-b border-gray-200 bg-white relative">
+          {/* Close Button (Mobile Only) */}
+          <button
+            onClick={onToggle}
+            className="lg:hidden absolute top-2 right-2 p-1 rounded-lg hover:bg-gray-100 transition-colors z-10"
+            aria-label="Close menu"
+            type="button"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
 
-            <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg lg:shadow-sm transition-all duration-200 ${
-              isMobile ? "w-10 h-10" : isExpanded ? "w-8 h-8" : "w-8 h-8"
-            }`}>
-              <div className={`bg-white rounded-md flex items-center justify-center ${
-                isMobile ? "w-5 h-5" : "w-4 h-4"
-              }`}>
-                <div className={`bg-idean-navy rounded-full ${
-                  isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                }`}></div>
-              </div>
-            </div>
-
-            {/* Enhanced title with smooth transitions */}
-            <div
-              className={`flex flex-col flex-1 min-w-0 transition-all duration-200 ease-out ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100 translate-x-0"
-                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
-              }`}
-            >
-              <span className={`font-bold text-gray-900 truncate whitespace-nowrap ${
-                isMobile ? "text-xl" : "text-lg"
-              }`}>
-                iDEAN AI
-              </span>
-              <span className="text-xs text-gray-500 lg:hidden">
-                Business Strategy AI
-              </span>
-            </div>
+          {/* Logo Section - Responsive to sidebar state */}
+          <div className="p-4 flex items-center justify-center lg:justify-start">
+            {isMobile || isExpanded ? (
+              // Full logo when expanded or on mobile
+              <img
+                src="/ideanai_logo.png"
+                alt="iDEAN AI"
+                className="h-12 w-auto transition-all duration-200 ease-out"
+              />
+            ) : (
+              // Icon only when collapsed on desktop
+              <img
+                src="/ideanai_logo_icon.png"
+                alt="iDEAN AI"
+                className="w-12 h-12 transition-all duration-200 ease-out"
+              />
+            )}
           </div>
         </div>
 
         {/* Business Section - Smart Business Display */}
-        <div className={`flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white transition-all duration-200 ${
-          isMobile ? "p-4" : isExpanded ? "p-3" : "px-2 py-3"
-        }`}>
+        <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white p-2">
           {user?.business?.business_name || user?.businessId ? (
             // User has a business - show business info
-            <div className={`flex items-center hover:bg-gray-50 rounded-xl transition-colors ${
-              isMobile 
-                ? "gap-4 p-2" 
-                : isExpanded 
-                  ? "gap-3 lg:hover:bg-transparent" 
-                  : "gap-0 justify-center p-1 lg:hover:bg-gray-50"
-            }`}>
-              <div className={`bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg lg:shadow-sm ${
-                isMobile ? "w-10 h-10" : "w-8 h-8"
-              }`}>
-                <span className={`text-white font-bold ${
-                  isMobile ? "text-base" : "text-sm"
-                }`}>
-                  {user.business?.business_name?.[0]?.toUpperCase() || "B"}
-                </span>
-              </div>
-              {/* Enhanced business info with smooth transitions */}
+            <div className="relative flex items-center transition-colors p-2">
+              {/* Expandable Background */}
               <div
-                className={`flex-1 min-w-0 transition-all duration-200 ease-out ${
+                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
+                  isMobile || isExpanded
+                    ? "opacity-100 scale-100"
+                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+                }`}
+              />
+
+              {/* Fixed Icon Container - Always Same Position */}
+              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm w-8 h-8">
+                  <span className="text-white font-bold text-sm">
+                    {user.business?.business_name?.[0]?.toUpperCase() || "B"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Text Content */}
+              <div
+                className={`relative z-10 ml-3 flex-1 min-w-0 transition-all duration-200 ease-out ${
                   isMobile || isExpanded
                     ? "opacity-100 scale-100 translate-x-0"
                     : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
@@ -294,24 +281,27 @@ export default function Sidebar({
             // User doesn't have a business - show add business prompt
             <Link
               href="/dashboard/onboarding"
-              className={`flex items-center hover:bg-gray-50 rounded-xl transition-all duration-300 group shadow-sm lg:shadow-none hover:shadow-md lg:hover:shadow-none ${
-                isMobile 
-                  ? "gap-4 p-3 -m-2" 
-                  : isExpanded 
-                    ? "gap-3 p-1 -m-1" 
-                    : "gap-0 justify-center p-1 -m-1"
-              }`}
+              className="relative flex items-center transition-all duration-300 group p-2"
             >
-              <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow ${
-                isMobile ? "w-10 h-10" : "w-8 h-8"
-              }`}>
-                <Plus className={`text-white ${
-                  isMobile ? "w-5 h-5" : "w-4 h-4"
-                }`} />
-              </div>
-              {/* Enhanced add business text with smooth transitions */}
+              {/* Expandable Background */}
               <div
-                className={`flex-1 min-w-0 transition-all duration-200 ease-out ${
+                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
+                  isMobile || isExpanded
+                    ? "opacity-100 scale-100"
+                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+                }`}
+              />
+
+              {/* Fixed Icon Container - Always Same Position */}
+              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow w-8 h-8">
+                  <Plus className="text-white w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Text Content */}
+              <div
+                className={`relative z-10 ml-3 flex-1 min-w-0 transition-all duration-200 ease-out ${
                   isMobile || isExpanded
                     ? "opacity-100 scale-100 translate-x-0"
                     : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
@@ -338,9 +328,7 @@ export default function Sidebar({
             isExpanded ? "lg:overflow-y-auto" : "lg:overflow-y-hidden"
           }`}
         >
-          <nav className={`space-y-2 lg:space-y-1 transition-all duration-200 ${
-            isMobile ? "p-4" : isExpanded ? "p-3" : "p-2"
-          }`}>
+          <nav className="space-y-1 p-2">
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -349,27 +337,32 @@ export default function Sidebar({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center rounded-2xl lg:rounded-lg font-semibold lg:font-medium transition-all duration-300 group relative touch-manipulation ${
-                    isMobile 
-                      ? "gap-4 px-5 py-4 text-base min-h-[60px]" 
-                      : isExpanded 
-                        ? "gap-4 px-3 py-2 text-sm lg:min-h-auto" 
-                        : "gap-0 justify-center px-2 py-2 text-sm lg:min-h-auto"
-                  } ${
-                    isActive
-                      ? "bg-gradient-to-r from-blue-50 to-purple-50 text-idean-navy border border-blue-100 shadow-lg lg:shadow-sm"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100 hover:shadow-md lg:hover:shadow-none"
-                  }`}
+                  className="relative flex items-center transition-all duration-300 group touch-manipulation p-2"
                   title={!isExpanded && !isMobile ? item.label : undefined}
                 >
-                  <Icon
-                    className={`flex-shrink-0 ${
-                      isMobile ? "w-6 h-6" : "w-5 h-5"
-                    } ${isActive ? "text-blue-600" : ""}`}
-                  />
-                  {/* Enhanced navigation labels with smooth transitions */}
+                  {/* Expandable Background */}
                   <div
-                    className={`flex items-center justify-between flex-1 transition-all duration-200 ease-out ${
+                    className={`absolute inset-0 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
+                      isActive
+                        ? "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 shadow-lg lg:shadow-sm"
+                        : "hover:bg-gray-50 hover:shadow-md lg:hover:shadow-none"
+                    } ${
+                      isMobile || isExpanded
+                        ? "opacity-100 scale-100"
+                        : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+                    }`}
+                  />
+
+                  {/* Fixed Icon Container - Always Same Position */}
+                  <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                    <Icon
+                      className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-700"}`}
+                    />
+                  </div>
+
+                  {/* Text Content */}
+                  <div
+                    className={`relative z-10 ml-3 flex items-center justify-between flex-1 transition-all duration-200 ease-out ${
                       isMobile || isExpanded
                         ? "opacity-100 scale-100 translate-x-0 w-auto"
                         : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
@@ -377,7 +370,7 @@ export default function Sidebar({
                   >
                     <span className={`whitespace-nowrap font-semibold lg:font-medium ${
                       isMobile ? "text-base" : "text-sm"
-                    }`}>
+                    } ${isActive ? "text-idean-navy" : "text-gray-700"}`}>
                       {item.label}
                     </span>
                     {item.badge && (
@@ -401,25 +394,62 @@ export default function Sidebar({
         </div>
 
         {/* Fixed Bottom Section */}
-        <div className={`flex-shrink-0 border-t border-gray-100 bg-gray-50/50 transition-all duration-200 ${
-          isMobile ? "p-4 space-y-3" : isExpanded ? "p-3 space-y-2" : "px-2 py-3 space-y-2"
-        }`}>
+        <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-2">
+          {/* Help Button */}
+          <button
+            onClick={() => setShowHelpModal(true)}
+            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 hover:bg-blue-50"
+            title={!isExpanded && !isMobile ? "Help & Guide" : undefined}
+          >
+            {/* Expandable Background */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out hover:from-blue-100 hover:to-indigo-100 ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100"
+                  : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+              }`}
+            />
+
+            {/* Fixed Icon Container - Always Same Position */}
+            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+              <HelpCircle className="text-blue-600 w-5 h-5 hover:text-blue-700 transition-colors" />
+            </div>
+
+            {/* Text Label */}
+            <span
+              className={`relative z-10 ml-3 font-semibold lg:font-medium text-blue-700 transition-all duration-200 ease-out ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100 translate-x-0"
+                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
+              } ${isMobile ? "text-base" : "text-sm"}`}
+            >
+              Help & Guide
+            </span>
+          </button>
+
           {/* Upgrade Button */}
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className={`flex items-center w-full rounded-2xl lg:rounded-lg font-semibold lg:font-medium bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 hover:from-amber-100 hover:to-orange-100 border border-amber-200 transition-all duration-300 touch-manipulation shadow-lg lg:shadow-sm ${
-              isMobile 
-                ? "gap-4 px-5 py-4 text-base min-h-[60px]" 
-                : isExpanded 
-                  ? "gap-4 px-3 py-2 text-sm lg:min-h-auto" 
-                  : "gap-0 justify-center px-2 py-2 text-sm lg:min-h-auto"
-            }`}
+            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 hover:bg-amber-50"
+            title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
           >
-            <Crown className={`flex-shrink-0 text-amber-600 ${
-              isMobile ? "w-6 h-6" : "w-5 h-5"
-            }`} />
+            {/* Expandable Background */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100"
+                  : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+              }`}
+            />
+
+            {/* Fixed Icon Container - Always Same Position */}
+            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+              <Crown className="text-amber-600 w-5 h-5" />
+            </div>
+
+            {/* Text Label */}
             <span
-              className={`font-semibold lg:font-medium transition-all duration-200 ease-out ${
+              className={`relative z-10 ml-3 font-semibold lg:font-medium text-amber-700 transition-all duration-200 ease-out ${
                 isMobile || isExpanded
                   ? "opacity-100 scale-100 translate-x-0"
                   : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
@@ -433,19 +463,27 @@ export default function Sidebar({
           <div className="relative lg:block hidden">
             <button
               onClick={() => setShowAccountMenu(!showAccountMenu)}
-              className={`flex items-center w-full rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300 group ${
-                isMobile 
-                  ? "gap-3 px-3 py-2" 
-                  : isExpanded 
-                    ? "gap-3 px-3 py-2" 
-                    : "gap-0 justify-center px-2 py-2"
-              }`}
+              className="relative flex items-center w-full cursor-pointer transition-all duration-300 group p-2"
             >
-              <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-gray-400 transition-colors">
-                <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
-              </div>
+              {/* Expandable Background */}
               <div
-                className={`flex items-center justify-between flex-1 min-w-0 transition-all duration-200 ease-out ${
+                className={`absolute inset-0 hover:bg-gray-50 rounded-lg transition-all duration-200 ease-out ${
+                  isMobile || isExpanded
+                    ? "opacity-100 scale-100"
+                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+                }`}
+              />
+
+              {/* Fixed Icon Container - Always Same Position */}
+              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
+                  <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
+                </div>
+              </div>
+
+              {/* Text Content */}
+              <div
+                className={`relative z-10 ml-3 flex items-center justify-between flex-1 min-w-0 transition-all duration-200 ease-out ${
                   isMobile || isExpanded
                     ? "opacity-100 scale-100 translate-x-0 w-auto"
                     : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
@@ -486,13 +524,20 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* Upgrade Modal */}
-        <UpgradeModal
-          isOpen={showUpgradeModal}
-          onClose={() => setShowUpgradeModal(false)}
-          currentPlan={currentPlan}
-        />
       </aside>
+
+      {/* Help Modal - Rendered outside sidebar for full-screen coverage */}
+      <HelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+      />
+
+      {/* Upgrade Modal - Rendered outside sidebar for full-screen coverage */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentPlan={currentPlan}
+      />
     </>
   );
 }

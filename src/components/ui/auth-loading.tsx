@@ -43,15 +43,12 @@ export default function AuthLoading({
   return (
     <div className={`flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 ${className}`}>
       <div className="text-center max-w-md mx-auto p-8">
-        {/* Logo or branding area */}
-        <div className="mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Idean AI</h1>
-        </div>
+        {/* Logo */}
+        <img
+          src="/ideanai_logo.png"
+          alt="iDEAN AI"
+          className="h-12 w-auto mb-8"
+        />
 
         {/* Loading spinner */}
         <div className="relative mb-6">
