@@ -487,7 +487,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 text-white">
+        <div className="bg-gray-800 p-6 text-white border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {currentItem ? (
@@ -495,7 +495,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   onClick={handleBackToItems}
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20 p-2"
+                  className="text-white hover:bg-white/10 p-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
@@ -504,7 +504,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   onClick={handleBackToSections}
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20 p-2"
+                  className="text-white hover:bg-white/10 p-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
@@ -516,7 +516,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                    currentSection ? currentSectionData?.title :
                    'Help & Guide'}
                 </h2>
-                <p className="text-blue-100 mt-1">
+                <p className="text-gray-300 mt-1">
                   {currentItem ? currentItem.description :
                    currentSection ? currentSectionData?.description :
                    'Learn how to use iDEAN AI effectively'}
@@ -527,7 +527,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-white hover:bg-white/20"
+              className="h-8 w-8 p-0 text-white hover:bg-white/10"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -566,15 +566,15 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               {currentSectionData?.items.map((item) => (
                 <Card
                   key={item.id}
-                  className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200 hover:border-gray-300"
                   onClick={() => handleItemClick(item)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        {item.type === 'guide' && <BookOpen className="w-5 h-5 text-blue-600" />}
-                        {item.type === 'video' && <Video className="w-5 h-5 text-blue-600" />}
-                        {item.type === 'faq' && <HelpCircle className="w-5 h-5 text-blue-600" />}
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        {item.type === 'guide' && <BookOpen className="w-5 h-5 text-gray-600" />}
+                        {item.type === 'video' && <Video className="w-5 h-5 text-gray-600" />}
+                        {item.type === 'faq' && <HelpCircle className="w-5 h-5 text-gray-600" />}
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{item.title}</h3>
@@ -608,17 +608,17 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 {HELP_SECTIONS.map((section) => (
                   <Card
                     key={section.id}
-                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 hover:border-gray-300"
                     onClick={() => handleSectionClick(section.id)}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <section.icon className="w-6 h-6 text-blue-600" />
+                      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                        <section.icon className="w-6 h-6 text-gray-600" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-1">{section.title}</h3>
                         <p className="text-sm text-gray-600">{section.description}</p>
-                        <div className="flex items-center mt-2 text-xs text-blue-600">
+                        <div className="flex items-center mt-2 text-xs text-gray-500">
                           <span>{section.items.length} articles</span>
                           <ChevronRight className="w-4 h-4 ml-1" />
                         </div>

@@ -221,7 +221,7 @@ export default function UpgradeModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 text-white">
+        <div className="bg-gray-800 p-6 text-white border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Crown className="w-8 h-8" />
@@ -229,7 +229,7 @@ export default function UpgradeModal({
                 <h2 className="text-2xl font-bold">
                   Upgrade Your Plan
                 </h2>
-                <p className="text-orange-100 mt-1">
+                <p className="text-gray-300 mt-1">
                   Unlock more features for your business
                 </p>
               </div>
@@ -238,7 +238,7 @@ export default function UpgradeModal({
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-white hover:bg-white/20"
+              className="h-8 w-8 p-0 text-white hover:bg-white/10"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -249,7 +249,7 @@ export default function UpgradeModal({
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
           {/* Current Status */}
           <div className="mb-6 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
               <Check className="w-4 h-4" />
               Currently on {currentPlan === 'free' ? 'Free' : currentPlan === 'standard' ? 'Standard' : 'Pro'} Plan
             </div>
@@ -260,17 +260,17 @@ export default function UpgradeModal({
             {PRICING_PLANS.map((plan) => (
               <Card
                 key={plan.id}
-                className={`relative p-6 transition-all duration-200 ${
+                className={`relative p-6 transition-all duration-200 border ${
                   plan.popular
-                    ? "border-2 border-orange-400 shadow-lg bg-gradient-to-br from-orange-50 to-amber-50"
+                    ? "border-2 border-gray-400 shadow-lg bg-gray-50"
                     : "hover:shadow-md border-gray-200"
                 } ${
-                  currentPlan === plan.id ? "bg-green-50 border-green-300" : ""
+                  currentPlan === plan.id ? "bg-gray-100 border-gray-400" : ""
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-1 rounded-full text-xs font-medium shadow-lg">
+                    <span className="bg-gray-700 text-white px-4 py-1 rounded-full text-xs font-medium shadow-lg">
                       Recommended
                     </span>
                   </div>
@@ -278,7 +278,7 @@ export default function UpgradeModal({
 
                 {currentPlan === plan.id && (
                   <div className="absolute -top-3 right-4">
-                    <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
+                    <span className="bg-gray-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
                       Current Plan
                     </span>
                   </div>
@@ -304,25 +304,25 @@ export default function UpgradeModal({
                 {/* Key Features - Simplified */}
                 <div className="mb-6">
                   <div className="grid grid-cols-1 gap-3">
-                    <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-orange-500" />
+                        <Zap className="w-4 h-4 text-gray-600" />
                         <span className="text-sm font-medium">AI Credits</span>
                       </div>
                       <span className="text-sm font-bold text-gray-900">
                         {plan.aiCredits.toLocaleString()}/month
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-blue-500" />
+                        <FileText className="w-4 h-4 text-gray-600" />
                         <span className="text-sm font-medium">Storage</span>
                       </div>
                       <span className="text-sm font-bold text-gray-900">{plan.storage}</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Headphones className="w-4 h-4 text-green-500" />
+                        <Headphones className="w-4 h-4 text-gray-600" />
                         <span className="text-sm font-medium">Support</span>
                       </div>
                       <span className="text-sm font-bold text-gray-900">{plan.support}</span>
@@ -336,7 +336,7 @@ export default function UpgradeModal({
                   disabled={currentPlan === plan.id || processingCheckout}
                   className={`w-full ${
                     plan.popular
-                      ? "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+                      ? "bg-gray-800 hover:bg-gray-900 text-white"
                       : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                   }`}
                   variant={currentPlan === plan.id ? "outline" : "default"}
