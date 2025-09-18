@@ -246,7 +246,7 @@ export default function DashboardPage() {
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">Welcome to iDEAN AI: Your Growth Co-Pilot! 🚀</h1>
                 <p className="text-gray-600 text-base sm:text-lg">
-                  Welcome to <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic command center
+                  Powering <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic success
                 </p>
               </div>
             </div>
