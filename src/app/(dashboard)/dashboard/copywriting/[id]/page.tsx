@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { ArrowLeft, AlertCircle, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ideanApi, Copywriting } from '@/lib/api/idean-api'
+import { ideanApi, Copywriting, Template } from '@/lib/api/idean-api'
 import { GenerationStudio } from '@/components/generation/GenerationStudio'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
@@ -16,7 +16,21 @@ export default function CopywritingGenerationPage() {
   const { user } = useAuth()
   const copywritingId = params.id as string
 
+  // Template loading support - get from URL safely
+  const [templateId, setTemplateId] = useState<string | null>(null)
+  const [templateName, setTemplateName] = useState<string | null>(null)
+
+  // Extract URL parameters on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      setTemplateId(urlParams.get('templateId'))
+      setTemplateName(urlParams.get('templateName'))
+    }
+  }, [])
+
   const [copywriting, setCopywriting] = useState<Copywriting | null>(null)
+  const [template, setTemplate] = useState<Template | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,11 +47,28 @@ export default function CopywritingGenerationPage() {
         setError(null)
 
         console.log('Loading copywriting framework with ID:', copywritingId)
+        if (templateId) {
+          console.log('Loading with template ID:', templateId, 'Name:', templateName)
+        }
 
         // Load framework from backend API
         const response = await ideanApi.copywriting.getById(copywritingId)
         console.log('✅ Backend copywriting framework loaded:', response)
         setCopywriting(response)
+
+        // Load template data if templateId is provided
+        if (templateId) {
+          try {
+            console.log('Loading template data...')
+            const templateResponse = await ideanApi.templates.getById(templateId)
+            console.log('✅ Template data loaded:', templateResponse)
+            setTemplate(templateResponse)
+          } catch (templateErr) {
+            console.error('Failed to load template:', templateErr)
+            // Don't fail the entire page if template loading fails
+            // Just proceed without template data
+          }
+        }
 
       } catch (err: unknown) {
         console.error(`Failed to load copywriting framework '${copywritingId}':`, err)
@@ -60,7 +91,7 @@ export default function CopywritingGenerationPage() {
     }
 
     loadCopywriting()
-  }, [copywritingId, user])
+  }, [copywritingId, user, templateId])
 
   if (loading) {
     return (
@@ -119,7 +150,8 @@ export default function CopywritingGenerationPage() {
         <GenerationStudio
           type="copywriting"
           framework={copywriting}
-          onBack={() => router.push('/dashboard/copywriting')}
+          template={template}
+          onBack={() => router.push('/dashboard/templates')}
         />
       </div>
     </div>

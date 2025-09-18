@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { GenerationInputPanel } from './GenerationInputPanel'
 import { GenerationEditor } from './GenerationEditor'
-import { ideanApi } from '@/lib/api/idean-api'
+import { ideanApi, Template } from '@/lib/api/idean-api'
+import { Button } from '@/components/ui/button'
 
 interface Framework {
   id: string
@@ -19,6 +20,7 @@ interface Framework {
 interface GenerationStudioProps {
   type: 'copywriting' | 'growth-copilot' | 'branding-lab'
   framework: Framework
+  template?: Template | null
   onBack?: () => void
 }
 
@@ -34,7 +36,7 @@ interface GenerationResult {
   }
 }
 
-export function GenerationStudio({ type, framework, onBack }: GenerationStudioProps) {
+export function GenerationStudio({ type, framework, template, onBack }: GenerationStudioProps) {
   const { user } = useAuth()
   const [isGenerating, setIsGenerating] = useState(false)
   const [currentStep, setCurrentStep] = useState<'input' | 'generating' | 'editing'>('input')
@@ -43,29 +45,57 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
   const [inputs, setInputs] = useState<Record<string, any>>({})
   const [mobileView, setMobileView] = useState<'input' | 'editor'>('input')
   const [retryCount, setRetryCount] = useState(0)
-  const [generationOptions, setGenerationOptions] = useState({
-    tone: 'professional',
-    length: 'medium',
-    audience: 'business',
-    temperature: 0.7,
-    maxTokens: 2000,
-    includeBusinessContext: true,
-    saveDocument: true
+  // Initialize generation options with template data if available
+  const [generationOptions, setGenerationOptions] = useState(() => {
+    const defaultOptions = {
+      tone: 'professional',
+      length: 'medium',
+      audience: 'business',
+      temperature: 0.7,
+      maxTokens: 2000,
+      includeBusinessContext: true,
+      saveDocument: true
+    }
+
+    // Load dropdown selections from template if available
+    if (template?.drop_down) {
+      const dropDownOptions = template.drop_down
+      return {
+        ...defaultOptions,
+        tone: dropDownOptions[0] || defaultOptions.tone,
+        length: dropDownOptions[1] || defaultOptions.length,
+        audience: dropDownOptions[2] || defaultOptions.audience
+      }
+    }
+
+    return defaultOptions
   })
 
-  // Initialize inputs based on framework fields
+  // Initialize inputs based on framework fields and template data
   useEffect(() => {
     const initialInputs: Record<string, any> = {}
 
     if (framework.input_fields) {
-      framework.input_fields.forEach(field => {
+      framework.input_fields.forEach((field, index) => {
         const fieldName = field.includes(':') ? field.split(':')[0] : field
-        initialInputs[fieldName] = ''
+
+        // Use template data if available
+        if (template?.text_input_given && template.text_input_given[index]) {
+          initialInputs[fieldName] = template.text_input_given[index]
+        } else {
+          initialInputs[fieldName] = ''
+        }
       })
     }
 
+    // Load template's additional prompt if available
+    if (template?.user_given_prompt) {
+      initialInputs.additionalInstructions = template.user_given_prompt
+    }
+
+    console.log('🎨 Initialized inputs:', template ? 'with template data' : 'without template', initialInputs)
     setInputs(initialInputs)
-  }, [framework])
+  }, [framework, template])
 
   const handleGenerate = async () => {
     if (!framework || !user) {
@@ -388,8 +418,81 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
     }
   }
 
+  // Handle updating existing template with new content
+  const handleUpdateTemplate = async () => {
+    if (!template || !framework || !generationResult?.content || !user) {
+      console.error('Missing required data for template update')
+      return
+    }
+
+    try {
+      console.log('Updating template:', template.id)
+
+      // Transform current inputs to match backend format
+      const inputFields = framework.input_fields || []
+      const text_input_queries: string[] = []
+      const text_input_given: string[] = []
+
+      // Extract field names and values from current inputs
+      inputFields.forEach(field => {
+        const fieldName = field.includes(':') ? field.split(':')[0] : field
+        text_input_queries.push(fieldName)
+        text_input_given.push(inputs[fieldName] || '')
+      })
+
+      // Transform current dropdown selections
+      const drop_down: string[] = [
+        generationOptions.tone,
+        generationOptions.length,
+        generationOptions.audience
+      ].filter(Boolean)
+
+      const updateData = {
+        name: template.name, // Keep existing name
+        user_given_prompt: inputs.additionalInstructions || template.user_given_prompt || `Updated template for ${framework.name}`,
+        text_input_queries,
+        text_input_given,
+        drop_down,
+        documentIds: generationResult.documentId ? [generationResult.documentId] : template.documentIds || []
+      }
+
+      await ideanApi.templates.update(template.id, updateData)
+
+      // Show success message
+      alert(`Template "${template.name}" updated successfully!`)
+    } catch (error) {
+      console.error('❌ Failed to update template:', error)
+      alert('Failed to update template. Please try again.')
+    }
+  }
+
   return (
     <div className="flex flex-col h-full w-full">
+      {/* Template Header - Show when loaded from template */}
+      {template && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">T</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900">🎨 Using Template: {template.name}</h3>
+                <p className="text-xs text-blue-600">Modify the inputs below and regenerate to update your template</p>
+              </div>
+            </div>
+            <Button
+              onClick={handleUpdateTemplate}
+              size="sm"
+              variant="outline"
+              className="border-blue-300 text-blue-700 hover:bg-blue-50"
+            >
+              Save Template Changes
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Navigation Bar - Enhanced Design */}
       {currentStep === 'editing' && (
         <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
