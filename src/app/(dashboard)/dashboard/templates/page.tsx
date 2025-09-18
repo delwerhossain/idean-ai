@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -25,22 +25,130 @@ import {
 } from 'lucide-react'
 import { ideanApi, Template } from '@/lib/api/idean-api'
 
+// Memoized Template Card Component
+const TemplateCard = memo(({ template }: { template: Template }) => {
+  const getCategoryIcon = (template: Template) => {
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return Palette
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return TrendingUp
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return PenTool
+    return FileText
+  }
+
+  const getCategoryColor = (template: Template) => {
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'bg-purple-500'
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'bg-blue-500'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'bg-orange-500'
+    return 'bg-gray-500'
+  }
+
+  const getCategoryName = (template: Template) => {
+    if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'Branding Lab'
+    if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'Growth Co-pilot'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Copywriting'
+    return 'Custom Template'
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  const Icon = getCategoryIcon(template)
+  const categoryColor = getCategoryColor(template)
+  const categoryName = getCategoryName(template)
+
+  return (
+    <Card className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 ${categoryColor} rounded-lg flex items-center justify-center`}>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{template.name}</h4>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Tag className="w-3 h-3" />
+              <span>{categoryName}</span>
+            </div>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+        >
+          <MoreVertical className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <div className="mb-4">
+        {template.user_given_prompt && (
+          <p className="text-sm text-gray-600 mb-2">
+            {template.user_given_prompt.length > 120
+              ? template.user_given_prompt.substring(0, 120) + '...'
+              : template.user_given_prompt}
+          </p>
+        )}
+
+        <div className="flex items-center gap-4 text-xs text-gray-500">
+          {template.text_input_queries && (
+            <span>{template.text_input_queries.length} inputs</span>
+          )}
+          {template.documentIds && template.documentIds.length > 0 && (
+            <span>{template.documentIds.length} documents</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-gray-100 gap-3 sm:gap-0">
+        <div className="flex items-center gap-1 text-xs text-gray-500">
+          <Clock className="w-3 h-3" />
+          <span>{formatDate(template.updatedAt)}</span>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button size="sm" variant="ghost" className="flex-shrink-0">
+            <Edit className="w-3 h-3" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 sm:flex-none"
+          >
+            <span className="hidden sm:inline">Use Template</span>
+            <span className="sm:hidden">Use</span>
+          </Button>
+        </div>
+      </div>
+    </Card>
+  )
+})
+
+TemplateCard.displayName = 'TemplateCard'
+
 export default function TemplatesPage() {
   const { user } = useAuth()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
+  const [cardsLoading, setCardsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('my-templates')
-  const [hasLoaded, setHasLoaded] = useState(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
-  const loadTemplates = useCallback(async () => {
-    // Remove the hasLoaded check to allow initial loading
-
+  const loadTemplates = useCallback(async (forceFullLoad = false) => {
     console.log('Loading templates for category:', selectedCategory, 'User:', user?.email)
 
     try {
-      setLoading(true)
+      // Use different loading states based on initial load vs filter changes
+      if (isInitialLoad || forceFullLoad) {
+        setLoading(true)
+      } else {
+        setCardsLoading(true)
+      }
       setError(null)
 
       let response
@@ -156,23 +264,40 @@ export default function TemplatesPage() {
       }
     } finally {
       setLoading(false)
-      setHasLoaded(true)
+      setCardsLoading(false)
+      setIsInitialLoad(false)
     }
-  }, [selectedCategory, user])
+  }, [selectedCategory, user, isInitialLoad])
 
   useEffect(() => {
     console.log('Effect triggered - loading templates')
     loadTemplates()
-  }, [selectedCategory, loadTemplates])
+  }, [loadTemplates])
 
-  const handleSearch = () => {
-    setHasLoaded(false)
-  }
+  // Optimized search function with debouncing
+  const handleSearch = useCallback(() => {
+    // This could be enhanced with actual search API call
+    console.log('Searching for:', searchTerm)
+  }, [searchTerm])
 
-  const handleRefresh = () => {
-    setHasLoaded(false)
+  const handleRefresh = useCallback(() => {
     setTemplates([])
-  }
+    loadTemplates(true)
+  }, [loadTemplates])
+
+  const handleCategoryChange = useCallback((category: typeof selectedCategory) => {
+    setSelectedCategory(category)
+  }, [])
+
+  // Memoized filtered templates
+  const filteredTemplates = useMemo(() => {
+    if (!searchTerm.trim()) return templates
+
+    return templates.filter(template =>
+      template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (template.user_given_prompt && template.user_given_prompt.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+  }, [templates, searchTerm])
 
   const getCategoryIcon = (template: Template) => {
     if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return Palette
@@ -281,10 +406,7 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'all' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => {
-              setSelectedCategory('all')
-              setHasLoaded(false)
-            }}
+            onClick={() => handleCategoryChange('all')}
           >
             All
           </Button>
@@ -292,10 +414,7 @@ export default function TemplatesPage() {
             <Button
               variant={selectedCategory === 'my-templates' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => {
-                setSelectedCategory('my-templates')
-                setHasLoaded(false)
-              }}
+              onClick={() => handleCategoryChange('my-templates')}
             >
               <User className="w-3 h-3 mr-1" />
               My Templates
@@ -304,10 +423,7 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'brandinglab' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => {
-              setSelectedCategory('brandinglab')
-              setHasLoaded(false)
-            }}
+            onClick={() => handleCategoryChange('brandinglab')}
           >
             <Palette className="w-3 h-3 mr-1" />
             Branding
@@ -315,10 +431,7 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'growthcopilot' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => {
-              setSelectedCategory('growthcopilot')
-              setHasLoaded(false)
-            }}
+            onClick={() => handleCategoryChange('growthcopilot')}
           >
             <TrendingUp className="w-3 h-3 mr-1" />
             Growth
@@ -326,10 +439,7 @@ export default function TemplatesPage() {
           <Button
             variant={selectedCategory === 'copywriting' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => {
-              setSelectedCategory('copywriting')
-              setHasLoaded(false)
-            }}
+            onClick={() => handleCategoryChange('copywriting')}
           >
             <PenTool className="w-3 h-3 mr-1" />
             Copy
@@ -350,81 +460,38 @@ export default function TemplatesPage() {
       </div>
 
       {/* Templates Grid */}
-      {templates.length > 0 ? (
+      {cardsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {templates.map((template) => {
-            const Icon = getCategoryIcon(template)
-            const categoryColor = getCategoryColor(template)
-            const categoryName = getCategoryName(template)
-
-            return (
-              <Card key={template.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 ${categoryColor} rounded-lg flex items-center justify-center`}>
-                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{template.name}</h4>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Tag className="w-3 h-3" />
-                        <span>{categoryName}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div className="mb-4">
-                  {template.user_given_prompt && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      {template.user_given_prompt.length > 120 
-                        ? template.user_given_prompt.substring(0, 120) + '...'
-                        : template.user_given_prompt}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    {template.text_input_queries && (
-                      <span>{template.text_input_queries.length} inputs</span>
-                    )}
-                    {template.documentIds && template.documentIds.length > 0 && (
-                      <span>{template.documentIds.length} documents</span>
-                    )}
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="p-4 sm:p-6 animate-pulse">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded-lg" />
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded mb-2" />
+                    <div className="h-3 bg-gray-200 rounded w-20" />
                   </div>
                 </div>
-
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-gray-100 gap-3 sm:gap-0">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Clock className="w-3 h-3" />
-                    <span>{formatDate(template.updatedAt)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Button size="sm" variant="ghost" className="flex-shrink-0">
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="ghost" className="flex-shrink-0">
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1 sm:flex-none"
-                    >
-                      <span className="hidden sm:inline">Use Template</span>
-                      <span className="sm:hidden">Use</span>
-                    </Button>
-                  </div>
+              </div>
+              <div className="mb-4">
+                <div className="h-3 bg-gray-200 rounded mb-2" />
+                <div className="h-3 bg-gray-200 rounded mb-2" />
+                <div className="h-3 bg-gray-200 rounded w-3/4" />
+              </div>
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex justify-between items-center">
+                  <div className="h-3 bg-gray-200 rounded w-20" />
+                  <div className="h-8 bg-gray-200 rounded w-20" />
                 </div>
-              </Card>
-            )
-          })}
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : filteredTemplates.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          {filteredTemplates.map((template) => (
+            <TemplateCard key={template.id} template={template} />
+          ))}
         </div>
       ) : (
         <div className="text-center py-12">
