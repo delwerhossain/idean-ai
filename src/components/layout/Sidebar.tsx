@@ -255,11 +255,9 @@ export default function Sidebar({
           {user?.business?.business_name || user?.businessId ? (
             // User has a business - show business info
             <div className={`flex items-center hover:bg-gray-50 rounded-xl transition-colors ${
-              isMobile 
-                ? "gap-4 p-2" 
-                : isExpanded 
-                  ? "gap-3 lg:hover:bg-transparent" 
-                  : "gap-0 justify-center p-1 lg:hover:bg-gray-50"
+              isMobile
+                ? "gap-4 p-2"
+                : "gap-3 p-1 lg:hover:bg-transparent"
             }`}>
               <div className={`bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg lg:shadow-sm ${
                 isMobile ? "w-10 h-10" : "w-8 h-8"
@@ -295,11 +293,9 @@ export default function Sidebar({
             <Link
               href="/dashboard/onboarding"
               className={`flex items-center hover:bg-gray-50 rounded-xl transition-all duration-300 group shadow-sm lg:shadow-none hover:shadow-md lg:hover:shadow-none ${
-                isMobile 
-                  ? "gap-4 p-3 -m-2" 
-                  : isExpanded 
-                    ? "gap-3 p-1 -m-1" 
-                    : "gap-0 justify-center p-1 -m-1"
+                isMobile
+                  ? "gap-4 p-3 -m-2"
+                  : "gap-3 p-1 -m-1"
               }`}
             >
               <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow ${
@@ -350,11 +346,9 @@ export default function Sidebar({
                   key={item.href}
                   href={item.href}
                   className={`flex items-center rounded-2xl lg:rounded-lg font-semibold lg:font-medium transition-all duration-300 group relative touch-manipulation ${
-                    isMobile 
-                      ? "gap-4 px-5 py-4 text-base min-h-[60px]" 
-                      : isExpanded 
-                        ? "gap-4 px-3 py-2 text-sm lg:min-h-auto" 
-                        : "gap-0 justify-center px-2 py-2 text-sm lg:min-h-auto"
+                    isMobile
+                      ? "gap-4 px-5 py-4 text-base min-h-[60px]"
+                      : "gap-4 px-3 py-2 text-sm lg:min-h-auto"
                   } ${
                     isActive
                       ? "bg-gradient-to-r from-blue-50 to-purple-50 text-idean-navy border border-blue-100 shadow-lg lg:shadow-sm"
@@ -362,11 +356,15 @@ export default function Sidebar({
                   }`}
                   title={!isExpanded && !isMobile ? item.label : undefined}
                 >
-                  <Icon
-                    className={`flex-shrink-0 ${
-                      isMobile ? "w-6 h-6" : "w-5 h-5"
-                    } ${isActive ? "text-blue-600" : ""}`}
-                  />
+                  <div className={`flex-shrink-0 flex items-center justify-center ${
+                    isMobile ? "w-6 h-6" : "w-5 h-5"
+                  }`}>
+                    <Icon
+                      className={`${
+                        isMobile ? "w-6 h-6" : "w-5 h-5"
+                      } ${isActive ? "text-blue-600" : ""}`}
+                    />
+                  </div>
                   {/* Enhanced navigation labels with smooth transitions */}
                   <div
                     className={`flex items-center justify-between flex-1 transition-all duration-200 ease-out ${
@@ -408,11 +406,9 @@ export default function Sidebar({
           <button
             onClick={() => setShowUpgradeModal(true)}
             className={`flex items-center w-full rounded-2xl lg:rounded-lg font-semibold lg:font-medium bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 hover:from-amber-100 hover:to-orange-100 border border-amber-200 transition-all duration-300 touch-manipulation shadow-lg lg:shadow-sm ${
-              isMobile 
-                ? "gap-4 px-5 py-4 text-base min-h-[60px]" 
-                : isExpanded 
-                  ? "gap-4 px-3 py-2 text-sm lg:min-h-auto" 
-                  : "gap-0 justify-center px-2 py-2 text-sm lg:min-h-auto"
+              isMobile
+                ? "gap-4 px-5 py-4 text-base min-h-[60px]"
+                : "gap-4 px-3 py-2 text-sm lg:min-h-auto"
             }`}
           >
             <Crown className={`flex-shrink-0 text-amber-600 ${
@@ -434,11 +430,9 @@ export default function Sidebar({
             <button
               onClick={() => setShowAccountMenu(!showAccountMenu)}
               className={`flex items-center w-full rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300 group ${
-                isMobile 
-                  ? "gap-3 px-3 py-2" 
-                  : isExpanded 
-                    ? "gap-3 px-3 py-2" 
-                    : "gap-0 justify-center px-2 py-2"
+                isMobile
+                  ? "gap-3 px-3 py-2"
+                  : "gap-3 px-3 py-2"
               }`}
             >
               <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-gray-400 transition-colors">
