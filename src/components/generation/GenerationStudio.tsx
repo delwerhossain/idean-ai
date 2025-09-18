@@ -114,9 +114,6 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
       }
 
       // Handle the backend API response format
-      console.log('Backend API Response:', response)
-
-      // Check if this is the new backend response format
       if ('success' in response && 'data' in response) {
         // New backend response format
         if (!response.success) {
@@ -328,10 +325,9 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
       }
     } catch (err) {
       console.error('Export failed:', err)
-      // Fallback to clipboard
+      // Copy to clipboard as fallback
       try {
         await navigator.clipboard.writeText(generationResult.content)
-        console.log('Copied to clipboard as fallback')
       } catch (clipboardErr) {
         console.error('Clipboard fallback also failed:', clipboardErr)
       }
@@ -382,8 +378,6 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
       }
 
       const result = await ideanApi.copywriting.createTemplate(framework.id, templateData)
-
-      console.log('✅ Template created successfully:', data.name)
 
       // Show success message (you can implement a toast notification here)
       alert(`Template "${data.name}" saved successfully! You can find it in your Templates dashboard.`)
