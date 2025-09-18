@@ -270,14 +270,16 @@ export default function Sidebar({
               <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
                 isMobile ? "w-12 h-12" : "w-10 h-10"
               }`}>
-                <div className={`bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
+                <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
                   isMobile ? "w-10 h-10" : "w-8 h-8"
                 }`}>
-                  <span className={`text-white font-bold ${
-                    isMobile ? "text-base" : "text-sm"
+                  <div className={`bg-white rounded-md flex items-center justify-center ${
+                    isMobile ? "w-5 h-5" : "w-4 h-4"
                   }`}>
-                    {user.business?.business_name?.[0]?.toUpperCase() || "B"}
-                  </span>
+                    <div className={`bg-idean-navy rounded-full ${
+                      isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
+                    }`}></div>
+                  </div>
                 </div>
               </div>
 
@@ -322,12 +324,16 @@ export default function Sidebar({
               <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
                 isMobile ? "w-12 h-12" : "w-10 h-10"
               }`}>
-                <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow ${
+                <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow ${
                   isMobile ? "w-10 h-10" : "w-8 h-8"
                 }`}>
-                  <Plus className={`text-white ${
+                  <div className={`bg-white rounded-md flex items-center justify-center ${
                     isMobile ? "w-5 h-5" : "w-4 h-4"
-                  }`} />
+                  }`}>
+                    <div className={`bg-idean-navy rounded-full ${
+                      isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
+                    }`}></div>
+                  </div>
                 </div>
               </div>
 
@@ -395,11 +401,17 @@ export default function Sidebar({
                   <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
                     isMobile ? "w-12 h-12" : "w-10 h-10"
                   }`}>
-                    <Icon
-                      className={`${
-                        isMobile ? "w-6 h-6" : "w-5 h-5"
-                      } ${isActive ? "text-blue-600" : "text-gray-700"}`}
-                    />
+                    <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
+                      isMobile ? "w-10 h-10" : "w-8 h-8"
+                    }`}>
+                      <div className={`bg-white rounded-md flex items-center justify-center ${
+                        isMobile ? "w-5 h-5" : "w-4 h-4"
+                      }`}>
+                        <div className={`${isActive ? "bg-blue-600" : "bg-idean-navy"} rounded-full ${
+                          isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
+                        }`}></div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Text Content */}
@@ -461,9 +473,17 @@ export default function Sidebar({
             <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
               isMobile ? "w-12 h-12" : "w-10 h-10"
             }`}>
-              <Crown className={`text-amber-600 ${
-                isMobile ? "w-6 h-6" : "w-5 h-5"
-              }`} />
+              <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
+                isMobile ? "w-10 h-10" : "w-8 h-8"
+              }`}>
+                <div className={`bg-white rounded-md flex items-center justify-center ${
+                  isMobile ? "w-5 h-5" : "w-4 h-4"
+                }`}>
+                  <div className={`bg-idean-navy rounded-full ${
+                    isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
+                  }`}></div>
+                </div>
+              </div>
             </div>
 
             {/* Text Label */}
@@ -499,8 +519,16 @@ export default function Sidebar({
               <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
                 isMobile ? "w-12 h-12" : "w-10 h-10"
               }`}>
-                <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
-                  <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
+                <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
+                  isMobile ? "w-10 h-10" : "w-8 h-8"
+                }`}>
+                  <div className={`bg-white rounded-md flex items-center justify-center ${
+                    isMobile ? "w-5 h-5" : "w-4 h-4"
+                  }`}>
+                    <div className={`bg-idean-navy rounded-full ${
+                      isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
+                    }`}></div>
+                  </div>
                 </div>
               </div>
 
