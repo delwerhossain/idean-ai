@@ -257,8 +257,17 @@ export default function Sidebar({
             <div className={`relative flex items-center transition-colors ${
               isMobile ? "p-2" : "p-1"
             }`}>
-              {/* Fixed Icon Container - Never Changes */}
-              <div className={`flex-shrink-0 flex items-center justify-center ${
+              {/* Expandable Background */}
+              <div
+                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
+                  isMobile || isExpanded
+                    ? "opacity-100 scale-100"
+                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+                }`}
+              />
+
+              {/* Fixed Icon Container - Always Visible */}
+              <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
                 isMobile ? "w-12 h-12" : "w-10 h-10"
               }`}>
                 <div className={`bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
@@ -271,15 +280,6 @@ export default function Sidebar({
                   </span>
                 </div>
               </div>
-
-              {/* Expandable Background */}
-              <div
-                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
-                  isMobile || isExpanded
-                    ? "opacity-100 scale-100"
-                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
-                }`}
-              />
 
               {/* Text Content */}
               <div
@@ -309,8 +309,17 @@ export default function Sidebar({
                 isMobile ? "p-2" : "p-1"
               }`}
             >
-              {/* Fixed Icon Container - Never Changes */}
-              <div className={`flex-shrink-0 flex items-center justify-center ${
+              {/* Expandable Background */}
+              <div
+                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
+                  isMobile || isExpanded
+                    ? "opacity-100 scale-100"
+                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
+                }`}
+              />
+
+              {/* Fixed Icon Container - Always Visible */}
+              <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
                 isMobile ? "w-12 h-12" : "w-10 h-10"
               }`}>
                 <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow ${
@@ -321,15 +330,6 @@ export default function Sidebar({
                   }`} />
                 </div>
               </div>
-
-              {/* Expandable Background */}
-              <div
-                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
-                  isMobile || isExpanded
-                    ? "opacity-100 scale-100"
-                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
-                }`}
-              />
 
               {/* Text Content */}
               <div
@@ -378,17 +378,6 @@ export default function Sidebar({
                   }`}
                   title={!isExpanded && !isMobile ? item.label : undefined}
                 >
-                  {/* Fixed Icon Container - Never Changes */}
-                  <div className={`flex-shrink-0 flex items-center justify-center ${
-                    isMobile ? "w-12 h-12" : "w-10 h-10"
-                  }`}>
-                    <Icon
-                      className={`${
-                        isMobile ? "w-6 h-6" : "w-5 h-5"
-                      } ${isActive ? "text-blue-600" : "text-gray-700"}`}
-                    />
-                  </div>
-
                   {/* Expandable Background */}
                   <div
                     className={`absolute inset-0 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
@@ -401,6 +390,17 @@ export default function Sidebar({
                         : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
                     }`}
                   />
+
+                  {/* Fixed Icon Container - Always Visible */}
+                  <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
+                    isMobile ? "w-12 h-12" : "w-10 h-10"
+                  }`}>
+                    <Icon
+                      className={`${
+                        isMobile ? "w-6 h-6" : "w-5 h-5"
+                      } ${isActive ? "text-blue-600" : "text-gray-700"}`}
+                    />
+                  </div>
 
                   {/* Text Content */}
                   <div
@@ -448,16 +448,7 @@ export default function Sidebar({
                 : "p-1"
             }`}
           >
-            {/* Fixed Icon Container - Never Changes */}
-            <div className={`flex-shrink-0 flex items-center justify-center ${
-              isMobile ? "w-12 h-12" : "w-10 h-10"
-            }`}>
-              <div className={`w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center shadow-sm`}>
-                <Crown className="w-4 h-4 text-white" />
-              </div>
-            </div>
-
-            {/* Expandable Background and Text */}
+            {/* Expandable Background */}
             <div
               className={`absolute inset-0 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
                 isMobile || isExpanded
@@ -465,6 +456,15 @@ export default function Sidebar({
                   : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
               }`}
             />
+
+            {/* Fixed Icon Container - Always Visible */}
+            <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
+              isMobile ? "w-12 h-12" : "w-10 h-10"
+            }`}>
+              <Crown className={`text-amber-600 ${
+                isMobile ? "w-6 h-6" : "w-5 h-5"
+              }`} />
+            </div>
 
             {/* Text Label */}
             <span
@@ -486,15 +486,6 @@ export default function Sidebar({
                 isMobile ? "p-2" : "p-1"
               }`}
             >
-              {/* Fixed Icon Container - Never Changes */}
-              <div className={`flex-shrink-0 flex items-center justify-center ${
-                isMobile ? "w-12 h-12" : "w-10 h-10"
-              }`}>
-                <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
-                  <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
-                </div>
-              </div>
-
               {/* Expandable Background */}
               <div
                 className={`absolute inset-0 hover:bg-gray-50 rounded-lg transition-all duration-200 ease-out ${
@@ -503,6 +494,15 @@ export default function Sidebar({
                     : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
                 }`}
               />
+
+              {/* Fixed Icon Container - Always Visible */}
+              <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
+                isMobile ? "w-12 h-12" : "w-10 h-10"
+              }`}>
+                <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
+                  <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
+                </div>
+              </div>
 
               {/* Text Content */}
               <div
