@@ -894,7 +894,7 @@ ${editorContent}`
       <div className="flex-1 overflow-auto min-h-0">
         <div className="max-w-5xl mx-auto h-full">
           {isPreviewMode ? (
-            <div ref={printRef} className="p-6 sm:p-8 h-full">
+            <div ref={printRef} className="p-6 sm:p-8 h-full  mt-1 rounded-2xl ">
               {/* Print Header - Hidden on screen, visible when printing */}
               <div className="print:block hidden mb-8 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold text-gray-900">{framework.name}</h1>
