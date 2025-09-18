@@ -50,7 +50,6 @@ export default function ForgotPasswordPage() {
           <img
             src="/ideanai_logo.png"
             alt="iDEAN AI"
-            className="w-auto h-auto"
           />
         </Link>
         <Link href="/login">

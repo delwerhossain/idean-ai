@@ -47,7 +47,6 @@ export default function AuthLoading({
         <img
           src="/ideanai_logo.png"
           alt="iDEAN AI"
-          className="w-auto h-auto mb-6"
         />
 
         {/* Loading spinner */}

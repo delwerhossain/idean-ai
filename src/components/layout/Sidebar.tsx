@@ -215,11 +215,6 @@ export default function Sidebar({
           <img
             src="/ideanai_logo.png"
             alt="iDEAN AI"
-            className={`w-full h-auto transition-all duration-200 ease-out ${
-              isMobile || isExpanded
-                ? "opacity-100 scale-100"
-                : "lg:opacity-0 lg:scale-95 lg:w-0 lg:overflow-hidden"
-            }`}
           />
         </div>
 

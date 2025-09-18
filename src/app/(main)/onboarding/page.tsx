@@ -172,7 +172,6 @@ export default function OnboardingPage() {
           <img
             src="/ideanai_logo.png"
             alt="iDEAN AI"
-            className="w-auto h-auto"
           />
         </Link>
         <div className="flex items-center space-x-4">

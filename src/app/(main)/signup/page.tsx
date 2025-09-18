@@ -100,7 +100,6 @@ export default function SignupPage() {
           <img
             src="/ideanai_logo.png"
             alt="iDEAN AI"
-            className="w-auto h-auto"
           />
         </Link>
         <Link

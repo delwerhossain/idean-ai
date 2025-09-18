@@ -9,7 +9,6 @@ export default function PrivacyPolicy() {
             <img
               src="/ideanai_logo.png"
               alt="iDEAN AI"
-              className="w-auto h-auto"
             />
           </Link>
           <div className="flex space-x-6">
