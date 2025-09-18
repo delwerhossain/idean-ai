@@ -478,6 +478,7 @@ export function GenerationStudio({ type, framework, onBack }: GenerationStudioPr
               hasContent={!!generationResult?.content}
               onExport={handleExport}
               onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
+              documentId={generationResult?.documentId}
               onContentChange={(newContent) => {
                 if (generationResult) {
                   setGenerationResult({
