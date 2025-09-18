@@ -530,19 +530,20 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* Help Modal */}
-        <HelpModal
-          isOpen={showHelpModal}
-          onClose={() => setShowHelpModal(false)}
-        />
-
-        {/* Upgrade Modal */}
-        <UpgradeModal
-          isOpen={showUpgradeModal}
-          onClose={() => setShowUpgradeModal(false)}
-          currentPlan={currentPlan}
-        />
       </aside>
+
+      {/* Help Modal - Rendered outside sidebar for full-screen coverage */}
+      <HelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+      />
+
+      {/* Upgrade Modal - Rendered outside sidebar for full-screen coverage */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentPlan={currentPlan}
+      />
     </>
   );
 }
