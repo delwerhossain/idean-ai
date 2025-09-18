@@ -475,6 +475,24 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
   const currentSectionData = HELP_SECTIONS.find(s => s.id === currentSection);
 
+  // Filter sections and items based on search term
+  const filteredSections = HELP_SECTIONS.filter(section => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+
+    // Check if section title or description matches
+    const sectionMatches = section.title.toLowerCase().includes(searchLower) ||
+                          section.description.toLowerCase().includes(searchLower);
+
+    // Check if any item in the section matches
+    const itemMatches = section.items.some(item =>
+      item.title.toLowerCase().includes(searchLower) ||
+      item.description.toLowerCase().includes(searchLower)
+    );
+
+    return sectionMatches || itemMatches;
+  });
+
   return (
     <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
@@ -498,6 +516,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   variant="ghost"
                   size="sm"
                   className="text-white hover:bg-white/10 p-2"
+                  aria-label="Back to section items"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
@@ -507,6 +526,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   variant="ghost"
                   size="sm"
                   className="text-white hover:bg-white/10 p-2"
+                  aria-label="Back to help sections"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
@@ -607,7 +627,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
               {/* Help Sections */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {HELP_SECTIONS.map((section) => (
+                {filteredSections.length > 0 ? filteredSections.map((section) => (
                   <Card
                     key={section.id}
                     className="p-6 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 hover:border-gray-300"
@@ -627,7 +647,19 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                       </div>
                     </div>
                   </Card>
-                ))}
+                )) : (
+                  <div className="col-span-2 text-center py-8">
+                    <p className="text-gray-500">No help topics found matching "{searchTerm}"</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => setSearchTerm("")}
+                    >
+                      Clear search
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Quick Actions */}

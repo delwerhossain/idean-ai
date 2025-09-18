@@ -397,10 +397,7 @@ export default function Sidebar({
         <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-2">
           {/* Help Button */}
           <button
-            onClick={() => {
-              console.log('Help button clicked');
-              setShowHelpModal(true);
-            }}
+            onClick={() => setShowHelpModal(true)}
             className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 hover:bg-blue-50"
             title={!isExpanded && !isMobile ? "Help & Guide" : undefined}
           >
@@ -432,10 +429,7 @@ export default function Sidebar({
 
           {/* Upgrade Button */}
           <button
-            onClick={() => {
-              console.log('Upgrade button clicked');
-              setShowUpgradeModal(true);
-            }}
+            onClick={() => setShowUpgradeModal(true)}
             className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 hover:bg-amber-50"
             title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
           >

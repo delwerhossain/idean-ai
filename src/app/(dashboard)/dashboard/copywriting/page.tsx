@@ -213,7 +213,10 @@ export default function CopywritingPage() {
             <Filter className="w-4 h-4 mr-2" />
             Search
           </Button>
-          <Button className="bg-idean-navy hover:bg-idean-navy-dark flex-1 sm:flex-none">
+          <Button
+            onClick={() => window.open('/dashboard/copywriting/create', '_blank')}
+            className="bg-idean-navy hover:bg-idean-navy-dark flex-1 sm:flex-none"
+          >
             <Plus className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Create Framework</span>
             <span className="sm:hidden">Create</span>
@@ -248,6 +251,7 @@ export default function CopywritingPage() {
               </div>
               <Button
                 size="sm"
+                onClick={() => window.open('/dashboard/copywriting/assistant', '_blank')}
                 className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500 w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
               >
                 <PenTool className="w-4 h-4 mr-2" />
@@ -278,6 +282,7 @@ export default function CopywritingPage() {
               </div>
               <Button
                 size="sm"
+                onClick={() => window.open('/dashboard/copywriting/strategy', '_blank')}
                 className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 w-full sm:w-auto py-2 px-4 min-h-[36px] shadow touch-manipulation"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
