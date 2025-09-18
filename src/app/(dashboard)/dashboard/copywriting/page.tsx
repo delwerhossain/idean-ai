@@ -177,8 +177,8 @@ export default function CopywritingPage() {
             <PenTool className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AI Copywriting</h1>
-            <p className="text-gray-600 text-sm sm:text-base">Content generation frameworks for campaigns and marketing</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Brand & Content Studio</h1>
+            <p className="text-gray-600 text-sm sm:text-base">AI-powered content creation and brand development studio</p>
           </div>
         </div>
 
