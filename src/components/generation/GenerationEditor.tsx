@@ -109,41 +109,104 @@ export function GenerationEditor({
         return
       }
 
-      // More robust check for selection within editor
+      // Enhanced check for selection within editor - handles backwards selections
       let isWithinEditor = false
       try {
-        isWithinEditor = editorElement.contains(range.commonAncestorContainer) ||
-                        editorElement === range.commonAncestorContainer
+        const startContainer = range.startContainer
+        const endContainer = range.endContainer
+        const commonAncestor = range.commonAncestorContainer
+
+        // Check if selection is within editor using multiple validation methods
+        isWithinEditor = (
+          // Check common ancestor
+          editorElement.contains(commonAncestor) || editorElement === commonAncestor
+        ) && (
+          // Check start container
+          editorElement.contains(startContainer) || editorElement === startContainer ||
+          (startContainer.nodeType === Node.TEXT_NODE && editorElement.contains(startContainer.parentNode))
+        ) && (
+          // Check end container
+          editorElement.contains(endContainer) || editorElement === endContainer ||
+          (endContainer.nodeType === Node.TEXT_NODE && editorElement.contains(endContainer.parentNode))
+        )
+
+        console.log('🗺 Editor containment check:', {
+          isWithinEditor,
+          startInEditor: editorElement.contains(startContainer),
+          endInEditor: editorElement.contains(endContainer),
+          commonAncestorInEditor: editorElement.contains(commonAncestor)
+        })
       } catch (e) {
+        console.error('❌ Error checking editor containment:', e)
         setTextSelection(null)
         return
       }
 
       if (!isWithinEditor) {
+        console.log('❌ Selection not within editor bounds')
         setTextSelection(null)
         return
       }
 
-      const rect = range.getBoundingClientRect()
+      // Handle both forward and backward selections by getting proper bounding rect
+      let rect = range.getBoundingClientRect()
 
-      // Debug logging
-      console.log('Selection debug:', {
-        selectedText: selectedText.substring(0, 50),
+      // Check for backwards selection or invalid rect
+      const isBackwardsSelection = range.startContainer !== range.endContainer &&
+        range.startOffset > range.endOffset
+
+      // For backwards selections or invalid rects, try to get better bounds
+      if ((rect.width === 0 && rect.height === 0) || isBackwardsSelection) {
+        console.log('🔄 Handling backwards/invalid selection, recalculating bounds')
+
+        // Try to get client rects for better positioning
+        const clientRects = range.getClientRects()
+        if (clientRects.length > 0) {
+          // Use the first client rect
+          rect = clientRects[0]
+          console.log('✅ Using client rect for positioning')
+        } else {
+          // Last resort: create a temporary element to get positioning
+          try {
+            const tempSpan = document.createElement('span')
+            tempSpan.style.position = 'absolute'
+            range.surroundContents(tempSpan)
+            rect = tempSpan.getBoundingClientRect()
+
+            // Remove the temporary span
+            const parent = tempSpan.parentNode
+            if (parent) {
+              parent.replaceChild(tempSpan.firstChild!, tempSpan)
+            }
+            console.log('✅ Used temporary element for positioning')
+          } catch (e) {
+            console.warn('⚠️ Could not create temporary element for positioning')
+          }
+        }
+      }
+
+      // Enhanced debug logging
+      console.log('🔍 Selection debug:', {
+        selectedText: selectedText.substring(0, 50) + (selectedText.length > 50 ? '...' : ''),
+        length: selectedText.length,
+        isBackwards: isBackwardsSelection,
         rect: {
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height,
-          bottom: rect.bottom,
-          right: rect.right
+          top: Math.round(rect.top),
+          left: Math.round(rect.left),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+          bottom: Math.round(rect.bottom),
+          right: Math.round(rect.right)
         },
-        scrollY: window.scrollY,
-        scrollX: window.scrollX
+        viewport: {
+          scrollY: window.scrollY,
+          scrollX: window.scrollX
+        }
       })
 
-      // Ensure we have a valid rect
-      if (rect.width === 0 && rect.height === 0) {
-        console.log('Invalid rect detected, selection cancelled')
+      // Final validation - ensure we have some valid dimensions
+      if (rect.width <= 0 || rect.height <= 0) {
+        console.log('❌ Still invalid rect after processing, selection cancelled')
         setTextSelection(null)
         return
       }
@@ -156,22 +219,46 @@ export function GenerationEditor({
         return
       }
 
-      // Calculate text positions more accurately
+      // Calculate text positions more accurately - handle backwards selections
       let start = 0
       let end = selectedText.length
 
       try {
+        // Normalize range to handle backwards selections
+        const normalizedRange = range.cloneRange()
+
+        // Ensure start comes before end
+        if (range.startContainer === range.endContainer) {
+          if (range.startOffset > range.endOffset) {
+            normalizedRange.setStart(range.endContainer, range.endOffset)
+            normalizedRange.setEnd(range.startContainer, range.startOffset)
+          }
+        }
+
         const beforeRange = document.createRange()
         beforeRange.setStart(editorElement, 0)
-        beforeRange.setEnd(range.startContainer, range.startOffset)
+        beforeRange.setEnd(normalizedRange.startContainer, normalizedRange.startOffset)
         start = beforeRange.toString().length
         end = start + selectedText.length
+
         beforeRange.detach()
+        normalizedRange.detach()
+
+        console.log('📍 Position calculation:', { start, end, textLength: selectedText.length })
       } catch (e) {
+        console.warn('⚠️ Position calculation failed, using fallback:', e)
         // Fallback calculation
         const fullText = editorElement.textContent || ''
         start = fullText.indexOf(selectedText)
+        if (start === -1) {
+          // If exact match fails, try to find approximate position
+          const words = selectedText.split(/\s+/).filter(w => w.length > 2)
+          if (words.length > 0) {
+            start = fullText.indexOf(words[0])
+          }
+        }
         end = start + selectedText.length
+        console.log('📍 Fallback position:', { start, end })
       }
 
       const newSelection = {
@@ -876,9 +963,14 @@ ${editorContent}`
                   suppressContentEditableWarning
                   onInput={(e) => handleContentEdit(e.currentTarget.textContent || '')}
                   onMouseUp={handleEditorMouseUp}
+                  onMouseDown={() => {
+                    // Clear any existing selection when starting new selection
+                    setTimeout(handleTextSelection, 10)
+                  }}
                   onKeyUp={handleEditorKeyUp}
                   onFocus={handleEditorFocus}
                   onDoubleClick={handleTextSelection} // Handle double-click selection
+                  onSelect={handleTextSelection} // Better backwards selection detection
                   style={{
                     whiteSpace: 'pre-wrap',
                     userSelect: 'text',

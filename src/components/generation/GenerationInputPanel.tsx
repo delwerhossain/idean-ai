@@ -178,7 +178,7 @@ export function GenerationInputPanel({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 pb-32 bg-gray-50">
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-start justify-between gap-3">
@@ -370,8 +370,8 @@ export function GenerationInputPanel({
         )}
       </div>
 
-      {/* Generate Button */}
-      <div className="p-4 sm:p-6 bg-white border-t border-gray-200">
+      {/* Generate Button - Fixed at Bottom */}
+      <div className="sticky bottom-0 p-4 sm:p-6 bg-white border-t border-gray-200 shadow-lg z-10">
         <Button
           onClick={onGenerate}
           disabled={!isFormValid() || isGenerating}
