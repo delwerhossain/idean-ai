@@ -218,14 +218,14 @@ export default function Sidebar({
               <img
                 src="/ideanai_logo.png"
                 alt="iDEAN AI"
-                className="h-8 w-auto transition-all duration-200 ease-out"
+                className="h-12 w-auto transition-all duration-200 ease-out"
               />
             ) : (
               // Icon only when collapsed on desktop
               <img
                 src="/ideanai_logo_icon.png"
                 alt="iDEAN AI"
-                className="w-8 h-8 transition-all duration-200 ease-out"
+                className="w-12 h-12 transition-all duration-200 ease-out"
               />
             )}
           </div>
