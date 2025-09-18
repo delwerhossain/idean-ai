@@ -22,7 +22,11 @@ export default function CopywritingGenerationPage() {
 
   useEffect(() => {
     const loadCopywriting = async () => {
-      if (!copywritingId) return
+      if (!copywritingId || !user) {
+        setError('Authentication required to access copywriting frameworks.')
+        setLoading(false)
+        return
+      }
 
       try {
         setLoading(true)
@@ -30,136 +34,25 @@ export default function CopywritingGenerationPage() {
 
         console.log('Loading copywriting framework with ID:', copywritingId)
 
-        // Helper function to check if ID is a UUID
-        const isUUID = (str: string) => {
-          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-          return uuidRegex.test(str)
-        }
+        // Load framework from backend API
+        const response = await ideanApi.copywriting.getById(copywritingId)
+        console.log('✅ Backend copywriting framework loaded:', response)
+        setCopywriting(response)
 
-        // Check if this is a predefined framework ID first
-        const predefinedFrameworks = {
-          'neuro-copy': {
-            id: 'neuro-copy',
-            name: 'NeuroCopywriting™',
-            description: 'Psychology-driven copywriting that triggers buying behavior using proven neuromarketing principles',
-            input_fields: [
-              'productName:string',
-              'targetAudience:string',
-              'painPoint:string',
-              'mainBenefit:string',
-              'socialProof:string',
-              'additionalInstructions:text'
-            ],
-            system_prompt: 'You are an expert copywriter specializing in neuropsychology-based persuasion. Create compelling copy that triggers buying behavior using psychological triggers, emotional appeals, and cognitive biases.',
-            user_starting_prompt: 'Let\'s create powerful conversion copy using proven psychological triggers and neuromarketing principles.'
-          },
-          'sales-pages': {
-            id: 'sales-pages',
-            name: 'Sales Page Framework',
-            description: 'High-converting sales pages with proven structures and psychological elements',
-            input_fields: [
-              'productName:string',
-              'targetAudience:string',
-              'problemDescription:string',
-              'solutionBenefits:string',
-              'ctaText:string',
-              'pricePoint:string',
-              'additionalInstructions:text'
-            ],
-            system_prompt: 'You are an expert sales page copywriter. Create high-converting sales pages using proven frameworks like AIDA, PAS, and Before-After-Bridge.',
-            user_starting_prompt: 'Let\'s build a compelling sales page that converts visitors into customers using proven sales frameworks.'
-          },
-          'nuclear-content': {
-            id: 'nuclear-content',
-            name: 'Nuclear Content™',
-            description: 'Viral content creation framework for maximum engagement',
-            input_fields: [
-              'contentTopic:string',
-              'targetAudience:string',
-              'platform:string',
-              'contentGoal:string',
-              'brandVoice:string',
-              'additionalInstructions:text'
-            ],
-            system_prompt: 'You are an expert viral content creator. Create engaging, shareable content that maximizes reach and engagement using proven viral mechanics.',
-            user_starting_prompt: 'Let\'s create viral content that captures attention and drives massive engagement.'
-          },
-          /* 'ad-copy': {
-            id: 'ad-copy',
-            name: 'Facebook Ad Copy',
-            description: 'High-converting Facebook ad copy that drives clicks and conversions',
-            input_fields: [
-              'productName:string',
-              'targetAudience:string',
-              'adGoal:string',
-              'keyBenefit:string',
-              'callToAction:string',
-              'additionalInstructions:text'
-            ],
-            system_prompt: 'You are an expert Facebook ads copywriter. Create compelling ad copy that captures attention, builds interest, and drives conversions.',
-            user_starting_prompt: 'Let\'s create high-converting Facebook ad copy that drives results.'
-          }, */
-          /* 'email-sequences': {
-            id: 'email-sequences',
-            name: 'Email Marketing Sequences',
-            description: 'Automated email sequences that nurture leads and drive conversions',
-            input_fields: [
-              'campaignGoal:string',
-              'targetAudience:string',
-              'productService:string',
-              'sequenceType:string',
-              'brandTone:string',
-              'additionalInstructions:text'
-            ],
-            system_prompt: 'You are an expert email marketer. Create effective email sequences that build relationships, provide value, and convert subscribers into customers.',
-            user_starting_prompt: 'Let\'s build an email sequence that nurtures leads and drives conversions.'
-          } */
-        }
-
-        // If ID is a UUID, try backend first (custom frameworks)
-        if (isUUID(copywritingId)) {
-          // Check if user is authenticated for backend frameworks
-          if (!user) {
-            setError('Please sign in to access custom copywriting frameworks.')
-            return
-          }
-
-          // Try to load from backend
-          console.log(`Loading backend copywriting framework with UUID: ${copywritingId}`)
-          const response = await ideanApi.copywriting.getById(copywritingId)
-          console.log('✅ Backend copywriting framework loaded:', response)
-          setCopywriting(response)
-          return
-        }
-
-        // If not a UUID, check for predefined framework
-        if (predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks]) {
-          console.log('Loading predefined framework:', copywritingId)
-          const framework = predefinedFrameworks[copywritingId as keyof typeof predefinedFrameworks]
-          setCopywriting({
-            ...framework,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          })
-          return
-        }
-
-        // If neither UUID nor predefined, show error
-        setError(`Copywriting framework '${copywritingId}' not found. Please check the URL or try a different framework.`)
       } catch (err: unknown) {
-        console.error(`Failed to load backend copywriting framework '${copywritingId}':`, err)
+        console.error(`Failed to load copywriting framework '${copywritingId}':`, err)
 
         // Handle specific error cases
         if (err && typeof err === 'object' && 'status' in err) {
           if ((err as any).status === 401) {
-            setError('Authentication required. Please sign in to access this custom framework.')
+            setError('Authentication required. Please sign in to access this framework.')
           } else if ((err as any).status === 404) {
-            setError(`Custom copywriting framework '${copywritingId}' not found. It may have been deleted or you may not have access.`)
+            setError(`Copywriting framework not found. It may have been deleted or you may not have access.`)
           } else {
-            setError((err as any).message || `Failed to load custom framework '${copywritingId}'. Please try again.`)
+            setError((err as any).message || `Failed to load framework. Please try again.`)
           }
         } else {
-          setError(`Failed to load copywriting framework '${copywritingId}'. Please try again.`)
+          setError(`Failed to load copywriting framework. Please try again.`)
         }
       } finally {
         setLoading(false)
