@@ -5,12 +5,13 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { 
-  PenTool, 
-  Plus, 
+import {
+  PenTool,
+  Plus,
   Search,
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  TrendingUp
 } from 'lucide-react'
 import { ideanApi, Copywriting } from '@/lib/api/idean-api'
 
