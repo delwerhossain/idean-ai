@@ -43,10 +43,11 @@ export default function AuthLoading({
   return (
     <div className={`flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 ${className}`}>
       <div className="text-center max-w-md mx-auto p-8">
-        {/* Raw Logo Image */}
+        {/* Logo */}
         <img
           src="/ideanai_logo.png"
           alt="iDEAN AI"
+          className="h-12 w-auto mb-8"
         />
 
         {/* Loading spinner */}
