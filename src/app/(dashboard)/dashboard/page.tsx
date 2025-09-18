@@ -244,7 +244,7 @@ export default function DashboardPage() {
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">{greeting}! 🚀</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">Welcome to iDEAN AI: Your Growth Co-Pilot! 🚀</h1>
                 <p className="text-gray-600 text-base sm:text-lg">
                   Welcome to <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic command center
                 </p>
