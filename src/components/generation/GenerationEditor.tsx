@@ -174,7 +174,7 @@ export function GenerationEditor({
         end = start + selectedText.length
       }
 
-      setTextSelection({
+      const newSelection = {
         text: selectedText,
         start: Math.max(0, start),
         end: Math.max(selectedText.length, end),
@@ -186,12 +186,32 @@ export function GenerationEditor({
           width: rect.width,
           height: rect.height + 5
         } as DOMRect
+      }
+
+      setTextSelection(newSelection)
+
+      console.log('✅ Text selection successfully set:', {
+        text: selectedText.substring(0, 50) + (selectedText.length > 50 ? '...' : ''),
+        length: selectedText.length,
+        hasSelection: !!newSelection.text
       })
     }, 50) // Small delay to ensure selection is stable
   }
 
   // Handle regenerate toolbar click
   const handleRegenerateToolbarClick = (selectedText: string, start: number, end: number) => {
+    console.log('🎯 Toolbar clicked with:', {
+      selectedText: selectedText.substring(0, 50) + '...',
+      textSelectionState: textSelection?.text?.substring(0, 50) + '...',
+      hasTextSelection: !!textSelection
+    })
+
+    // Ensure we have a valid text selection before opening modal
+    if (!textSelection || !textSelection.text) {
+      console.error('❌ No text selection available for regeneration')
+      return
+    }
+
     setShowRegenerateModal(true)
   }
 
@@ -350,38 +370,53 @@ export function GenerationEditor({
   }
 
   const handleEditorFocus = () => {
-    // Clear selection when editor gets focus
+    // Don't clear selection when modal is open
+    if (showRegenerateModal) {
+      console.log('🚫 Preserving selection on focus - modal is open')
+      return
+    }
+
+    // Clear selection when editor gets focus if no valid selection
     setTimeout(() => {
       const selection = window.getSelection()
       if (!selection || selection.isCollapsed) {
+        console.log('🗑️ Clearing selection on focus - no valid selection')
         setTextSelection(null)
       }
     }, 100)
   }
 
-  // Clear selection when clicking outside editor
+  // Clear selection when clicking outside editor (but preserve for modal)
   useEffect(() => {
     const handleDocumentClick = (e: MouseEvent) => {
-      if (editorRef.current && !editorRef.current.contains(e.target as Node)) {
-        setTextSelection(null)
+      // Don't clear selection if modal is open
+      if (showRegenerateModal) {
+        console.log('🚫 Preserving selection - modal is open')
+        return
       }
-    }
 
-    const handleSelectionChange = () => {
-      const selection = window.getSelection()
-      if (!selection || selection.isCollapsed) {
+      // Don't clear selection if clicking on toolbar or modal elements
+      const target = e.target as Element
+      if (target.closest('[data-floating-toolbar]') ||
+          target.closest('[data-regenerate-modal]') ||
+          target.closest('[role="dialog"]')) {
+        console.log('🚫 Preserving selection - clicked on UI element')
+        return
+      }
+
+      // Only clear if clicking outside the editor
+      if (editorRef.current && !editorRef.current.contains(e.target as Node)) {
+        console.log('🗑️ Clearing selection - clicked outside editor')
         setTextSelection(null)
       }
     }
 
     document.addEventListener('click', handleDocumentClick)
-    document.addEventListener('selectionchange', handleSelectionChange)
 
     return () => {
       document.removeEventListener('click', handleDocumentClick)
-      document.removeEventListener('selectionchange', handleSelectionChange)
     }
-  }, [])
+  }, [showRegenerateModal])
 
   const handleCopyToClipboard = async () => {
     try {
@@ -860,8 +895,10 @@ ${editorContent}`
               <RegeneratePromptModal
                 isOpen={showRegenerateModal}
                 onClose={() => {
+                  console.log('🚪 Closing regeneration modal')
                   setShowRegenerateModal(false)
-                  setTextSelection(null)
+                  // Don't clear selection immediately - let user see the result
+                  setTimeout(() => setTextSelection(null), 100)
                 }}
                 selectedText={textSelection?.text || ''}
                 onRegenerate={handleRegenerateWithInstruction}

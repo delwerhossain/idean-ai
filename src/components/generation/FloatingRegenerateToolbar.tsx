@@ -122,6 +122,7 @@ export function FloatingRegenerateToolbar({
         style={toolbarStyle}
         className="bg-white shadow-2xl border border-gray-200 rounded-lg p-2 flex items-center gap-2 transition-all duration-200 hover:shadow-xl"
         onClick={(e) => e.stopPropagation()}
+        data-floating-toolbar="true"
       >
         {/* Selection Indicator */}
         <div className="flex items-center gap-1">
