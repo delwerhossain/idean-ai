@@ -397,12 +397,16 @@ export default function Sidebar({
         <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-2">
           {/* Help Button */}
           <button
-            onClick={() => setShowHelpModal(true)}
-            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 mb-2"
+            onClick={() => {
+              console.log('Help button clicked');
+              setShowHelpModal(true);
+            }}
+            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 hover:bg-blue-50"
+            title={!isExpanded && !isMobile ? "Help & Guide" : undefined}
           >
             {/* Expandable Background */}
             <div
-              className={`absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
+              className={`absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out hover:from-blue-100 hover:to-indigo-100 ${
                 isMobile || isExpanded
                   ? "opacity-100 scale-100"
                   : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
@@ -411,7 +415,7 @@ export default function Sidebar({
 
             {/* Fixed Icon Container - Always Same Position */}
             <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
-              <HelpCircle className="text-blue-600 w-5 h-5" />
+              <HelpCircle className="text-blue-600 w-5 h-5 hover:text-blue-700 transition-colors" />
             </div>
 
             {/* Text Label */}
@@ -428,8 +432,12 @@ export default function Sidebar({
 
           {/* Upgrade Button */}
           <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2"
+            onClick={() => {
+              console.log('Upgrade button clicked');
+              setShowUpgradeModal(true);
+            }}
+            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2 hover:bg-amber-50"
+            title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
           >
             {/* Expandable Background */}
             <div
