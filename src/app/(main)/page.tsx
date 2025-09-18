@@ -12,11 +12,12 @@ export default function Home() {
       <nav className="border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-idean-navy rounded-lg flex items-center justify-center">
-                <span className="text-idean-white font-bold text-sm">iA</span>
-              </div>
-              <span className="font-bold text-xl text-gray-900">iDEAN AI</span>
+            <Link href="/">
+              <img
+                src="/ideanai_logo.png"
+                alt="iDEAN AI"
+                className="w-auto h-auto"
+              />
             </Link>
             <div className="flex items-center space-x-6">
               <Link href="/dashboard/onboarding">

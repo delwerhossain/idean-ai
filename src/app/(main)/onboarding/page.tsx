@@ -168,11 +168,12 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-white pb-16">
       {/* Header with login link */}
       <div className="flex justify-between items-center p-6">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-            <span className="text-sm font-bold text-white">iA</span>
-          </div>
-          <span className="text-xl font-semibold text-gray-900">iDEAN AI</span>
+        <Link href="/">
+          <img
+            src="/ideanai_logo.png"
+            alt="iDEAN AI"
+            className="w-auto h-auto"
+          />
         </Link>
         <div className="flex items-center space-x-4">
           <Button

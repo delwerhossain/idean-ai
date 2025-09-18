@@ -199,64 +199,35 @@ export default function Sidebar({
           }
         }}
       >
-        {/* Mobile Header with Close Button */}
-        <div className={`flex-shrink-0 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white transition-all duration-200 ${
-          isMobile ? "p-5" : isExpanded ? "p-4" : "px-2 py-4"
-        }`}>
-          <div className={`flex items-center transition-all duration-200 ${
-            isMobile ? "gap-3" : isExpanded ? "gap-2" : "gap-0 justify-center"
-          }`}>
-            {/* Close Button (Mobile Only) */}
-            <button
-              onClick={onToggle}
-              className="lg:hidden p-3 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-all duration-300 touch-manipulation shadow-md"
-              aria-label="Close menu"
-              type="button"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
+        {/* Header with Logo */}
+        <div className="flex-shrink-0 border-b border-gray-200 bg-white relative">
+          {/* Close Button (Mobile Only) */}
+          <button
+            onClick={onToggle}
+            className="lg:hidden absolute top-2 right-2 p-1 rounded-lg hover:bg-gray-100 transition-colors z-10"
+            aria-label="Close menu"
+            type="button"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
 
-            <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg lg:shadow-sm transition-all duration-200 ${
-              isMobile ? "w-10 h-10" : isExpanded ? "w-8 h-8" : "w-8 h-8"
-            }`}>
-              <div className={`bg-white rounded-md flex items-center justify-center ${
-                isMobile ? "w-5 h-5" : "w-4 h-4"
-              }`}>
-                <div className={`bg-idean-navy rounded-full ${
-                  isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                }`}></div>
-              </div>
-            </div>
-
-            {/* Enhanced title with smooth transitions */}
-            <div
-              className={`flex flex-col flex-1 min-w-0 transition-all duration-200 ease-out ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100 translate-x-0"
-                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
-              }`}
-            >
-              <span className={`font-bold text-gray-900 truncate whitespace-nowrap ${
-                isMobile ? "text-xl" : "text-lg"
-              }`}>
-                iDEAN AI
-              </span>
-              <span className="text-xs text-gray-500 lg:hidden">
-                Business Strategy AI
-              </span>
-            </div>
-          </div>
+          {/* Raw Logo Image */}
+          <img
+            src="/ideanai_logo.png"
+            alt="iDEAN AI"
+            className={`w-full h-auto transition-all duration-200 ease-out ${
+              isMobile || isExpanded
+                ? "opacity-100 scale-100"
+                : "lg:opacity-0 lg:scale-95 lg:w-0 lg:overflow-hidden"
+            }`}
+          />
         </div>
 
         {/* Business Section - Smart Business Display */}
-        <div className={`flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white transition-all duration-200 ${
-          isMobile ? "p-4" : isExpanded ? "p-3" : "px-2 py-3"
-        }`}>
+        <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white p-2">
           {user?.business?.business_name || user?.businessId ? (
             // User has a business - show business info
-            <div className={`relative flex items-center transition-colors ${
-              isMobile ? "p-2" : "p-1"
-            }`}>
+            <div className="relative flex items-center transition-colors p-2">
               {/* Expandable Background */}
               <div
                 className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
@@ -266,20 +237,12 @@ export default function Sidebar({
                 }`}
               />
 
-              {/* Fixed Icon Container - Always Visible */}
-              <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
-                isMobile ? "w-12 h-12" : "w-10 h-10"
-              }`}>
-                <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
-                  isMobile ? "w-10 h-10" : "w-8 h-8"
-                }`}>
-                  <div className={`bg-white rounded-md flex items-center justify-center ${
-                    isMobile ? "w-5 h-5" : "w-4 h-4"
-                  }`}>
-                    <div className={`bg-idean-navy rounded-full ${
-                      isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                    }`}></div>
-                  </div>
+              {/* Fixed Icon Container - Always Same Position */}
+              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm w-8 h-8">
+                  <span className="text-white font-bold text-sm">
+                    {user.business?.business_name?.[0]?.toUpperCase() || "B"}
+                  </span>
                 </div>
               </div>
 
@@ -307,9 +270,7 @@ export default function Sidebar({
             // User doesn't have a business - show add business prompt
             <Link
               href="/dashboard/onboarding"
-              className={`relative flex items-center transition-all duration-300 group ${
-                isMobile ? "p-2" : "p-1"
-              }`}
+              className="relative flex items-center transition-all duration-300 group p-2"
             >
               {/* Expandable Background */}
               <div
@@ -320,20 +281,10 @@ export default function Sidebar({
                 }`}
               />
 
-              {/* Fixed Icon Container - Always Visible */}
-              <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
-                isMobile ? "w-12 h-12" : "w-10 h-10"
-              }`}>
-                <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow ${
-                  isMobile ? "w-10 h-10" : "w-8 h-8"
-                }`}>
-                  <div className={`bg-white rounded-md flex items-center justify-center ${
-                    isMobile ? "w-5 h-5" : "w-4 h-4"
-                  }`}>
-                    <div className={`bg-idean-navy rounded-full ${
-                      isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                    }`}></div>
-                  </div>
+              {/* Fixed Icon Container - Always Same Position */}
+              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow w-8 h-8">
+                  <Plus className="text-white w-4 h-4" />
                 </div>
               </div>
 
@@ -366,9 +317,7 @@ export default function Sidebar({
             isExpanded ? "lg:overflow-y-auto" : "lg:overflow-y-hidden"
           }`}
         >
-          <nav className={`space-y-2 lg:space-y-1 transition-all duration-200 ${
-            isMobile ? "p-4" : isExpanded ? "p-3" : "p-2"
-          }`}>
+          <nav className="space-y-1 p-2">
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -377,11 +326,7 @@ export default function Sidebar({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex items-center transition-all duration-300 group touch-manipulation ${
-                    isMobile
-                      ? "p-3 min-h-[60px]"
-                      : "p-2"
-                  }`}
+                  className="relative flex items-center transition-all duration-300 group touch-manipulation p-2"
                   title={!isExpanded && !isMobile ? item.label : undefined}
                 >
                   {/* Expandable Background */}
@@ -397,21 +342,11 @@ export default function Sidebar({
                     }`}
                   />
 
-                  {/* Fixed Icon Container - Always Visible */}
-                  <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
-                    isMobile ? "w-12 h-12" : "w-10 h-10"
-                  }`}>
-                    <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
-                      isMobile ? "w-10 h-10" : "w-8 h-8"
-                    }`}>
-                      <div className={`bg-white rounded-md flex items-center justify-center ${
-                        isMobile ? "w-5 h-5" : "w-4 h-4"
-                      }`}>
-                        <div className={`${isActive ? "bg-blue-600" : "bg-idean-navy"} rounded-full ${
-                          isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                        }`}></div>
-                      </div>
-                    </div>
+                  {/* Fixed Icon Container - Always Same Position */}
+                  <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                    <Icon
+                      className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-700"}`}
+                    />
                   </div>
 
                   {/* Text Content */}
@@ -448,17 +383,11 @@ export default function Sidebar({
         </div>
 
         {/* Fixed Bottom Section */}
-        <div className={`flex-shrink-0 border-t border-gray-100 bg-gray-50/50 transition-all duration-200 ${
-          isMobile ? "p-4 space-y-3" : isExpanded ? "p-3 space-y-2" : "px-2 py-3 space-y-2"
-        }`}>
+        <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-2">
           {/* Upgrade Button */}
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className={`relative flex items-center w-full transition-all duration-300 touch-manipulation ${
-              isMobile
-                ? "p-2"
-                : "p-1"
-            }`}
+            className="relative flex items-center w-full transition-all duration-300 touch-manipulation p-2"
           >
             {/* Expandable Background */}
             <div
@@ -469,21 +398,9 @@ export default function Sidebar({
               }`}
             />
 
-            {/* Fixed Icon Container - Always Visible */}
-            <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
-              isMobile ? "w-12 h-12" : "w-10 h-10"
-            }`}>
-              <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
-                isMobile ? "w-10 h-10" : "w-8 h-8"
-              }`}>
-                <div className={`bg-white rounded-md flex items-center justify-center ${
-                  isMobile ? "w-5 h-5" : "w-4 h-4"
-                }`}>
-                  <div className={`bg-idean-navy rounded-full ${
-                    isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                  }`}></div>
-                </div>
-              </div>
+            {/* Fixed Icon Container - Always Same Position */}
+            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+              <Crown className="text-amber-600 w-5 h-5" />
             </div>
 
             {/* Text Label */}
@@ -502,9 +419,7 @@ export default function Sidebar({
           <div className="relative lg:block hidden">
             <button
               onClick={() => setShowAccountMenu(!showAccountMenu)}
-              className={`relative flex items-center w-full cursor-pointer transition-all duration-300 group ${
-                isMobile ? "p-2" : "p-1"
-              }`}
+              className="relative flex items-center w-full cursor-pointer transition-all duration-300 group p-2"
             >
               {/* Expandable Background */}
               <div
@@ -515,20 +430,10 @@ export default function Sidebar({
                 }`}
               />
 
-              {/* Fixed Icon Container - Always Visible */}
-              <div className={`relative z-20 flex-shrink-0 flex items-center justify-center ${
-                isMobile ? "w-12 h-12" : "w-10 h-10"
-              }`}>
-                <div className={`bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm ${
-                  isMobile ? "w-10 h-10" : "w-8 h-8"
-                }`}>
-                  <div className={`bg-white rounded-md flex items-center justify-center ${
-                    isMobile ? "w-5 h-5" : "w-4 h-4"
-                  }`}>
-                    <div className={`bg-idean-navy rounded-full ${
-                      isMobile ? "w-2.5 h-2.5" : "w-2 h-2"
-                    }`}></div>
-                  </div>
+              {/* Fixed Icon Container - Always Same Position */}
+              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+                <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
+                  <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
               </div>
 

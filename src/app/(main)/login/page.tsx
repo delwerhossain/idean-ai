@@ -10,11 +10,12 @@ export default function LoginPage() {
     <div className="h-screen bg-white overflow-hidden">
       {/* Header with navigation */}
       <div className="flex justify-between items-center p-6 border-b border-gray-100">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-idean-navy rounded-lg flex items-center justify-center">
-            <span className="text-sm font-bold text-idean-white">iA</span>
-          </div>
-          <span className="text-xl font-semibold text-gray-900">iDEAN AI</span>
+        <Link href="/">
+          <img
+            src="/ideanai_logo.png"
+            alt="iDEAN AI"
+            className="w-auto h-auto"
+          />
         </Link>
         <div className="flex space-x-4">
           <Link href="/onboarding">
