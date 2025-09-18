@@ -211,11 +211,24 @@ export default function Sidebar({
             <X className="w-4 h-4 text-gray-600" />
           </button>
 
-          {/* Raw Logo Image */}
-          <img
-            src="/ideanai_logo.png"
-            alt="iDEAN AI"
-          />
+          {/* Logo Section - Responsive to sidebar state */}
+          <div className="p-4 flex items-center justify-center lg:justify-start">
+            {isMobile || isExpanded ? (
+              // Full logo when expanded or on mobile
+              <img
+                src="/ideanai_logo.png"
+                alt="iDEAN AI"
+                className="h-8 w-auto transition-all duration-200 ease-out"
+              />
+            ) : (
+              // Icon only when collapsed on desktop
+              <img
+                src="/ideanai_logo_icon.png"
+                alt="iDEAN AI"
+                className="w-8 h-8 transition-all duration-200 ease-out"
+              />
+            )}
+          </div>
         </div>
 
         {/* Business Section - Smart Business Display */}
