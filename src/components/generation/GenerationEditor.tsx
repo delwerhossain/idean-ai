@@ -712,7 +712,7 @@ ${editorContent}`
   return (
     <div className="h-full bg-white flex flex-col">
       {/* Top Toolbar - Compact */}
-      <div className="bg-white border-b px-3 sm:px-4 py-2">
+      <div className="bg-white border-b px-3 sm:px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left: Edit/Preview Toggle */}
           <div className="flex items-center gap-1 sm:gap-2">
