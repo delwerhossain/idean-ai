@@ -421,7 +421,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* Business Health Dashboard & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+      <div className=" grid-cols-1 lg:grid-cols-2 gap-4 mb-4 hidden">
         {/* Business Health Dashboard */}
         <Card className="p-4">
           <div className="flex items-center gap-3 mb-6">
