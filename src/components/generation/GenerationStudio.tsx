@@ -34,6 +34,14 @@ interface GenerationResult {
     tokensUsed?: number
     model?: string
   }
+  documentHistory?: Array<{
+    id: string
+    name: string
+    output_content: string
+    createdAt: string
+    user_request?: string
+    generation_type?: string
+  }>
 }
 
 export function GenerationStudio({ type, framework, template, onBack }: GenerationStudioProps) {
@@ -167,7 +175,8 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
             timestamp: new Date().toISOString(),
             tokensUsed: metadata.usage.total_tokens,
             model: metadata.model
-          }
+          },
+          documentHistory: response.data.documentHistory || []
         })
       } else {
         // Legacy response format (for other API types)
@@ -293,6 +302,24 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
       setError(`Failed to regenerate section: ${err.message}`)
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  // Handle document history updates from chat regeneration
+  const handleHistoryUpdate = (newHistory: Array<{
+    id: string
+    name: string
+    output_content: string
+    createdAt: string
+    user_request?: string
+    generation_type?: string
+  }>) => {
+    console.log('📁 Updating document history in GenerationStudio:', newHistory.length, 'items')
+    if (generationResult) {
+      setGenerationResult({
+        ...generationResult,
+        documentHistory: newHistory
+      })
     }
   }
 
@@ -540,8 +567,8 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
       )}
 
       <div className="flex flex-1 lg:flex-row h-full min-h-0">
-        {/* Left Panel - Input Form */}
-        <div className={`w-full lg:w-2/5 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
+        {/* Left Panel - Input Form - Reduced width for more content space */}
+        <div className={`w-full lg:w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
           // Desktop: hide when editing, Mobile: show based on mobileView
           currentStep === 'editing'
             ? `${mobileView === 'input' ? 'flex' : 'hidden'} lg:flex`
@@ -582,6 +609,14 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
               onExport={handleExport}
               onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
               documentId={generationResult?.documentId}
+              userInputs={inputs}
+              userSelections={{
+                tone: generationOptions.tone,
+                length: generationOptions.length,
+                audience: generationOptions.audience
+              }}
+              documentHistory={generationResult?.documentHistory || []}
+              onHistoryUpdate={handleHistoryUpdate}
               onContentChange={(newContent) => {
                 if (generationResult) {
                   setGenerationResult({

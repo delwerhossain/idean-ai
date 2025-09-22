@@ -77,7 +77,8 @@
       "Bash(rm:*)",
       "Bash(pnmp:*)",
       "WebFetch(domain:www.ideanconsulting.com)",
-      "WebFetch(domain:azure.microsoft.com)"
+      "WebFetch(domain:azure.microsoft.com)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": [],

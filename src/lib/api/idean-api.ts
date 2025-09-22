@@ -82,6 +82,28 @@ export interface RegenerateSpecificResponse {
   }
 }
 
+// Response type for chat-based feedback regeneration
+export interface ChatRegenerationResponse {
+  success: boolean
+  message: string
+  data: {
+    regeneratedContent: string
+    userFeedback: string
+    documentHistory: Array<{
+      id: string
+      name: string
+      output_content: string
+      createdAt: string
+    }>
+    generationMetadata: {
+      usage: any
+      model: string
+      finishReason: string
+      timestamp: string
+    }
+  }
+}
+
 export interface CopywritingGenerateResponse {
   success: boolean
   message: string
@@ -323,6 +345,22 @@ export const ideanApi = {
       }
     }) =>
       apiClient.post<RegenerateSpecificResponse>(`/api/v1/copywriting/${id}/regeneratespecific`, data),
+
+    // Chat-based feedback regeneration
+    chatRegenerate: (id: string, data: {
+      userMessage: string
+      documentId?: string
+      userInputs?: Record<string, any>
+      userSelections?: Record<string, any>
+      businessContext?: boolean
+      includeHistory?: boolean
+      generationOptions?: {
+        temperature?: number
+        maxTokens?: number
+        topP?: number
+      }
+    }) =>
+      apiClient.post<ChatRegenerationResponse>(`/api/v1/copywriting/${id}/chat`, data),
 
     // Create template from copywriting framework
     createTemplate: (id: string, data: {

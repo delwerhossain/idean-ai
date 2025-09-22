@@ -118,11 +118,11 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
 
         <div className="flex flex-col flex-1 lg:ml-0 transition-all duration-200 ease-out">
           {/* Mobile Header */}
-          <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between min-h-[60px] relative z-10">
+          <header className="lg:hidden bg-white border-b border-gray-200 px-3 sm:px-4 py-3 flex items-center justify-between min-h-[56px] sm:min-h-[60px] relative z-10">
             {/* Left: Menu Button */}
             <button
               onClick={handleToggleSidebar}
-              className="flex items-center justify-center w-10 h-10 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+              className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
               aria-label="Open menu"
               type="button"
             >
@@ -131,12 +131,25 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
 
             {/* Center: Logo */}
             <div className="flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-md flex items-center justify-center shadow-sm">
-                <div className="w-3 h-3 bg-white rounded-sm flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-idean-navy rounded-full"></div>
-                </div>
-              </div>
-              <span className="font-bold text-sm text-gray-900">iDEAN AI</span>
+              <img
+                src="/ideanai_logo_icon.png"
+                alt="iDEAN AI"
+                className="w-6 h-6 object-contain"
+                onError={(e) => {
+                  // Fallback to custom icon if image fails
+                  e.currentTarget.style.display = 'none';
+                  const fallback = document.createElement('div');
+                  fallback.className = 'w-6 h-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-md flex items-center justify-center shadow-sm';
+                  const inner = document.createElement('div');
+                  inner.className = 'w-3 h-3 bg-white rounded-sm flex items-center justify-center';
+                  const dot = document.createElement('div');
+                  dot.className = 'w-1.5 h-1.5 bg-idean-navy rounded-full';
+                  inner.appendChild(dot);
+                  fallback.appendChild(inner);
+                  e.currentTarget.parentNode?.appendChild(fallback);
+                }}
+              />
+              <span className="font-bold text-sm text-gray-900 select-none">iDEAN AI</span>
             </div>
 
             {/* Right: Account Options */}

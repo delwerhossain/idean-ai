@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { FileText, Edit, Wand2, Copy, Eye, Download, ChevronDown, BookmarkPlus } from 'lucide-react'
+import { FileText, Edit, Wand2, Copy, Eye, Download, ChevronDown, BookmarkPlus, MessageSquare, X, Send, History } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -14,8 +14,7 @@ import {
 import ReactMarkdown from 'react-markdown'
 import jsPDF from 'jspdf'
 import { SaveTemplateDialog } from './SaveTemplateDialog'
-import { FloatingRegenerateToolbar } from './FloatingRegenerateToolbar'
-import { RegeneratePromptModal } from './RegeneratePromptModal'
+import { DocumentHistoryPanel } from './DocumentHistoryPanel'
 import { ideanApi } from '@/lib/api/idean-api'
 import './text-regeneration.css'
 
@@ -49,6 +48,24 @@ interface GenerationEditorProps {
   onExport?: (format: 'pdf' | 'markdown' | 'docx' | 'html') => void
   onSaveAsTemplate?: (data: { name: string; description?: string }) => Promise<void>
   documentId?: string
+  userInputs?: Record<string, any>
+  userSelections?: Record<string, any>
+  documentHistory?: Array<{
+    id: string
+    name: string
+    output_content: string
+    createdAt: string
+    user_request?: string
+    generation_type?: string
+  }>
+  onHistoryUpdate?: (history: Array<{
+    id: string
+    name: string
+    output_content: string
+    createdAt: string
+    user_request?: string
+    generation_type?: string
+  }>) => void
 }
 
 export function GenerationEditor({
@@ -62,16 +79,21 @@ export function GenerationEditor({
   hasContent = false,
   onExport,
   onSaveAsTemplate,
-  documentId
+  documentId,
+  userInputs = {},
+  userSelections = {},
+  documentHistory = [],
+  onHistoryUpdate
 }: GenerationEditorProps) {
   const [editorContent, setEditorContent] = useState(content)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
-  const [textSelection, setTextSelection] = useState<TextSelection | null>(null)
-  const [showRegenerateModal, setShowRegenerateModal] = useState(false)
-  const [isRegenerating, setIsRegenerating] = useState(false)
+  const [isChatRegenerating, setIsChatRegenerating] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [showHistory, setShowHistory] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
   const editorRef = useRef<HTMLDivElement>(null)
+  const chatInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setEditorContent(content)
@@ -82,434 +104,167 @@ export function GenerationEditor({
     onContentChange?.(newContent)
   }
 
-  // Handle text selection for regeneration - improved version
-  const handleTextSelection = () => {
-    // Small delay to ensure selection is complete
-    setTimeout(() => {
-      const selection = window.getSelection()
-
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-        setTextSelection(null)
-        return
-      }
-
-      const range = selection.getRangeAt(0)
-      const selectedText = selection.toString().trim()
-
-      // Must have actual text and be within our editor
-      if (!selectedText || selectedText.length < 3) {
-        setTextSelection(null)
-        return
-      }
-
-      // Check if selection is within our editor
-      const editorElement = editorRef.current
-      if (!editorElement) {
-        setTextSelection(null)
-        return
-      }
-
-      // Enhanced check for selection within editor - handles backwards selections
-      let isWithinEditor = false
-      try {
-        const startContainer = range.startContainer
-        const endContainer = range.endContainer
-        const commonAncestor = range.commonAncestorContainer
-
-        // Check if selection is within editor using multiple validation methods
-        isWithinEditor = (
-          // Check common ancestor
-          editorElement.contains(commonAncestor) || editorElement === commonAncestor
-        ) && (
-          // Check start container
-          editorElement.contains(startContainer) || editorElement === startContainer ||
-          (startContainer.nodeType === Node.TEXT_NODE && editorElement.contains(startContainer.parentNode))
-        ) && (
-          // Check end container
-          editorElement.contains(endContainer) || editorElement === endContainer ||
-          (endContainer.nodeType === Node.TEXT_NODE && editorElement.contains(endContainer.parentNode))
-        )
-
-        console.log('🗺 Editor containment check:', {
-          isWithinEditor,
-          startInEditor: editorElement.contains(startContainer),
-          endInEditor: editorElement.contains(endContainer),
-          commonAncestorInEditor: editorElement.contains(commonAncestor)
-        })
-      } catch (e) {
-        console.error('❌ Error checking editor containment:', e)
-        setTextSelection(null)
-        return
-      }
-
-      if (!isWithinEditor) {
-        console.log('❌ Selection not within editor bounds')
-        setTextSelection(null)
-        return
-      }
-
-      // Handle both forward and backward selections by getting proper bounding rect
-      let rect = range.getBoundingClientRect()
-
-      // Check for backwards selection or invalid rect
-      const isBackwardsSelection = range.startContainer !== range.endContainer &&
-        range.startOffset > range.endOffset
-
-      // For backwards selections or invalid rects, try to get better bounds
-      if ((rect.width === 0 && rect.height === 0) || isBackwardsSelection) {
-        console.log('🔄 Handling backwards/invalid selection, recalculating bounds')
-
-        // Try to get client rects for better positioning
-        const clientRects = range.getClientRects()
-        if (clientRects.length > 0) {
-          // Use the first client rect
-          rect = clientRects[0]
-          console.log('✅ Using client rect for positioning')
-        } else {
-          // Last resort: create a temporary element to get positioning
-          try {
-            const tempSpan = document.createElement('span')
-            tempSpan.style.position = 'absolute'
-            range.surroundContents(tempSpan)
-            rect = tempSpan.getBoundingClientRect()
-
-            // Remove the temporary span
-            const parent = tempSpan.parentNode
-            if (parent) {
-              parent.replaceChild(tempSpan.firstChild!, tempSpan)
-            }
-            console.log('✅ Used temporary element for positioning')
-          } catch (e) {
-            console.warn('⚠️ Could not create temporary element for positioning')
-          }
-        }
-      }
-
-      // Enhanced debug logging
-      console.log('🔍 Selection debug:', {
-        selectedText: selectedText.substring(0, 50) + (selectedText.length > 50 ? '...' : ''),
-        length: selectedText.length,
-        isBackwards: isBackwardsSelection,
-        rect: {
-          top: Math.round(rect.top),
-          left: Math.round(rect.left),
-          width: Math.round(rect.width),
-          height: Math.round(rect.height),
-          bottom: Math.round(rect.bottom),
-          right: Math.round(rect.right)
-        },
-        viewport: {
-          scrollY: window.scrollY,
-          scrollX: window.scrollX
-        }
-      })
-
-      // Final validation - ensure we have some valid dimensions
-      if (rect.width <= 0 || rect.height <= 0) {
-        console.log('❌ Still invalid rect after processing, selection cancelled')
-        setTextSelection(null)
-        return
-      }
-
-      // Ensure rect is actually visible (not completely off-screen)
-      if (rect.bottom < 0 || rect.top > window.innerHeight ||
-          rect.right < 0 || rect.left > window.innerWidth) {
-        console.log('Selection rect is off-screen')
-        setTextSelection(null)
-        return
-      }
-
-      // Calculate text positions more accurately - handle backwards selections
-      let start = 0
-      let end = selectedText.length
-
-      try {
-        // Normalize range to handle backwards selections
-        const normalizedRange = range.cloneRange()
-
-        // Ensure start comes before end
-        if (range.startContainer === range.endContainer) {
-          if (range.startOffset > range.endOffset) {
-            normalizedRange.setStart(range.endContainer, range.endOffset)
-            normalizedRange.setEnd(range.startContainer, range.startOffset)
-          }
-        }
-
-        const beforeRange = document.createRange()
-        beforeRange.setStart(editorElement, 0)
-        beforeRange.setEnd(normalizedRange.startContainer, normalizedRange.startOffset)
-        start = beforeRange.toString().length
-        end = start + selectedText.length
-
-        beforeRange.detach()
-        normalizedRange.detach()
-
-        console.log('📍 Position calculation:', { start, end, textLength: selectedText.length })
-      } catch (e) {
-        console.warn('⚠️ Position calculation failed, using fallback:', e)
-        // Fallback calculation
-        const fullText = editorElement.textContent || ''
-        start = fullText.indexOf(selectedText)
-        if (start === -1) {
-          // If exact match fails, try to find approximate position
-          const words = selectedText.split(/\s+/).filter(w => w.length > 2)
-          if (words.length > 0) {
-            start = fullText.indexOf(words[0])
-          }
-        }
-        end = start + selectedText.length
-        console.log('📍 Fallback position:', { start, end })
-      }
-
-      const newSelection = {
-        text: selectedText,
-        start: Math.max(0, start),
-        end: Math.max(selectedText.length, end),
-        rect: {
-          ...rect,
-          // Add some padding for better positioning
-          top: rect.top - 5,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height + 5
-        } as DOMRect
-      }
-
-      setTextSelection(newSelection)
-
-      console.log('✅ Text selection successfully set:', {
-        text: selectedText.substring(0, 50) + (selectedText.length > 50 ? '...' : ''),
-        length: selectedText.length,
-        hasSelection: !!newSelection.text
-      })
-    }, 50) // Small delay to ensure selection is stable
-  }
-
-  // Handle regenerate toolbar click
-  const handleRegenerateToolbarClick = (selectedText: string, start: number, end: number) => {
-    console.log('🎯 Toolbar clicked with:', {
-      selectedText: selectedText.substring(0, 50) + '...',
-      textSelectionState: textSelection?.text?.substring(0, 50) + '...',
-      hasTextSelection: !!textSelection
-    })
-
-    // Ensure we have a valid text selection before opening modal
-    if (!textSelection || !textSelection.text) {
-      console.error('❌ No text selection available for regeneration')
-      return
-    }
-
-    setShowRegenerateModal(true)
-  }
-
-  // Handle regeneration with custom instruction
-  const handleRegenerateWithInstruction = async (instruction: string, options: GenerationOptions) => {
-    if (!textSelection) {
-      console.error('No text selection found')
+  // Handle chat-based regeneration
+  const handleChatRegenerate = async (userMessage: string) => {
+    if (!framework || !userMessage.trim()) {
+      console.error('Missing framework or user message for chat regeneration')
       return
     }
 
     try {
-      setIsRegenerating(true)
-      console.log('🔄 Starting regeneration with:', {
-        selectedText: textSelection.text.substring(0, 100),
-        instruction,
-        options
+      setIsChatRegenerating(true)
+      console.log('🔄 Starting chat-based regeneration with:', {
+        userMessage: userMessage.substring(0, 100),
+        documentId,
+        framework: framework.name
       })
 
-      // Call the regenerate specific API
-      const response = await ideanApi.copywriting.regenerateSpecific(framework.id, {
-        documentText: textSelection.text, // Send only the selected text
-        userInstruction: instruction,
+      // Call the new chat regeneration API
+      const response = await ideanApi.copywriting.chatRegenerate(framework.id, {
+        userMessage,
         documentId,
-        saveDocument: true,
+        userInputs,
+        userSelections,
+        businessContext: true,
+        includeHistory: true,
         generationOptions: {
-          temperature: options.temperature,
-          maxTokens: options.maxTokens
+          temperature: 0.7,
+          maxTokens: 2000,
+          topP: 0.9
         }
       })
 
-      console.log('✅ API Response:', response)
+      console.log('✅ Chat regeneration API Response:', response)
 
-      if (response.success && response.data?.modifiedContent) {
-        // Extract the modified content, removing document markers if present
-        let modifiedContent = response.data.modifiedContent
+      if (response.success && response.data?.regeneratedContent) {
+        const newContent = response.data.regeneratedContent.trim()
+        console.log('📝 Updating content with regenerated text:', newContent.substring(0, 100))
 
-        // Remove document start/end markers
-        modifiedContent = modifiedContent
-          .replace(/^===== DOCUMENT START =====\n?/g, '')
-          .replace(/\n?===== DOCUMENT END =====$/g, '')
-          .trim()
+        // Update the editor content
+        setEditorContent(newContent)
+        onContentChange?.(newContent)
 
-        console.log('📝 Extracted modified content:', modifiedContent.substring(0, 100))
+        // Update document history if available
+        if (response.data.documentHistory && onHistoryUpdate) {
+          console.log('📁 Document history updated:', response.data.documentHistory.length, 'items')
+          onHistoryUpdate(response.data.documentHistory)
+        }
 
-        // Replace only the selected text with the new content
-        await replaceSelectedText(modifiedContent)
-
-        // Close modal and clear selection
-        setShowRegenerateModal(false)
-        setTextSelection(null)
+        // Clear chat input
+        setChatInput('')
       } else {
-        throw new Error('No modified content received from API')
+        throw new Error(response.message || 'No regenerated content received')
       }
     } catch (error: any) {
-      console.error('❌ Regeneration failed:', error)
-      // You could show an error toast here
+      console.error('❌ Chat regeneration failed:', error)
       alert(`Regeneration failed: ${error.message || 'Unknown error'}`)
     } finally {
-      setIsRegenerating(false)
+      setIsChatRegenerating(false)
     }
   }
 
-  // Function to replace only the selected text with new content
-  const replaceSelectedText = async (newContent: string) => {
-    if (!textSelection || !editorRef.current) {
-      console.error('Missing selection or editor ref for text replacement')
-      return
-    }
-
-    try {
-      const { text: oldText, start, end } = textSelection
-      const currentContent = editorContent
-
-      console.log('🔀 Replacing text:', {
-        oldText: oldText.substring(0, 50) + '...',
-        newContent: newContent.substring(0, 50) + '...',
-        positions: { start, end }
-      })
-
-      // Create new content by replacing the selected portion
-      let updatedContent: string
-
-      if (start >= 0 && end > start) {
-        // Use position-based replacement
-        updatedContent = currentContent.substring(0, start) + newContent + currentContent.substring(end)
-      } else {
-        // Fallback: use text-based replacement
-        updatedContent = currentContent.replace(oldText, newContent)
+  // Focus chat input
+  const focusChatInput = () => {
+    setTimeout(() => {
+      if (chatInputRef.current) {
+        chatInputRef.current.focus()
       }
-
-      // Animate the replacement with smooth transition
-      await animateTextReplacement(updatedContent)
-
-      console.log('✅ Text replacement completed')
-    } catch (error) {
-      console.error('❌ Error during text replacement:', error)
-      throw error
-    }
+    }, 100)
   }
 
-  // Simplified and reliable text replacement animation
-  const animateTextReplacement = async (newContent: string) => {
-    if (!editorRef.current) return
-
-    try {
-      // Add subtle pulse animation to indicate change
-      editorRef.current.classList.add('animate-pulse-highlight')
-
-      // Wait for animation start
-      await new Promise(resolve => setTimeout(resolve, 150))
-
-      // Update content
-      setEditorContent(newContent)
-      onContentChange?.(newContent)
-
-      // Clear any existing selection
-      const selection = window.getSelection()
-      if (selection) {
-        selection.removeAllRanges()
+  // Handle suggestion chip click
+  const handleSuggestionClick = (suggestion: string) => {
+    setChatInput(suggestion)
+    // Focus the input after setting the text
+    setTimeout(() => {
+      if (chatInputRef.current) {
+        chatInputRef.current.focus()
+        chatInputRef.current.setSelectionRange(suggestion.length, suggestion.length)
       }
+    }, 10)
+  }
 
-      // Add success glow effect
-      setTimeout(() => {
-        if (editorRef.current) {
-          editorRef.current.classList.remove('animate-pulse-highlight')
-          editorRef.current.classList.add('success-glow')
-
-          // Clean up after success animation
-          setTimeout(() => {
-            if (editorRef.current) {
-              editorRef.current.classList.remove('success-glow')
-            }
-          }, 1000)
-        }
-      }, 300)
-    } catch (error) {
-      console.error('Animation error:', error)
-      // Still update content even if animation fails
-      setEditorContent(newContent)
-      onContentChange?.(newContent)
+  // Handle chat send
+  const handleChatSend = () => {
+    if (chatInput.trim()) {
+      handleChatRegenerate(chatInput.trim())
     }
   }
 
-  // Enhanced selection handling with better event management
+  // Handle chat input key press
+  const handleChatKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleChatSend()
+    }
+  }
+
+  // Handle history view
+  const handleViewHistory = (item: any) => {
+    setEditorContent(item.output_content)
+    onContentChange?.(item.output_content)
+  }
+
+  // Handle history download
+  const handleDownloadHistory = (item: any, format: 'txt' | 'md' | 'pdf') => {
+    const content = item.output_content
+    const filename = `${item.name}-${new Date(item.createdAt).toISOString().split('T')[0]}`
+
+    switch (format) {
+      case 'txt':
+        const txtBlob = new Blob([content], { type: 'text/plain' })
+        const txtUrl = URL.createObjectURL(txtBlob)
+        const txtLink = document.createElement('a')
+        txtLink.href = txtUrl
+        txtLink.download = `${filename}.txt`
+        txtLink.click()
+        URL.revokeObjectURL(txtUrl)
+        break
+      case 'md':
+        const mdBlob = new Blob([content], { type: 'text/markdown' })
+        const mdUrl = URL.createObjectURL(mdBlob)
+        const mdLink = document.createElement('a')
+        mdLink.href = mdUrl
+        mdLink.download = `${filename}.md`
+        mdLink.click()
+        URL.revokeObjectURL(mdUrl)
+        break
+      case 'pdf':
+        // Use existing PDF export functionality
+        handleExportPDF()
+        break
+    }
+  }
+
+  // Simplified text selection handling for basic editing
+  const handleTextSelection = () => {
+    // Only basic selection handling needed now since we use chat interface
+    const selection = window.getSelection()
+    if (selection && !selection.isCollapsed) {
+      console.log('Text selected:', selection.toString().substring(0, 50))
+    }
+  }
+
+  // Handle copy to clipboard
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(editorContent)
+      console.log('Content copied to clipboard')
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+    }
+  }
+
+  // Simple event handlers for basic editor functionality
   const handleEditorMouseUp = (e: React.MouseEvent) => {
     e.stopPropagation()
     handleTextSelection()
   }
 
   const handleEditorKeyUp = (e: React.KeyboardEvent) => {
-    // Handle keyboard selection (Shift+Arrow keys, etc.)
     if (e.shiftKey || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
         e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       handleTextSelection()
-    }
-  }
-
-  const handleEditorFocus = () => {
-    // Don't clear selection when modal is open
-    if (showRegenerateModal) {
-      console.log('🚫 Preserving selection on focus - modal is open')
-      return
-    }
-
-    // Clear selection when editor gets focus if no valid selection
-    setTimeout(() => {
-      const selection = window.getSelection()
-      if (!selection || selection.isCollapsed) {
-        console.log('🗑️ Clearing selection on focus - no valid selection')
-        setTextSelection(null)
-      }
-    }, 100)
-  }
-
-  // Clear selection when clicking outside editor (but preserve for modal)
-  useEffect(() => {
-    const handleDocumentClick = (e: MouseEvent) => {
-      // Don't clear selection if modal is open
-      if (showRegenerateModal) {
-        console.log('🚫 Preserving selection - modal is open')
-        return
-      }
-
-      // Don't clear selection if clicking on toolbar or modal elements
-      const target = e.target as Element
-      if (target.closest('[data-floating-toolbar]') ||
-          target.closest('[data-regenerate-modal]') ||
-          target.closest('[role="dialog"]')) {
-        console.log('🚫 Preserving selection - clicked on UI element')
-        return
-      }
-
-      // Only clear if clicking outside the editor
-      if (editorRef.current && !editorRef.current.contains(e.target as Node)) {
-        console.log('🗑️ Clearing selection - clicked outside editor')
-        setTextSelection(null)
-      }
-    }
-
-    document.addEventListener('click', handleDocumentClick)
-
-    return () => {
-      document.removeEventListener('click', handleDocumentClick)
-    }
-  }, [showRegenerateModal])
-
-  const handleCopyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(editorContent)
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err)
     }
   }
 
@@ -801,7 +556,7 @@ ${editorContent}`
       {/* Top Toolbar - Compact */}
       <div className="bg-white border-b px-3 sm:px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Left: Edit/Preview Toggle */}
+          {/* Left: View Mode Toggle */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant={!isPreviewMode ? 'default' : 'outline'}
@@ -828,6 +583,7 @@ ${editorContent}`
 
           {/* Right: Action Buttons - Compact */}
           <div className="flex items-center gap-1">
+
             <Button
               variant="outline"
               size="sm"
@@ -875,8 +631,7 @@ ${editorContent}`
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem    onClick={() => handleExportPDF()}
-              disabled={!hasContent}  data-export-pdf>
+                <DropdownMenuItem onClick={() => handleExportPDF()} disabled={!hasContent}>
                   <Download className="w-4 h-4 mr-2" />
                   Export as PDF
                 </DropdownMenuItem>
@@ -890,8 +645,35 @@ ${editorContent}`
         </div>
       </div>
 
+      {/* History Button Bar - Always visible when history exists */}
+      {documentHistory.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100 px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <History className="w-3 h-3 text-white" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">{documentHistory.length} versions available</span>
+            </div>
+            <Button
+              variant={showHistory ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowHistory(!showHistory)}
+              className={`h-8 px-4 ${
+                showHistory
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                  : "border-blue-300 text-blue-700 hover:bg-blue-50"
+              } transition-all`}
+            >
+              <History className="w-4 h-4 mr-2" />
+              {showHistory ? 'Hide History' : 'View History'}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Content Display */}
-      <div className="flex-1 overflow-auto min-h-0">
+      <div className=" mb-5 flex-1 overflow-auto min-h-0">
         <div className="max-w-5xl mx-auto h-full">
           {isPreviewMode ? (
             <div ref={printRef} className="p-6 sm:p-8 h-full  mt-1 rounded-2xl ">
@@ -955,22 +737,29 @@ ${editorContent}`
             </div>
           ) : (
             <div className="p-6 sm:p-8 h-full relative">
-              <Card className="p-4 h-full flex flex-col">
+              {/* Loading Overlay for Chat Regeneration */}
+              {isChatRegenerating && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                      <MessageSquare className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <LoadingSpinner size="lg" />
+                    <p className="mt-4 text-gray-700 font-medium">Regenerating content with your feedback...</p>
+                    <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
+                  </div>
+                </div>
+              )}
+
+              <Card className="h-full flex flex-col">
                 <div
                   ref={editorRef}
-                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent overflow-auto select-text"
+                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent overflow-auto select-text pb-20 mb-10"
                   contentEditable
                   suppressContentEditableWarning
                   onInput={(e) => handleContentEdit(e.currentTarget.textContent || '')}
                   onMouseUp={handleEditorMouseUp}
-                  onMouseDown={() => {
-                    // Clear any existing selection when starting new selection
-                    setTimeout(handleTextSelection, 10)
-                  }}
                   onKeyUp={handleEditorKeyUp}
-                  onFocus={handleEditorFocus}
-                  onDoubleClick={handleTextSelection} // Handle double-click selection
-                  onSelect={handleTextSelection} // Better backwards selection detection
                   style={{
                     whiteSpace: 'pre-wrap',
                     userSelect: 'text',
@@ -981,21 +770,88 @@ ${editorContent}`
                 >
                   {editorContent || "Generated content will appear here..."}
                 </div>
+
+                {/* Always Visible Chat Interface */}
+                <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+                  {/* Suggestion Chips */}
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide">
+                      {[
+                        'Make it more urgent',
+                        'Add scarcity',
+                        'Make it more friendly',
+                        'More professional tone',
+                        'Make it shorter',
+                        'Add more details',
+                        'More emotional appeal',
+                        'Focus on benefits'
+                      ].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          disabled={isChatRegenerating || !hasContent}
+                          className="flex-shrink-0 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200
+                                   text-gray-700 rounded-full border border-gray-200 transition-colors
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Input Area */}
+                  <div className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 relative">
+                        <input
+                          ref={chatInputRef}
+                          type="text"
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyPress={handleChatKeyPress}
+                          placeholder={hasContent ? "Type your feedback to regenerate the content..." : "Generate content first to use chat"}
+                          disabled={isChatRegenerating || !hasContent}
+                          className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl bg-white
+                                   text-sm placeholder-gray-500 focus:outline-none focus:ring-2
+                                   focus:ring-gray-500 focus:border-transparent
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      </div>
+
+                      <Button
+                        onClick={handleChatSend}
+                        disabled={!chatInput.trim() || isChatRegenerating || !hasContent}
+                        size="sm"
+                        className="h-12 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl
+                                 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isChatRegenerating ? (
+                          <LoadingSpinner size="sm" />
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            <span className="ml-2 hidden sm:inline">Send</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </Card>
 
-              {/* Regenerate Prompt Modal */}
-              <RegeneratePromptModal
-                isOpen={showRegenerateModal}
-                onClose={() => {
-                  console.log('🚪 Closing regeneration modal')
-                  setShowRegenerateModal(false)
-                  // Don't clear selection immediately - let user see the result
-                  setTimeout(() => setTextSelection(null), 100)
-                }}
-                selectedText={textSelection?.text || ''}
-                onRegenerate={handleRegenerateWithInstruction}
-                isLoading={isRegenerating}
-              />
+              {/* Document History Panel - Side panel overlay */}
+              {showHistory && documentHistory.length > 0 && (
+                <div className="absolute top-0 right-0 bottom-0 w-96 z-40">
+                  <DocumentHistoryPanel
+                    history={documentHistory}
+                    onViewHistory={handleViewHistory}
+                    onDownloadHistory={handleDownloadHistory}
+                    onClose={() => setShowHistory(false)}
+                    currentContent={editorContent}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1020,12 +876,6 @@ ${editorContent}`
         />
       )}
 
-      {/* Floating Regenerate Toolbar - Positioned at root level for proper z-indexing */}
-      <FloatingRegenerateToolbar
-        selection={textSelection}
-        onRegenerate={handleRegenerateToolbarClick}
-        isRegenerating={isRegenerating}
-      />
     </div>
   )
 }

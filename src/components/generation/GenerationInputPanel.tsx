@@ -112,43 +112,43 @@ export function GenerationInputPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-3 sm:px-6 py-3 border-b border-gray-200 bg-white">
-        {/* Back Button and Framework Info */}
-        <div className="flex items-center gap-3 mb-2">
+      <div className="px-3 sm:px-4 py-3 border-b border-gray-200 bg-white">
+        {/* Back Button */}
+        <div className="flex items-center justify-between mb-3">
           {onBack && (
             <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600 hover:text-gray-900">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
           )}
-          <div className="hidden sm:block w-px h-6 bg-gray-300" />
-             {/* Step Indicator */}
+        </div>
+
+        {/* Step Indicator */}
         <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-          <div className={`w-2 h-2 rounded-full ${currentStep === 'input' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={`${currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
+          <div className={`w-2 h-2 rounded-full ${currentStep === 'input' ? 'bg-gray-900' : 'bg-gray-300'}`} />
+          <span className={`${currentStep === 'input' ? 'text-gray-900 font-medium' : 'text-gray-500'} hidden sm:inline`}>
             Input Details
           </span>
-          <span className={`${currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
+          <span className={`${currentStep === 'input' ? 'text-gray-900 font-medium' : 'text-gray-500'} sm:hidden`}>
             Input
           </span>
-          <div className={`w-2 h-2 rounded-full ${currentStep === 'generating' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={`${currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
+          <div className="w-4 h-px bg-gray-300 mx-1" />
+          <div className={`w-2 h-2 rounded-full ${currentStep === 'generating' ? 'bg-gray-900' : 'bg-gray-300'}`} />
+          <span className={`${currentStep === 'generating' ? 'text-gray-900 font-medium' : 'text-gray-500'} hidden sm:inline`}>
             Generating
           </span>
-          <span className={`${currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
+          <span className={`${currentStep === 'generating' ? 'text-gray-900 font-medium' : 'text-gray-500'} sm:hidden`}>
             Gen
           </span>
-          <div className={`w-2 h-2 rounded-full ${currentStep === 'editing' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={`${currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
+          <div className="w-4 h-px bg-gray-300 mx-1" />
+          <div className={`w-2 h-2 rounded-full ${currentStep === 'editing' ? 'bg-gray-900' : 'bg-gray-300'}`} />
+          <span className={`${currentStep === 'editing' ? 'text-gray-900 font-medium' : 'text-gray-500'} hidden sm:inline`}>
             Review & Edit
           </span>
-          <span className={`${currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
+          <span className={`${currentStep === 'editing' ? 'text-gray-900 font-medium' : 'text-gray-500'} sm:hidden`}>
             Edit
           </span>
         </div>
-        </div>
-
-     
       </div>
 
       {/* Tabs */}
@@ -157,7 +157,7 @@ export function GenerationInputPanel({
           onClick={() => setActiveTab('inputs')}
           className={`flex-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${
             activeTab === 'inputs'
-              ? 'text-purple-600 border-b-2 border-purple-500'
+              ? 'text-gray-900 border-b-2 border-gray-900'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -168,7 +168,7 @@ export function GenerationInputPanel({
           onClick={() => setActiveTab('options')}
           className={`flex-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${
             activeTab === 'options'
-              ? 'text-purple-600 border-b-2 border-purple-500'
+              ? 'text-gray-900 border-b-2 border-gray-900'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
