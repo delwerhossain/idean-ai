@@ -51,7 +51,7 @@
   --idean-dark-charcoal: #272727;
   --idean-pure-white: #FFFFFF;
   --idean-slate-gray: #1A1A1A;
-  --idean-blue: #2563eb;
+  --idean-blue: #515d8f;
   --idean-blue-light: #eff6ff;
 
   --background: oklch(1 0 0);
@@ -93,25 +93,25 @@
 .bg-idean-charcoal { background-color: #272727; }
 .bg-idean-white { background-color: #FFFFFF; }
 .bg-idean-slate { background-color: #1A1A1A; }
-.bg-idean-blue { background-color: #2563eb; }
+.bg-idean-blue { background-color: #515d8f; }
 .bg-idean-blue-light { background-color: #eff6ff; }
 
 .text-idean-navy { color: #000; }
 .text-idean-charcoal { color: #272727; }
 .text-idean-white { color: #FFFFFF; }
 .text-idean-slate { color: #1A1A1A; }
-.text-idean-blue { color: #2563eb; }
+.text-idean-blue { color: #515d8f; }
 
 .border-idean-navy { border-color: #000; }
 .border-idean-charcoal { border-color: #272727; }
 .border-idean-slate { border-color: #1A1A1A; }
-.border-idean-blue { border-color: #2563eb; }
+.border-idean-blue { border-color: #515d8f; }
 
 /* Hover States */
 .hover\:bg-idean-navy:hover { background-color: #000; }
 .hover\:bg-idean-navy-dark:hover { background-color: #1e2a4a; }
 .hover\:bg-idean-slate:hover { background-color: #1A1A1A; }
-.hover\:bg-idean-blue:hover { background-color: #1d4ed8; }
+.hover\:bg-idean-blue:hover { background-color: #404a73; }
 .hover\:text-idean-white:hover { color: #FFFFFF; }
 
 /* Group Hover States */
