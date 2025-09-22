@@ -96,10 +96,10 @@ export default function Home() {
       </div>
 
       {/* Main Feature Section */}
-      <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-t border-orange-100">
+      <div className="bg-gradient-to-br from-idean-blue-light to-blue-50 border-t border-blue-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 text-sm font-medium rounded-full mb-6">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-6">
               <PenTool className="w-4 h-4 mr-2" />
               Available Now
             </div>
@@ -112,32 +112,32 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-orange-200 p-8 mb-12">
+          <div className="bg-white rounded-2xl shadow-lg border border-blue-200 p-8 mb-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <PenTool className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <PenTool className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">AI Copywriting</h3>
                 <p className="text-sm text-gray-600">Generate engaging copy using proven frameworks</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">Content Templates</h3>
                 <p className="text-sm text-gray-600">Ready-to-use templates for all content types</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Rocket className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Rocket className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">Campaign Builder</h3>
                 <p className="text-sm text-gray-600">Complete marketing campaigns in minutes</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Building className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Building className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">Business Context</h3>
                 <p className="text-sm text-gray-600">Personalized content based on your business</p>
@@ -148,14 +148,14 @@ export default function Home() {
           <div className="text-center">
             {user ? (
               <Link href="/dashboard/copywriting">
-                <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-medium">
+                <Button size="lg" className="bg-idean-blue hover:bg-idean-blue text-white px-8 py-4 text-lg font-medium">
                   Start Creating Content
                   <Sparkles className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             ) : (
               <Link href="/dashboard/onboarding">
-                <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-medium">
+                <Button size="lg" className="bg-idean-blue hover:bg-idean-blue text-white px-8 py-4 text-lg font-medium">
                   Start Creating Content
                   <Sparkles className="ml-2 w-5 h-5" />
                 </Button>
