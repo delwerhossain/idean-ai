@@ -52,7 +52,8 @@
   --idean-pure-white: #FFFFFF;
   --idean-slate-gray: #1A1A1A;
   --idean-blue: #515d8f;
-  --idean-blue-light: #eff6ff;
+  --idean-blue-light: #f8f9fc;
+  --idean-blue-pale: #eef1f7;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -94,7 +95,8 @@
 .bg-idean-white { background-color: #FFFFFF; }
 .bg-idean-slate { background-color: #1A1A1A; }
 .bg-idean-blue { background-color: #515d8f; }
-.bg-idean-blue-light { background-color: #eff6ff; }
+.bg-idean-blue-light { background-color: #f8f9fc; }
+.bg-idean-blue-pale { background-color: #eef1f7; }
 
 .text-idean-navy { color: #000; }
 .text-idean-charcoal { color: #272727; }
