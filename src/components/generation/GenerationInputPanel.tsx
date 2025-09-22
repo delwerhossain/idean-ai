@@ -112,53 +112,83 @@ export function GenerationInputPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-3 sm:px-6 py-3 border-b border-gray-200 bg-white">
-        {/* Back Button and Framework Info */}
-        <div className="flex items-center gap-3 mb-2">
-          {onBack && (
-            <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600 hover:text-gray-900">
+      <div className="px-4 py-4 border-b border-gray-200 bg-white">
+        {/* Back Button */}
+        {onBack && (
+          <div className="mb-4">
+            <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600 hover:text-gray-900 -ml-2">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-          )}
-          <div className="hidden sm:block w-px h-6 bg-gray-300" />
-             {/* Step Indicator */}
-        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-          <div className={`w-2 h-2 rounded-full ${currentStep === 'input' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={`${currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
-            Input Details
-          </span>
-          <span className={`${currentStep === 'input' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
-            Input
-          </span>
-          <div className={`w-2 h-2 rounded-full ${currentStep === 'generating' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={`${currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
-            Generating
-          </span>
-          <span className={`${currentStep === 'generating' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
-            Gen
-          </span>
-          <div className={`w-2 h-2 rounded-full ${currentStep === 'editing' ? 'bg-purple-500' : 'bg-gray-300'}`} />
-          <span className={`${currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'} hidden sm:inline`}>
-            Review & Edit
-          </span>
-          <span className={`${currentStep === 'editing' ? 'text-purple-600 font-medium' : 'text-gray-500'} sm:hidden`}>
-            Edit
-          </span>
-        </div>
-        </div>
+          </div>
+        )}
 
-     
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center gap-3 mb-4">
+          {/* Step 1 */}
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+              currentStep === 'input'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-200 text-gray-600'
+            }`}>
+              1
+            </div>
+            <span className={`text-xs font-medium ${
+              currentStep === 'input' ? 'text-gray-900' : 'text-gray-500'
+            }`}>
+              Input
+            </span>
+          </div>
+
+          {/* Connector */}
+          <div className="flex-1 h-px bg-gray-300 max-w-8" />
+
+          {/* Step 2 */}
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+              currentStep === 'generating'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-200 text-gray-600'
+            }`}>
+              2
+            </div>
+            <span className={`text-xs font-medium ${
+              currentStep === 'generating' ? 'text-gray-900' : 'text-gray-500'
+            }`}>
+              Gen
+            </span>
+          </div>
+
+          {/* Connector */}
+          <div className="flex-1 h-px bg-gray-300 max-w-8" />
+
+          {/* Step 3 */}
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+              currentStep === 'editing'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-200 text-gray-600'
+            }`}>
+              3
+            </div>
+            <span className={`text-xs font-medium ${
+              currentStep === 'editing' ? 'text-gray-900' : 'text-gray-500'
+            }`}>
+              Edit
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 bg-white">
+      <div className="flex bg-gray-50 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('inputs')}
-          className={`flex-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${
+          className={`flex-1 px-4 py-3 text-sm font-semibold transition-all relative ${
             activeTab === 'inputs'
-              ? 'text-purple-600 border-b-2 border-purple-500'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'text-gray-900 bg-white border-b-2 border-gray-900'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           }`}
         >
           <span className="hidden sm:inline">Input Fields</span>
@@ -166,10 +196,10 @@ export function GenerationInputPanel({
         </button>
         <button
           onClick={() => setActiveTab('options')}
-          className={`flex-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${
+          className={`flex-1 px-4 py-3 text-sm font-semibold transition-all relative ${
             activeTab === 'options'
-              ? 'text-purple-600 border-b-2 border-purple-500'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'text-gray-900 bg-white border-b-2 border-gray-900'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
           }`}
         >
           <span className="hidden sm:inline">Options</span>
