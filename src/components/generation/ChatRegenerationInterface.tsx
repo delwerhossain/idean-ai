@@ -28,7 +28,7 @@ interface ChatRegenerationInterfaceProps {
 }
 
 const suggestionChips: SuggestionChip[] = [
-  { id: 'urgent', text: 'Make it more urgent', category: 'urgency' },
+  // { id: 'urgent', text: 'Make it more urgent', category: 'urgency' },
   { id: 'scarcity', text: 'Add scarcity', category: 'urgency' },
   { id: 'friendly', text: 'Make it more friendly', category: 'tone' },
   { id: 'professional', text: 'More professional tone', category: 'tone' },

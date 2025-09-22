@@ -130,11 +130,11 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
             </button>
 
             {/* Center: Logo */}
-            <div className="flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
+            <div className="grid items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
               <img
-                src="/ideanai_logo_icon.png"
+                src="/ideanai_logo.png"
                 alt="iDEAN AI"
-                className="w-6 h-6 object-contain"
+                className="w-16 h-16 object-contain"
                 onError={(e) => {
                   // Fallback to custom icon if image fails
                   e.currentTarget.style.display = 'none';
@@ -149,7 +149,6 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
                   e.currentTarget.parentNode?.appendChild(fallback);
                 }}
               />
-              <span className="font-bold text-sm text-gray-900 select-none">iDEAN AI</span>
             </div>
 
             {/* Right: Account Options */}

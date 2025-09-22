@@ -520,55 +520,42 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
         </div>
       )}
 
-      {/* Mobile Navigation Bar - Enhanced Design */}
+      {/* Mobile Navigation Bar - Compact Design */}
       {currentStep === 'editing' && (
-        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-gray-900 truncate">{framework.name}</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Tap to switch views</p>
-            </div>
-          </div>
+        <div className="lg:hidden bg-white border-b border-gray-200 px-3 py-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-gray-700 truncate flex-1">{framework.name}</h2>
 
-          {/* Enhanced Toggle Buttons */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setMobileView('input')}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                mobileView === 'input'
-                  ? 'bg-white text-blue-600 shadow-sm border border-blue-100'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <div className={`w-2 h-2 rounded-full transition-colors ${
-                  mobileView === 'input' ? 'bg-blue-500' : 'bg-gray-400'
-                }`} />
-                Inputs
-              </div>
-            </button>
-            <button
-              onClick={() => setMobileView('editor')}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                mobileView === 'editor'
-                  ? 'bg-white text-blue-600 shadow-sm border border-blue-100'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <div className={`w-2 h-2 rounded-full transition-colors ${
-                  mobileView === 'editor' ? 'bg-blue-500' : 'bg-gray-400'
-                }`} />
-                Editor
-              </div>
-            </button>
+            {/* Compact Toggle */}
+            <div className="flex items-center bg-gray-100 rounded-full p-0.5">
+              <button
+                onClick={() => setMobileView('input')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  mobileView === 'input'
+                    ? 'bg-gray-900 text-white shadow-sm'
+                    : 'text-gray-600'
+                }`}
+              >
+                Input
+              </button>
+              <button
+                onClick={() => setMobileView('editor')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  mobileView === 'editor'
+                    ? 'bg-gray-900 text-white shadow-sm'
+                    : 'text-gray-600'
+                }`}
+              >
+                Edit
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       <div className="flex flex-1 lg:flex-row h-full min-h-0">
         {/* Left Panel - Input Form - Reduced width for more content space */}
-        <div className={`w-full lg:w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
+        <div className={`w-full lg:w-96 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
           // Desktop: hide when editing, Mobile: show based on mobileView
           currentStep === 'editing'
             ? `${mobileView === 'input' ? 'flex' : 'hidden'} lg:flex`

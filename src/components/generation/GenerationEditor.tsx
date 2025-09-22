@@ -579,10 +579,20 @@ ${editorContent}`
           </div>
 
        
-         
 
           {/* Right: Action Buttons - Compact */}
           <div className="flex items-center gap-1">
+            {/* History Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowHistory(!showHistory)}
+              className="h-8 px-2"
+              disabled={!documentHistory.length}
+            >
+              <History className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden lg:inline lg:ml-2">History</span>
+            </Button>
 
             <Button
               variant="outline"
@@ -606,7 +616,7 @@ ${editorContent}`
               </Button>
             )}
 
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               onClick={onRegenerateAll}
@@ -615,7 +625,7 @@ ${editorContent}`
             >
               <Wand2 className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden lg:inline lg:ml-2">Regen</span>
-            </Button>
+            </Button> */}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -645,32 +655,7 @@ ${editorContent}`
         </div>
       </div>
 
-      {/* History Button Bar - Always visible when history exists */}
-      {documentHistory.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100 px-4 py-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <History className="w-3 h-3 text-white" />
-              </div>
-              <span className="text-sm font-medium text-gray-700">{documentHistory.length} versions available</span>
-            </div>
-            <Button
-              variant={showHistory ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowHistory(!showHistory)}
-              className={`h-8 px-4 ${
-                showHistory
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
-                  : "border-blue-300 text-blue-700 hover:bg-blue-50"
-              } transition-all`}
-            >
-              <History className="w-4 h-4 mr-2" />
-              {showHistory ? 'Hide History' : 'View History'}
-            </Button>
-          </div>
-        </div>
-      )}
+   
 
       {/* Content Display */}
       <div className=" mb-5 flex-1 overflow-auto min-h-0">
@@ -754,7 +739,7 @@ ${editorContent}`
               <Card className="h-full flex flex-col">
                 <div
                   ref={editorRef}
-                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent overflow-auto select-text pb-20 mb-10"
+                  className="w-full flex-1 min-h-0 p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed bg-transparent overflow-auto select-text pb-40"
                   contentEditable
                   suppressContentEditableWarning
                   onInput={(e) => handleContentEdit(e.currentTarget.textContent || '')}
@@ -777,7 +762,7 @@ ${editorContent}`
                   <div className="px-4 py-3 border-b border-gray-100">
                     <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide">
                       {[
-                        'Make it more urgent',
+                        // 'Make it more urgent',
                         'Add scarcity',
                         'Make it more friendly',
                         'More professional tone',
