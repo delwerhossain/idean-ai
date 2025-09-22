@@ -18,6 +18,7 @@ import {
   Plus,
   X,
   HelpCircle,
+  Lightbulb,
 } from "lucide-react";
 import UpgradeModal from "@/components/modals/UpgradeModal";
 import HelpModal from "@/components/modals/HelpModal";
@@ -247,7 +248,7 @@ export default function Sidebar({
         }}
       >
         {/* Header with Logo - Always Prominent */}
-        <div className="flex-shrink-0 border-b border-gray-200 bg-white relative min-h-[72px] lg:min-h-[80px] flex items-center">
+        <div className="flex-shrink-0 border-b border-gray-200 bg-white relative min-h-[60px] lg:min-h-[64px] flex items-center">
           {/* Close Button (Mobile Only) */}
           <button
             onClick={onToggle}
@@ -260,47 +261,49 @@ export default function Sidebar({
           </button>
 
           {/* Logo Section - Always Visible and Responsive */}
-          <div className="p-3 lg:p-4 flex items-center justify-center">
-            {isMobile || isExpanded ? (
-              // Full logo when expanded or on mobile
-              <div className="flex items-center gap-2">
-                <img
-                  src="/ideanai_logo.png"
-                  alt="iDEAN AI"
-                  className="h-12 lg:h-14 w-auto transition-all duration-200 ease-out object-contain"
-                  onError={(e) => {
-                    // Fallback to text logo if image fails
-                    e.currentTarget.style.display = 'none';
-                    const fallback = document.createElement('div');
-                    fallback.className = 'font-bold text-xl lg:text-2xl text-blue-600';
-                    fallback.textContent = 'iDEAN AI';
-                    e.currentTarget.parentNode?.appendChild(fallback);
-                  }}
-                />
-              </div>
-            ) : (
-              // Prominent icon when collapsed on desktop - always visible
-              <div className="flex items-center justify-center w-12 h-12 hover:w-14 hover:h-14 transition-all duration-200 ease-out">
-                <img
-                  src="/ideanai_logo_icon.png"
-                  alt="iDEAN AI"
-                  className="w-10 h-10 hover:w-12 hover:h-12 transition-all duration-200 ease-out object-contain drop-shadow-sm"
-                  onError={(e) => {
-                    // Fallback to colored circle with initials if icon fails
-                    e.currentTarget.style.display = 'none';
-                    const fallback = document.createElement('div');
-                    fallback.className = 'w-10 h-10 hover:w-12 hover:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg transition-all duration-200';
-                    fallback.textContent = 'iA';
-                    e.currentTarget.parentNode?.appendChild(fallback);
-                  }}
-                />
-              </div>
-            )}
+          <div className="p-2 lg:p-3 flex items-center justify-center">
+            <Link href="/dashboard" className="flex items-center justify-center hover:opacity-80 transition-opacity">
+              {isMobile || isExpanded ? (
+                // Full logo when expanded or on mobile
+                <div className="flex items-center gap-2">
+                  <img
+                    src="/ideanai_logo.png"
+                    alt="iDEAN AI"
+                    className="h-10 lg:h-11 w-auto transition-all duration-200 ease-out object-contain"
+                    onError={(e) => {
+                      // Fallback to text logo if image fails
+                      e.currentTarget.style.display = 'none';
+                      const fallback = document.createElement('div');
+                      fallback.className = 'font-bold text-xl lg:text-2xl text-blue-600';
+                      fallback.textContent = 'iDEAN AI';
+                      e.currentTarget.parentNode?.appendChild(fallback);
+                    }}
+                  />
+                </div>
+              ) : (
+                // Prominent icon when collapsed on desktop - always visible
+                <div className="flex items-center justify-center w-12 h-12 hover:w-14 hover:h-14 transition-all duration-200 ease-out">
+                  <img
+                    src="/ideanai_logo_icon.png"
+                    alt="iDEAN AI"
+                    className="w-10 h-10 hover:w-12 hover:h-12 transition-all duration-200 ease-out object-contain drop-shadow-sm"
+                    onError={(e) => {
+                      // Fallback to colored circle with initials if icon fails
+                      e.currentTarget.style.display = 'none';
+                      const fallback = document.createElement('div');
+                      fallback.className = 'w-10 h-10 hover:w-12 hover:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg transition-all duration-200';
+                      fallback.textContent = 'iA';
+                      e.currentTarget.parentNode?.appendChild(fallback);
+                    }}
+                  />
+                </div>
+              )}
+            </Link>
           </div>
         </div>
 
         {/* Business Section - Smart Business Display */}
-        <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white p-2 lg:p-3">
+        <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white p-2">
           {user?.business?.business_name || user?.businessId ? (
             // User has a business - show business info
             <div className="relative flex items-center transition-colors p-2">
@@ -359,7 +362,7 @@ export default function Sidebar({
 
               {/* Fixed Icon Container - Always Same Position */}
               <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10">
-                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow w-10 h-10 lg:w-8 lg:h-8 touch-manipulation">
+                <div className="bg-gradient-to-br from-idean-blue to-blue-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm group-hover:shadow-xl lg:group-hover:shadow-md transition-shadow w-10 h-10 lg:w-8 lg:h-8 touch-manipulation">
                   <Plus className="text-white w-5 h-5 lg:w-4 lg:h-4" />
                 </div>
               </div>
@@ -372,12 +375,12 @@ export default function Sidebar({
                     : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
                 }`}
               >
-                <span className={`font-semibold text-gray-900 group-hover:text-orange-600 transition-colors block whitespace-nowrap select-none ${
+                <span className={`font-semibold text-gray-900 group-hover:text-idean-blue transition-colors block whitespace-nowrap select-none ${
                   isMobile ? "text-sm sm:text-base" : "text-sm"
                 }`}>
                   Add Business
                 </span>
-                <p className={`text-gray-500 group-hover:text-orange-500 transition-colors whitespace-nowrap select-none ${
+                <p className={`text-gray-500 group-hover:text-blue-500 transition-colors whitespace-nowrap select-none ${
                   isMobile ? "text-xs sm:text-sm" : "text-xs"
                 }`}>
                   Set up your business profile
@@ -397,7 +400,7 @@ export default function Sidebar({
             scrollBehavior: 'smooth'
           }}
         >
-          <nav className="space-y-1 p-2 lg:p-3">
+          <nav className="space-y-1 p-2">
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -464,7 +467,7 @@ export default function Sidebar({
         </div>
 
         {/* Fixed Bottom Section */}
-        <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 lg:p-3 space-y-1 lg:space-y-2">
+        <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-1">
           {/* Help Button */}
           <button
             onClick={() => setShowHelpModal(true)}
@@ -497,15 +500,15 @@ export default function Sidebar({
             </span>
           </button>
 
-          {/* Upgrade Button */}
+          {/* Tips Button */}
           <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-amber-50 transform-gpu"
-            title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
+            onClick={() => alert('Tips feature coming soon! 💡\n\nQuick tips will help you:\n• Master AI copywriting techniques\n• Optimize your campaigns\n• Get the most from Idean AI')}
+            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-green-50 transform-gpu"
+            title={!isExpanded && !isMobile ? "Daily Tips" : undefined}
           >
             {/* Expandable Background */}
             <div
-              className={`absolute inset-0 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
+              className={`absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out hover:from-green-100 hover:to-emerald-100 ${
                 isMobile || isExpanded
                   ? "opacity-100 scale-100"
                   : "lg:opacity-0 lg:scale-95 lg:w-12 lg:h-12"
@@ -514,12 +517,44 @@ export default function Sidebar({
 
             {/* Fixed Icon Container - Always Same Position */}
             <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation">
-              <Crown className="text-amber-600 w-6 h-6 lg:w-5 lg:h-5 transition-colors duration-200" />
+              <Lightbulb className="text-green-600 w-6 h-6 lg:w-5 lg:h-5 hover:text-green-700 transition-colors duration-200" />
             </div>
 
             {/* Text Label */}
             <span
-              className={`relative z-10 ml-3 font-semibold lg:font-medium text-amber-700 transition-all duration-200 ease-out select-none ${
+              className={`relative z-10 ml-3 font-semibold lg:font-medium text-green-700 transition-all duration-200 ease-out select-none ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100 translate-x-0"
+                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
+              } ${isMobile ? "text-sm sm:text-base" : "text-sm"}`}
+            >
+              Daily Tips
+            </span>
+          </button>
+
+          {/* Upgrade Button */}
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-idean-blue-light transform-gpu"
+            title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
+          >
+            {/* Expandable Background */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-r from-idean-blue-light to-idean-blue-pale border border-idean-blue rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
+                isMobile || isExpanded
+                  ? "opacity-100 scale-100"
+                  : "lg:opacity-0 lg:scale-95 lg:w-12 lg:h-12"
+              }`}
+            />
+
+            {/* Fixed Icon Container - Always Same Position */}
+            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation">
+              <Crown className="text-idean-blue w-6 h-6 lg:w-5 lg:h-5 transition-colors duration-200" />
+            </div>
+
+            {/* Text Label */}
+            <span
+              className={`relative z-10 ml-3 font-semibold lg:font-medium text-idean-blue transition-all duration-200 ease-out select-none ${
                 isMobile || isExpanded
                   ? "opacity-100 scale-100 translate-x-0"
                   : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
