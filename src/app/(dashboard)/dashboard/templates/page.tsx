@@ -695,42 +695,55 @@ export default function TemplatesPage() {
 
       {/* Template Creation Guide */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6 text-center">
-          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Palette className="w-6 h-6 text-purple-600" />
+        {/* Brand & Content Templates - Available Now (Prominent) */}
+        <Card className="p-6 text-center border-2 border-idean-blue shadow-lg hover:shadow-xl transition-all cursor-pointer"
+              onClick={() => router.push('/dashboard/copywriting')}>
+          <div className="w-12 h-12 bg-idean-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+            <PenTool className="w-6 h-6 text-white" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Branding Templates</h3>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <h3 className="font-semibold text-gray-900">Brand & Content Templates</h3>
+            <span className="text-xs bg-idean-blue text-white px-2 py-0.5 rounded-full font-medium">Available</span>
+          </div>
           <p className="text-sm text-gray-600 mb-4">
+            Copywriting frameworks and content generation templates
+          </p>
+          <Button className="bg-idean-blue hover:bg-blue-600 text-white" size="sm">
+            Create Content Template
+          </Button>
+        </Card>
+
+        {/* Branding Templates - Coming Soon */}
+        <Card className="p-6 text-center opacity-60 border-2 border-dashed border-gray-300 cursor-not-allowed">
+          <div className="w-12 h-12 bg-gray-300 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <Palette className="w-6 h-6 text-gray-500" />
+          </div>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <h3 className="font-semibold text-gray-600">Branding Templates</h3>
+            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">Coming Soon</span>
+          </div>
+          <p className="text-sm text-gray-500 mb-4">
             Reusable brand strategy frameworks and messaging templates
           </p>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" disabled>
             Create Branding Template
           </Button>
         </Card>
 
-        <Card className="p-6 text-center">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <TrendingUp className="w-6 h-6 text-blue-600" />
+        {/* Growth Templates - Coming Soon */}
+        <Card className="p-6 text-center opacity-60 border-2 border-dashed border-gray-300 cursor-not-allowed">
+          <div className="w-12 h-12 bg-gray-300 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="w-6 h-6 text-gray-500" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Growth Templates</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <h3 className="font-semibold text-gray-600">Growth Templates</h3>
+            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">Coming Soon</span>
+          </div>
+          <p className="text-sm text-gray-500 mb-4">
             Strategic growth frameworks and execution templates
           </p>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" disabled>
             Create Growth Template
-          </Button>
-        </Card>
-
-        <Card className="p-6 text-center">
-          <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <PenTool className="w-6 h-6 text-orange-600" />
-          </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Copy Templates</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Copywriting frameworks and content generation templates
-          </p>
-          <Button variant="outline" size="sm">
-            Create Copy Template
           </Button>
         </Card>
       </div>
