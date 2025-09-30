@@ -825,13 +825,19 @@ export default function TemplatesPage() {
 
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {/* Placeholder for YouTube video */}
-              <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-6 border-2 border-dashed border-gray-300">
-                <div className="text-center">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500 font-medium">YouTube Video Tutorial</p>
-                  <p className="text-gray-400 text-sm mt-1">Video will be embedded here</p>
-                </div>
+              {/* YouTube Video */}
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-6">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/f0i37zHn-e0?si=TGloS0i_06ijh1Bt"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
               </div>
 
               {/* Tutorial Steps */}
