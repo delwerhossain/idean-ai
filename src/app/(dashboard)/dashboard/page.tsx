@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import { ideanApi } from '@/lib/api/idean-api'
 import { Business } from '@/lib/api/idean-api'
+import TutorialModal from '@/components/modals/TutorialModal'
 
 interface DashboardData {
   business?: Business
@@ -62,6 +63,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedQuickAction, setSelectedQuickAction] = useState<string | null>(null)
+  const [showTutorialModal, setShowTutorialModal] = useState(false)
 
   useEffect(() => {
     if (authLoading) return
@@ -240,15 +242,21 @@ export default function DashboardPage() {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-0">
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-              </div>
-              <div>
+              <div className="flex-1">
                 <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">Welcome to iDEAN AI: Your Growth Co-Pilot! 🚀</h1>
                 <p className="text-gray-600 text-base sm:text-lg">
                   Powering <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic success
                 </p>
               </div>
+              <Button
+                onClick={() => setShowTutorialModal(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 self-start sm:self-auto"
+              >
+                <span className="hidden sm:inline">Watch Tutorial</span>
+                <span className="sm:hidden">Tutorial</span>
+              </Button>
             </div>
             
             {/* Daily Strategic Insight - Commented Out */}
@@ -501,6 +509,34 @@ export default function DashboardPage() {
           <p className="text-xs text-gray-600">Business vertical</p>
         </Card>
       </div>
+
+      {/* Tutorial Modal */}
+      <TutorialModal
+        isOpen={showTutorialModal}
+        onClose={() => setShowTutorialModal(false)}
+        title="Welcome to iDEAN AI Dashboard"
+        subtitle="Your AI-powered business strategy command center"
+        icon={<Brain className="w-8 h-8" />}
+        steps={[
+          {
+            title: 'Explore Available Tools',
+            description: 'Access Brand & Content Studio to create compelling marketing copy and brand materials using proven frameworks.'
+          },
+          {
+            title: 'Set Up Your Business Profile',
+            description: 'Update your Business Knowledge with company information and documents to personalize AI-generated content.'
+          },
+          {
+            title: 'Generate Strategic Content',
+            description: 'Choose a framework, fill in your details, and let AI create professional content tailored to your business needs.'
+          },
+          {
+            title: 'Save and Reuse Templates',
+            description: 'Build your template library by saving successful content as templates for faster creation in the future.'
+          }
+        ]}
+        ctaText="Got it, Let's Get Started!"
+      />
     </div>
   )
 }
