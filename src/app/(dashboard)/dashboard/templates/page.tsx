@@ -274,6 +274,7 @@ export default function TemplatesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'my-templates' | 'brandinglab' | 'growthcopilot' | 'copywriting'>('my-templates')
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [showTutorialModal, setShowTutorialModal] = useState(false)
 
   const loadTemplates = useCallback(async (forceFullLoad = false) => {
     console.log('Loading templates for category:', selectedCategory, 'User:', user?.email)
@@ -748,28 +749,133 @@ export default function TemplatesPage() {
         </Card>
       </div>
 
-      {/* Quick Start Guide */}
-      <Card className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+      {/* How Template Management Works */}
+      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-idean-blue">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+          <div className="w-12 h-12 bg-idean-blue rounded-lg flex items-center justify-center flex-shrink-0">
             <FileText className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">Template Management</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              Create reusable templates from your successful frameworks and campaigns. Save time and maintain consistency across your business operations.
+            <h3 className="font-semibold text-gray-900 mb-2 text-lg">How Template Management Works</h3>
+            <p className="text-sm text-gray-700 mb-4">
+              Templates let you save and reuse successful content frameworks. Create once, use multiple times - saving hours of work while maintaining quality and consistency.
             </p>
-            <div className="flex items-center gap-4 text-xs text-gray-500">
-              <span>• Save successful frameworks</span>
-              <span>• Reuse proven workflows</span>
-              <span>• Share across your team</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex items-start gap-2">
+                <span className="text-idean-blue font-bold text-sm">1.</span>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Create Content</p>
+                  <p className="text-xs text-gray-600">Generate content using any framework</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-idean-blue font-bold text-sm">2.</span>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Save as Template</p>
+                  <p className="text-xs text-gray-600">Click "Save as Template" when satisfied</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-idean-blue font-bold text-sm">3.</span>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Reuse Anytime</p>
+                  <p className="text-xs text-gray-600">Access saved templates for quick content</p>
+                </div>
+              </div>
             </div>
           </div>
-          <Button className="bg-gray-600 hover:bg-gray-700">
-            Learn Template Creation
+          <Button
+            onClick={() => setShowTutorialModal(true)}
+            className="bg-idean-blue hover:bg-blue-600 text-white flex-shrink-0"
+          >
+            View Tutorial
           </Button>
         </div>
       </Card>
+
+      {/* Tutorial Modal */}
+      {showTutorialModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+          onClick={() => setShowTutorialModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-idean-blue p-6 text-white border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-8 h-8" />
+                  <div>
+                    <h2 className="text-2xl font-bold">Template Management Tutorial</h2>
+                    <p className="text-blue-100 mt-1">Learn how to create and use templates effectively</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTutorialModal(false)}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/10 rounded-lg flex items-center justify-center transition-colors"
+                  aria-label="Close"
+                >
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Placeholder for YouTube video */}
+              <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-6 border-2 border-dashed border-gray-300">
+                <div className="text-center">
+                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500 font-medium">YouTube Video Tutorial</p>
+                  <p className="text-gray-400 text-sm mt-1">Video will be embedded here</p>
+                </div>
+              </div>
+
+              {/* Tutorial Steps */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-900 text-lg mb-4">Quick Guide</h3>
+
+                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex-shrink-0 w-8 h-8 bg-idean-blue text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Create Content</h4>
+                    <p className="text-gray-600 text-sm">Start by generating content using any of our frameworks in the Brand & Content Studio.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex-shrink-0 w-8 h-8 bg-idean-blue text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Save as Template</h4>
+                    <p className="text-gray-600 text-sm">When you're satisfied with the content, click the "Save as Template" button to preserve your inputs and settings.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex-shrink-0 w-8 h-8 bg-idean-blue text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Reuse Anytime</h4>
+                    <p className="text-gray-600 text-sm">Access your saved templates from this page and reuse them to generate similar content quickly.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <Button
+                onClick={() => setShowTutorialModal(false)}
+                className="bg-idean-blue hover:bg-blue-600 text-white w-full"
+              >
+                Got it, Let's Start Creating!
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
