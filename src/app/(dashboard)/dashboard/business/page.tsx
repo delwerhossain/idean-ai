@@ -17,10 +17,12 @@ import {
   Tag,
   Users,
   BookOpen,
-  RefreshCw
+  RefreshCw,
+  TrendingUp
 } from 'lucide-react'
 import { ideanApi, ideanUtils } from '@/lib/api/idean-api'
 import { Business } from '@/types/api'
+import TutorialModal from '@/components/modals/TutorialModal'
 
 interface BusinessFormData {
   business_name: string
@@ -108,6 +110,7 @@ export default function BusinessKnowledgePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [showTutorialModal, setShowTutorialModal] = useState(false)
   const [formData, setFormData] = useState<BusinessFormData>({
     business_name: '',
     website_url: '',
@@ -315,7 +318,7 @@ export default function BusinessKnowledgePage() {
   const getPlanBadge = (module: string) => {
     return module === 'pro'
       ? <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">Pro Plan</span>
-      : <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Standard Plan</span>
+      : <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Free Plan</span>
   }
 
   if (loading) {
@@ -337,20 +340,31 @@ export default function BusinessKnowledgePage() {
             </div>
           </div>
 
-          {business && (
-            <div className="flex items-center gap-3">
-              {getPlanBadge(business.module_select)}
-              <span className={`text-xs px-2 py-1 rounded-full ${
-                business.mentor_approval === 'approved'
-                  ? 'bg-green-100 text-green-700'
-                  : business.mentor_approval === 'rejected'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-yellow-100 text-yellow-700'
-              }`}>
-                {business.mentor_approval === 'approved' ? 'Approved' : business.mentor_approval === 'rejected' ? 'Rejected' : 'Pending'}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowTutorialModal(true)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Watch Tutorial
+            </Button>
+            {business && (
+              <>
+                {getPlanBadge(business.module_select)}
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  business.mentor_approval === 'approved'
+                    ? 'bg-green-100 text-green-700'
+                    : business.mentor_approval === 'rejected'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {business.mentor_approval === 'approved' ? 'Approved' : business.mentor_approval === 'rejected' ? 'Rejected' : 'Pending'}
+                </span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -607,6 +621,34 @@ export default function BusinessKnowledgePage() {
           </div>
         </Card>
       )}
+
+      {/* Tutorial Modal */}
+      <TutorialModal
+        isOpen={showTutorialModal}
+        onClose={() => setShowTutorialModal(false)}
+        title="How to Manage Business Knowledge"
+        subtitle="Learn to maintain your business profile and documents"
+        icon={<BookOpen className="w-8 h-8" />}
+        steps={[
+          {
+            title: 'Update Business Information',
+            description: 'Fill in your business name, website, industry, and other key details. This information helps AI understand your business context.'
+          },
+          {
+            title: 'Add Business Context',
+            description: 'Provide detailed information about your business, products, services, and unique value proposition. The more context you provide, the better AI-generated content will be.'
+          },
+          {
+            title: 'Upload Knowledge Documents',
+            description: 'Upload PDFs containing your brand guidelines, product information, and business documents for AI to reference when generating content.'
+          },
+          {
+            title: 'Save and Update Regularly',
+            description: 'Keep your business profile updated as your business evolves. Updated information ensures AI always uses the latest context.'
+          }
+        ]}
+        ctaText="Got it, Let's Update My Profile!"
+      />
     </div>
   )
 }
