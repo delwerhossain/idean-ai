@@ -261,37 +261,35 @@ export default function Sidebar({
           </button>
 
           {/* Logo Section - Always Visible and Responsive */}
-          <div className="p-2 lg:p-3 flex items-center justify-center">
-            <Link href="/dashboard" className="flex items-center justify-center hover:opacity-80 transition-opacity">
+          <div className="p-2 flex items-center">
+            <Link href="/dashboard" className="flex items-center hover:opacity-80 transition-opacity">
               {isMobile || isExpanded ? (
-                // Full logo when expanded or on mobile
-                <div className="flex items-center gap-2">
+                // Full logo when expanded or on mobile - no icon, just full logo with left margin
+                <div className="flex items-center ml-5">
                   <img
                     src="/ideanai_logo.png"
                     alt="iDEAN AI"
-                    className="h-10 lg:h-11 w-auto transition-all duration-200 ease-out object-contain"
+                    className="h-10 w-auto transition-all duration-200 ease-out object-contain"
                     onError={(e) => {
-                      // Fallback to text logo if image fails
                       e.currentTarget.style.display = 'none';
                       const fallback = document.createElement('div');
-                      fallback.className = 'font-bold text-xl lg:text-2xl text-blue-600';
+                      fallback.className = 'font-bold text-xl text-blue-600';
                       fallback.textContent = 'iDEAN AI';
                       e.currentTarget.parentNode?.appendChild(fallback);
                     }}
                   />
                 </div>
               ) : (
-                // Prominent icon when collapsed on desktop - always visible
-                <div className="flex items-center justify-center w-12 h-12 hover:w-14 hover:h-14 transition-all duration-200 ease-out">
+                // Icon only when collapsed on desktop - aligned with other icons
+                <div className="flex items-center justify-center w-12 h-12 pl-2">
                   <img
                     src="/ideanai_logo_icon.png"
                     alt="iDEAN AI"
-                    className="w-10 h-10 hover:w-12 hover:h-12 transition-all duration-200 ease-out object-contain drop-shadow-sm"
+                    className="w-10 h-10 transition-all duration-200 ease-out object-contain drop-shadow-sm"
                     onError={(e) => {
-                      // Fallback to colored circle with initials if icon fails
                       e.currentTarget.style.display = 'none';
                       const fallback = document.createElement('div');
-                      fallback.className = 'w-10 h-10 hover:w-12 hover:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg transition-all duration-200';
+                      fallback.className = 'w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg';
                       fallback.textContent = 'iA';
                       e.currentTarget.parentNode?.appendChild(fallback);
                     }}
