@@ -476,149 +476,91 @@ export default function Sidebar({
           </nav>
         </div>
 
-        {/* Fixed Bottom Section */}
-        <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-1">
-          {/* Help Button */}
-          <button
-            onClick={() => !isOnboarding && setShowHelpModal(true)}
-            disabled={isOnboarding}
-            className={`relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation hover:bg-blue-50 transform-gpu p-2 ${
-              isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
-            }`}
-            title={!isExpanded && !isMobile ? "Help & Guide" : undefined}
-          >
-            {/* Expandable Background */}
-            <div
-              className={`absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out hover:from-blue-100 hover:to-indigo-100 ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100"
-                  : "lg:opacity-0 lg:scale-95 lg:w-12 lg:h-12"
-              }`}
-            />
-
-            {/* Fixed Icon Container - Always Same Position */}
-            <div className={`relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation ${
-              !isMobile && !isExpanded ? 'lg:mt-4' : ''
-            }`}>
-              <HelpCircle className="text-blue-600 w-6 h-6 lg:w-5 lg:h-5 transition-colors duration-200" />
-            </div>
-
-            {/* Text Label */}
-            <span
-              className={`relative z-10 ml-3 font-semibold lg:font-medium text-blue-700 transition-all duration-200 ease-out select-none ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100 translate-x-0"
-                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
-              } ${isMobile ? "text-sm sm:text-base" : "text-sm"}`}
-            >
-              Help & Guide
-            </span>
-          </button>
-
-          {/* Upgrade Button */}
+        {/* Fixed Bottom Section - ChatGPT Style */}
+        <div className="flex-shrink-0 border-t border-gray-200 p-2">
+          {/* Upgrade Button - ChatGPT Style */}
           <button
             onClick={() => !isOnboarding && setShowUpgradeModal(true)}
             disabled={isOnboarding}
-            className={`relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-idean-blue-light transform-gpu ${
+            className={`w-full flex items-center justify-between p-2.5 mb-1 rounded-lg bg-gray-800/5 hover:bg-gray-800/10 transition-all duration-200 group ${
               isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
             }`}
-            title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
           >
-            {/* Expandable Background */}
-            <div
-              className={`absolute inset-0 bg-gradient-to-r from-idean-blue-light to-idean-blue-pale border border-idean-blue rounded-2xl lg:rounded-lg transition-all duration-200 ease-out ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100"
-                  : "lg:opacity-0 lg:scale-95 lg:w-12 lg:h-12"
-              }`}
-            />
-
-            {/* Fixed Icon Container - Always Same Position */}
-            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation">
-              <Crown className="text-idean-blue w-6 h-6 lg:w-5 lg:h-5 transition-colors duration-200" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-blue-500 rounded-md flex items-center justify-center flex-shrink-0">
+                <Crown className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className={`font-medium text-gray-900 text-sm transition-all duration-200 ${
+                isMobile || isExpanded ? 'opacity-100' : 'lg:opacity-0 lg:w-0 lg:overflow-hidden'
+              }`}>
+                Upgrade your plan
+              </span>
             </div>
-
-            {/* Text Label */}
-            <span
-              className={`relative z-10 ml-3 font-semibold lg:font-medium text-idean-blue transition-all duration-200 ease-out select-none ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100 translate-x-0"
-                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
-              } ${isMobile ? "text-sm sm:text-base" : "text-sm"}`}
-            >
-              Upgrade Plan
-            </span>
+            <div className={`transition-all duration-200 ${
+              isMobile || isExpanded ? 'opacity-100' : 'lg:opacity-0 lg:w-0 lg:overflow-hidden'
+            }`}>
+              <svg className="w-4 h-4 text-gray-600 group-hover:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </button>
 
-          {/* User Profile with Dropdown - Hidden on mobile since it's in header */}
-          <div className="relative lg:block hidden">
+          {/* User Profile - ChatGPT Style */}
+          <div className="relative">
             <button
               onClick={() => !isOnboarding && setShowAccountMenu(!showAccountMenu)}
               disabled={isOnboarding}
-              className={`relative flex items-center w-full cursor-pointer transition-all duration-200 ease-out group p-2 transform-gpu ${
+              className={`w-full flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-gray-800/5 transition-all duration-200 group ${
                 isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
-              {/* Expandable Background */}
-              <div
-                className={`absolute inset-0 hover:bg-gray-50 rounded-lg transition-all duration-200 ease-out ${
-                  isMobile || isExpanded
-                    ? "opacity-100 scale-100"
-                    : "lg:opacity-0 lg:scale-95 lg:w-10 lg:h-10"
-                }`}
-              />
-
-              {/* Fixed Icon Container - Always Same Position */}
-              <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-10 h-10">
+              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-semibold">
                 {user?.photoURL ? (
                   <img
                     src={user.photoURL}
                     alt={user.name || 'User'}
-                    className="w-6 h-6 rounded-full object-cover group-hover:ring-2 group-hover:ring-gray-400 transition-all"
+                    className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-gray-400 transition-colors">
-                    <User className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
-                  </div>
+                  <span>{user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}</span>
                 )}
               </div>
-
-              {/* Text Content */}
-              <div
-                className={`relative z-10 ml-3 flex items-center justify-between flex-1 min-w-0 transition-all duration-200 ease-out ${
-                  isMobile || isExpanded
-                    ? "opacity-100 scale-100 translate-x-0 w-auto"
-                    : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
-                }`}
-              >
-                <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">
-                  {user?.name || 'Account'}
+              <div className={`flex-1 text-left transition-all duration-200 ${
+                isMobile || isExpanded ? 'opacity-100' : 'lg:opacity-0 lg:w-0 lg:overflow-hidden'
+              }`}>
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user?.name || user?.email?.split('@')[0] || 'Account'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Free
                 </p>
               </div>
             </button>
 
-            {/* Enhanced Account Menu Dropdown with Animation */}
+            {/* Account Menu Dropdown */}
             {showAccountMenu && (
-              <div
-                className={`absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded-xl lg:rounded-lg shadow-xl lg:shadow-lg z-20 py-2 lg:py-1 min-w-52 lg:min-w-48
-                  animate-in slide-in-from-bottom-2 fade-in duration-200
-                  ${isExpanded ? "lg:right-0" : "lg:left-12"}
-                `}
-              >
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1 animate-in slide-in-from-bottom-2 fade-in duration-200">
                 <Link
                   href="/dashboard/settings"
-                  className="flex items-center gap-3 px-4 py-3 lg:px-3 lg:py-2 text-base lg:text-sm text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap rounded-lg lg:rounded-none mx-1 lg:mx-0"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   onClick={() => setShowAccountMenu(false)}
                 >
-                  <Settings className="w-5 h-5 lg:w-4 lg:h-4" />
+                  <Settings className="w-4 h-4" />
                   Settings
                 </Link>
-                <hr className="my-2 lg:my-1 border-gray-100" />
                 <button
-                  className="flex items-center gap-3 w-full px-4 py-3 lg:px-3 lg:py-2 text-base lg:text-sm text-red-600 hover:bg-red-50 transition-colors whitespace-nowrap rounded-lg lg:rounded-none mx-1 lg:mx-0"
+                  onClick={() => !isOnboarding && setShowHelpModal(true)}
+                  className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Help & Guide
+                </button>
+                <hr className="my-1 border-gray-100" />
+                <button
+                  className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   onClick={handleLogout}
                 >
-                  <LogOut className="w-5 h-5 lg:w-4 lg:h-4" />
+                  <LogOut className="w-4 h-4" />
                   Sign Out
                 </button>
               </div>
