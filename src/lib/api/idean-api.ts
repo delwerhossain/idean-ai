@@ -209,6 +209,39 @@ export interface Payment {
 
 // iDEAN AI API endpoints
 export const ideanApi = {
+  // Authentication API
+  auth: {
+    // Register new user with email/password
+    register: (data: {
+      email: string
+      password: string
+      name: string
+      provider?: string
+    }) => apiClient.post<{ user: User; token: string; message: string }>('/api/v1/auth/register', data),
+
+    // Login with email/password
+    login: (data: {
+      email: string
+      password: string
+    }) => apiClient.post<{ user: User; token: string; message: string }>('/api/v1/auth/login', data),
+
+    // Login with Firebase token (Google OAuth)
+    loginWithFirebase: (firebaseToken: string) =>
+      apiClient.post<{ user: User; token: string; message: string }>('/api/v1/auth/login', { firebaseToken }),
+
+    // Refresh access token
+    refreshToken: (token: string) =>
+      apiClient.post<{ token: string; message: string }>('/api/v1/auth/refresh', { token }),
+
+    // Verify current token
+    verify: () =>
+      apiClient.get<{ user: User; message: string }>('/api/v1/auth/verify'),
+
+    // Logout
+    logout: () =>
+      apiClient.post<{ message: string }>('/api/v1/auth/logout', {}),
+  },
+
   // Growth Co-pilot API (Strategy & Execution)
   growthCopilot: {
     getAll: (params?: PaginationParams) =>
@@ -464,10 +497,26 @@ export const ideanApi = {
     upload: (file: File, businessId: string, onProgress?: (progress: number) => void) =>
       apiClient.uploadFile<{documentsUploaded: any[]}>(`/api/v1/businesses/${businessId}/documents`, file, {}, onProgress),
 
+    // Upload multiple documents to business knowledge base
+    uploadMultiple: async (files: File[], businessId: string, onProgress?: (progress: number) => void) => {
+      const formData = new FormData()
+      files.forEach(file => formData.append('documents', file))
+
+      return apiClient.request<{documentsUploaded: any[]}>(`/api/v1/businesses/${businessId}/documents`, {
+        method: 'POST',
+        body: formData,
+        headers: {} // Let browser set content-type for multipart
+      })
+    },
+
     // Get documents for a specific business
     getByBusiness: (businessId: string, params?: PaginationParams) =>
       apiClient.get<{businessId: string; businessName: string; documents: any[]}>(`/api/v1/businesses/${businessId}/documents`),
-      
+
+    // Delete a business document
+    deleteFromBusiness: (businessId: string, documentId: string) =>
+      apiClient.delete(`/api/v1/businesses/${businessId}/documents/${documentId}`),
+
     // Search documents in user's business using vector similarity
     search: (query: string, limit: number = 5) =>
       apiClient.get<{success: boolean; query: string; businessId: string; results: any[]}>('/api/v1/businesses/documents/search', { query, limit }),
