@@ -820,7 +820,7 @@ export const ideanUtils = {
 
   // Get module options
   getModuleOptions: () => [
-    { value: 'standard', name: 'Standard', description: 'Basic frameworks and templates' },
+    { value: 'standard', name: 'Free', description: 'Basic frameworks and templates' },
     { value: 'pro', name: 'Pro', description: 'Advanced frameworks with AI generation' },
   ],
 
