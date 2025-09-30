@@ -18,7 +18,11 @@ import {
   Users,
   BookOpen,
   RefreshCw,
-  TrendingUp
+  TrendingUp,
+  Upload,
+  Trash2,
+  FileText,
+  X
 } from 'lucide-react'
 import { ideanApi, ideanUtils } from '@/lib/api/idean-api'
 import { Business } from '@/types/api'
@@ -111,6 +115,9 @@ export default function BusinessKnowledgePage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [showTutorialModal, setShowTutorialModal] = useState(false)
+  const [documents, setDocuments] = useState<any[]>([])
+  const [uploadingDocs, setUploadingDocs] = useState(false)
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null)
   const [formData, setFormData] = useState<BusinessFormData>({
     business_name: '',
     website_url: '',
@@ -201,6 +208,96 @@ export default function BusinessKnowledgePage() {
       setLoading(false)
     }
   }, [user])
+
+  const loadDocuments = useCallback(async () => {
+    if (!business?.id) return
+
+    try {
+      const response = await ideanApi.documents.getByBusiness(business.id)
+      setDocuments(response.documents || [])
+    } catch (err) {
+      console.error('Failed to load documents:', err)
+    }
+  }, [business?.id])
+
+  useEffect(() => {
+    if (business?.id) {
+      loadDocuments()
+    }
+  }, [business?.id, loadDocuments])
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files || files.length === 0 || !business?.id) return
+
+    const fileArray = Array.from(files)
+
+    // Validate files
+    const maxFiles = 4
+    const maxSizePerFile = 30 * 1024 * 1024 // 30MB
+    const allowedTypes = ['application/pdf']
+
+    if (fileArray.length > maxFiles) {
+      setError(`You can only upload up to ${maxFiles} files at once`)
+      return
+    }
+
+    for (const file of fileArray) {
+      if (!allowedTypes.includes(file.type)) {
+        setError('Only PDF files are allowed')
+        return
+      }
+      if (file.size > maxSizePerFile) {
+        setError(`File ${file.name} is too large. Maximum size is 30MB`)
+        return
+      }
+    }
+
+    try {
+      setUploadingDocs(true)
+      setError(null)
+
+      await ideanApi.documents.uploadMultiple(fileArray, business.id)
+
+      setSuccess('Documents uploaded successfully!')
+      await loadDocuments()
+
+      // Clear the file input
+      event.target.value = ''
+    } catch (err: any) {
+      console.error('Failed to upload documents:', err)
+      setError(err.message || 'Failed to upload documents')
+    } finally {
+      setUploadingDocs(false)
+    }
+  }
+
+  const handleDeleteDocument = async (documentId: string) => {
+    if (!business?.id || !window.confirm('Are you sure you want to delete this document?')) return
+
+    try {
+      setDeletingDocId(documentId)
+      setError(null)
+
+      await ideanApi.documents.deleteFromBusiness(business.id, documentId)
+
+      setSuccess('Document deleted successfully!')
+      await loadDocuments()
+    } catch (err: any) {
+      console.error('Failed to delete document:', err)
+      setError(err.message || 'Failed to delete document')
+    } finally {
+      setDeletingDocId(null)
+    }
+  }
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+  }
 
   const resetForm = () => {
     if (business) {
@@ -598,27 +695,86 @@ export default function BusinessKnowledgePage() {
         </Card>
       )}
 
-      {/* Business Documents */}
-      {business && business.business_documents && business.business_documents.length > 0 && (
+      {/* Business Documents Management */}
+      {business && (
         <Card className="p-4 sm:p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="w-5 h-5 text-idean-navy" />
-            <h3 className="text-lg font-semibold text-gray-900">Business Documents</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-5 h-5 text-idean-navy" />
+              <h3 className="text-lg font-semibold text-gray-900">Business Documents</h3>
+            </div>
+            <span className="text-xs text-gray-500">{documents.length} documents</span>
           </div>
 
-          <div className="space-y-3">
-            {business.business_documents.map((doc, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div className="w-8 h-8 bg-idean-navy/10 rounded flex items-center justify-center">
-                  <BookOpen className="w-4 h-4 text-idean-navy" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">Document {index + 1}</p>
-                  <p className="text-xs text-gray-500">Uploaded knowledge base document</p>
-                </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Upload PDFs containing your brand guidelines, product information, and business documents for AI to reference when generating content.
+          </p>
+
+          {/* Upload Section */}
+          <div className="mb-4">
+            <label htmlFor="document-upload" className="block">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-idean-blue hover:bg-blue-50 transition-all cursor-pointer">
+                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  {uploadingDocs ? 'Uploading...' : 'Click to upload or drag and drop'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  PDF files only, max 30MB per file, up to 4 files at once
+                </p>
               </div>
-            ))}
+              <input
+                id="document-upload"
+                type="file"
+                accept=".pdf,application/pdf"
+                multiple
+                onChange={handleFileUpload}
+                disabled={uploadingDocs}
+                className="hidden"
+              />
+            </label>
           </div>
+
+          {/* Documents List */}
+          {documents.length > 0 ? (
+            <div className="space-y-2">
+              {documents.map((doc: any) => (
+                <div key={doc.id || doc.documentId} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div className="w-10 h-10 bg-idean-navy/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-5 h-5 text-idean-navy" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {doc.fileName || `Document ${documents.indexOf(doc) + 1}`}
+                    </p>
+                    <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
+                      {doc.fileSize && <span>{formatFileSize(doc.fileSize)}</span>}
+                      {doc.numPages && <span>{doc.numPages} pages</span>}
+                      {doc.createdAt && <span>{new Date(doc.createdAt).toLocaleDateString()}</span>}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteDocument(doc.id || doc.documentId)}
+                    disabled={deletingDocId === (doc.id || doc.documentId)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    {deletingDocId === (doc.id || doc.documentId) ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+              <p className="text-sm">No documents uploaded yet</p>
+              <p className="text-xs mt-1">Upload PDFs to enhance AI-generated content</p>
+            </div>
+          )}
         </Card>
       )}
 
