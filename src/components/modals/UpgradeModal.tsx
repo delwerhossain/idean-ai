@@ -39,48 +39,22 @@ interface PricingPlan {
 }
 
 const PRICING_PLANS: PricingPlan[] = [
-  // {
-  //   id: 'free',
-  //   name: 'Free Plan',
-  //   price: 0,
-  //   period: 'forever',
-  //   description: 'Perfect for trying out iDEAN AI',
-  //   features: [
-  //     '7-day trial or 500 tokens',
-  //     'Limited to one framework',
-  //     'Basic campaign generation',
-  //     'Community support only'
-  //   ],
-  //   aiCredits: 500,
-  //   frameworks: ['Basic Customer Value Journey'],
-  //   support: 'Community',
-  //   storage: '1 PDF'
-  // },
   {
-    id: "standard",
-    name: "Standard Plan",
-    price: 2000,
-    period: "month",
-    description: "Perfect for solo creators and small business owners",
-    popular: true,
+    id: "free",
+    name: "Free Plan",
+    price: 0,
+    period: "forever",
+    description: "Perfect for trying out iDEAN AI",
     features: [
-      "Chatbot onboarding system",
-      "Upload up to 4 PDFs (≤30 pages each)",
-      "500-word business overview generation",
-      "Facebook ads + organic content creation",
-      "Part-by-part content flow",
-      "Manual analytics CSV upload",
-      "English/Bangla UI support",
-      "2,000 monthly AI credits",
+      "7-day trial or 500 tokens",
+      "Limited to one framework",
+      "Basic campaign generation",
+      "Community support only"
     ],
-    aiCredits: 2000,
-    frameworks: [
-      "Basic Customer Value Journey",
-      "Essential copywriting templates",
-      "Standard funnel frameworks",
-    ],
-    support: "Email Support",
-    storage: "4 PDFs (≤30 pages each)",
+    aiCredits: 500,
+    frameworks: ["Basic Customer Value Journey"],
+    support: "Community",
+    storage: "1 PDF"
   },
   {
     id: "pro",
@@ -88,8 +62,8 @@ const PRICING_PLANS: PricingPlan[] = [
     price: 5000,
     period: "month",
     description: "Designed for growing businesses and small agencies",
+    popular: true,
     features: [
-      "Everything in Standard +",
       "Team workspace with shared knowledge base",
       "Ads history import (≥30 items)",
       "Performance tracking",
