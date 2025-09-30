@@ -286,18 +286,18 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Core Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-        {/* Brand & Content Studio Card - Prominent */}
-        <Card className="p-4 hover:shadow-xl transition-all duration-300 border-2 border-orange-300 hover:border-orange-400 group cursor-pointer md:col-span-2 lg:col-span-2 bg-gradient-to-br from-orange-50 to-amber-50"
+      {/* Core Module Cards - Reorganized Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {/* Brand & Content Studio Card - Available Now */}
+        <Card className="p-4 hover:shadow-xl transition-all duration-300 border-2 border-idean-blue hover:border-blue-600 group cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50"
               onClick={() => router.push('/dashboard/copywriting')}>
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-idean-blue to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
               <PenTool className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xs bg-orange-500 text-white px-2 py-1 rounded-full font-medium shadow-sm">Available Now</span>
+            <span className="text-xs bg-idean-blue text-white px-2 py-1 rounded-full font-medium shadow-sm">Available Now</span>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">Brand & Content Studio</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-idean-blue transition-colors">Brand & Content Studio</h3>
           <p className="text-gray-700 text-sm mb-3 leading-relaxed">
             Create powerful brand content with AI-powered copywriting, design frameworks, and marketing materials. Generate everything from social posts to complete campaigns.
           </p>
@@ -305,65 +305,57 @@ export default function DashboardPage() {
           {/* Enhanced Stats */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white/50 rounded-lg p-2">
-              <div className="text-base font-bold text-orange-600">12+</div>
+              <div className="text-base font-bold text-idean-blue">12+</div>
               <div className="text-xs text-gray-600">Content Types</div>
             </div>
             <div className="bg-white/50 rounded-lg p-2">
-              <div className="text-base font-bold text-orange-600">AI-Powered</div>
+              <div className="text-base font-bold text-idean-blue">AI-Powered</div>
               <div className="text-xs text-gray-600">Generation</div>
             </div>
           </div>
 
-          <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 text-sm">
+          <Button className="w-full bg-idean-blue hover:bg-blue-600 text-white font-semibold py-2 text-sm">
             Start Creating Content
             <Sparkles className="w-4 h-4 ml-2" />
           </Button>
         </Card>
 
-        {/* Coming Soon Cards */}
-        <div className="space-y-3">
+        {/* Coming Soon Cards - Compact Side by Side */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
           {/* Growth Co-Pilot Card - Coming Soon */}
           <Card className="p-3 opacity-60 border-2 border-dashed border-gray-300 cursor-not-allowed">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <div className="w-8 h-8 bg-gray-300 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-gray-500" />
               </div>
               <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">Coming Soon</span>
             </div>
-            <h3 className="text-sm font-bold text-gray-600 mb-2">Growth Co-Pilot</h3>
-            <p className="text-gray-500 text-xs mb-3 leading-relaxed">
-              Strategic frameworks for business growth including Customer Value Journey and Blue Ocean Strategy
+            <h3 className="text-sm font-bold text-gray-600 mb-1">Business Strategy</h3>
+            <p className="text-gray-500 text-xs leading-relaxed">
+              Strategic frameworks for business growth
             </p>
-            <Button className="w-full py-1 text-xs" variant="outline" disabled>
-              Coming Soon
-              <Clock className="w-3 h-3 ml-1" />
-            </Button>
           </Card>
 
           {/* Branding Lab Card - Coming Soon */}
           <Card className="p-3 opacity-60 border-2 border-dashed border-gray-300 cursor-not-allowed">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <div className="w-8 h-8 bg-gray-300 rounded-xl flex items-center justify-center">
                 <Palette className="w-4 h-4 text-gray-500" />
               </div>
               <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">Coming Soon</span>
             </div>
-            <h3 className="text-sm font-bold text-gray-600 mb-2">Branding Lab</h3>
-            <p className="text-gray-500 text-xs mb-3 leading-relaxed">
-              Strategic brand frameworks including Brand Foundation and Voice & Messaging systems
+            <h3 className="text-sm font-bold text-gray-600 mb-1">Brand Identity</h3>
+            <p className="text-gray-500 text-xs leading-relaxed">
+              Strategic brand frameworks and messaging
             </p>
-            <Button className="w-full py-1 text-xs" variant="outline" disabled>
-              Coming Soon
-              <Clock className="w-3 h-3 ml-1" />
-            </Button>
           </Card>
         </div>
       </div>
 
       {/* Quick Start Wizard */}
-      <Card className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200 mb-4">
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-idean-blue mb-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-idean-blue rounded-xl flex items-center justify-center">
             <Rocket className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -375,7 +367,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <Button
             variant={selectedQuickAction === 'content' ? 'default' : 'outline'}
-            className="h-auto p-3 justify-start w-full bg-orange-500 hover:bg-orange-600 text-white border-orange-500"
+            className="h-auto p-3 justify-start w-full bg-idean-blue hover:bg-blue-600 text-white border-idean-blue"
             onClick={() => {
               setSelectedQuickAction('content')
               setTimeout(() => router.push('/dashboard/copywriting'), 300)
@@ -420,8 +412,8 @@ export default function DashboardPage() {
         </div>
       </Card>
 
-      {/* Business Health Dashboard & Recent Activity */}
-      <div className=" grid-cols-1 lg:grid-cols-2 gap-4 mb-4 hidden">
+      {/* Business Health Dashboard & Recent Activity - Removed as redundant */}
+      <div className="hidden">
         {/* Business Health Dashboard */}
         <Card className="p-4">
           <div className="flex items-center gap-3 mb-6">
@@ -560,7 +552,7 @@ export default function DashboardPage() {
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Globe className="w-5 h-5 text-orange-600" />
+              <Globe className="w-5 h-5 text-idean-blue" />
             </div>
             <span className="text-lg font-bold text-gray-900">{industry}</span>
           </div>
