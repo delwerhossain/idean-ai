@@ -251,8 +251,8 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            {/* Daily Strategic Insight */}
-            <Card className="bg-white border-blue-200 mt-4 sm:mt-6">
+            {/* Daily Strategic Insight - Commented Out */}
+            {/* <Card className="bg-white border-blue-200 mt-4 sm:mt-6">
               <div className="p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-3">
                   <dailyInsight.icon className="w-5 h-5 text-blue-600" />
@@ -269,11 +269,11 @@ export default function DashboardPage() {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
-            </Card>
+            </Card> */}
           </div>
 
-          {/* Quick Stats */}
-          <div className="flex flex-row lg:flex-col gap-4 sm:gap-6 lg:gap-4 lg:ml-8 w-full lg:w-auto">
+          {/* Quick Stats - Commented Out */}
+          {/* <div className="flex flex-row lg:flex-col gap-4 sm:gap-6 lg:gap-4 lg:ml-8 w-full lg:w-auto">
             <div className="text-center flex-1 lg:flex-none">
               <div className="text-2xl sm:text-3xl font-bold text-blue-600">{dashboardData.analytics.growth.score}</div>
               <div className="text-gray-500 text-xs sm:text-sm">Growth Score</div>
@@ -282,7 +282,7 @@ export default function DashboardPage() {
               <div className="text-xl sm:text-2xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}/{dashboardData.analytics.frameworks.total}</div>
               <div className="text-gray-500 text-xs sm:text-sm">Frameworks</div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
