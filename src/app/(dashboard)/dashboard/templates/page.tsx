@@ -23,6 +23,7 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { ideanApi, Template } from '@/lib/api/idean-api'
+import TutorialModal from '@/components/modals/TutorialModal'
 
 // Skeleton Loading Component for Templates Page
 function TemplatesSkeletonLoader() {
@@ -538,14 +539,25 @@ export default function TemplatesPage() {
     <div className="p-3 sm:p-6">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
-            <FileText className="w-5 h-5 text-white" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Templates</h1>
+              <p className="text-gray-600 text-sm sm:text-base">Reusable frameworks and workflows for your business</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Templates</h1>
-            <p className="text-gray-600 text-sm sm:text-base">Reusable frameworks and workflows for your business</p>
-          </div>
+          <Button
+            onClick={() => setShowTutorialModal(true)}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <TrendingUp className="w-4 h-4" />
+            Watch Tutorial
+          </Button>
         </div>
 
         {user ? (
@@ -749,139 +761,29 @@ export default function TemplatesPage() {
         </Card>
       </div>
 
-      {/* How Template Management Works */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-idean-blue">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-          <div className="w-12 h-12 bg-idean-blue rounded-lg flex items-center justify-center flex-shrink-0">
-            <FileText className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-2 text-lg">How Template Management Works</h3>
-            <p className="text-sm text-gray-700 mb-4">
-              Templates let you save and reuse successful content frameworks. Create once, use multiple times - saving hours of work while maintaining quality and consistency.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="flex items-start gap-2">
-                <span className="text-idean-blue font-bold text-sm">1.</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Create Content</p>
-                  <p className="text-xs text-gray-600">Generate content using any framework</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-idean-blue font-bold text-sm">2.</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Save as Template</p>
-                  <p className="text-xs text-gray-600">Click "Save as Template" when satisfied</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-idean-blue font-bold text-sm">3.</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Reuse Anytime</p>
-                  <p className="text-xs text-gray-600">Access saved templates for quick content</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={() => setShowTutorialModal(true)}
-            className="bg-idean-blue hover:bg-blue-600 text-white flex-shrink-0"
-          >
-            View Tutorial
-          </Button>
-        </div>
-      </Card>
-
       {/* Tutorial Modal */}
-      {showTutorialModal && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
-          onClick={() => setShowTutorialModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="bg-idean-blue p-6 text-white border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-8 h-8" />
-                  <div>
-                    <h2 className="text-2xl font-bold">Template Management Tutorial</h2>
-                    <p className="text-blue-100 mt-1">Learn how to create and use templates effectively</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowTutorialModal(false)}
-                  className="h-8 w-8 p-0 text-white hover:bg-white/10 rounded-lg flex items-center justify-center transition-colors"
-                  aria-label="Close"
-                >
-                  <span className="text-2xl">&times;</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {/* YouTube Video */}
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-6">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src="https://www.youtube.com/embed/f0i37zHn-e0?si=TGloS0i_06ijh1Bt"
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                  className="w-full h-full"
-                ></iframe>
-              </div>
-
-              {/* Tutorial Steps */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900 text-lg mb-4">Quick Guide</h3>
-
-                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex-shrink-0 w-8 h-8 bg-idean-blue text-white rounded-full flex items-center justify-center font-bold">1</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Create Content</h4>
-                    <p className="text-gray-600 text-sm">Start by generating content using any of our frameworks in the Brand & Content Studio.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex-shrink-0 w-8 h-8 bg-idean-blue text-white rounded-full flex items-center justify-center font-bold">2</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Save as Template</h4>
-                    <p className="text-gray-600 text-sm">When you're satisfied with the content, click the "Save as Template" button to preserve your inputs and settings.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex-shrink-0 w-8 h-8 bg-idean-blue text-white rounded-full flex items-center justify-center font-bold">3</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Reuse Anytime</h4>
-                    <p className="text-gray-600 text-sm">Access your saved templates from this page and reuse them to generate similar content quickly.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-6 border-t border-gray-200 bg-gray-50">
-              <Button
-                onClick={() => setShowTutorialModal(false)}
-                className="bg-idean-blue hover:bg-blue-600 text-white w-full"
-              >
-                Got it, Let's Start Creating!
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TutorialModal
+        isOpen={showTutorialModal}
+        onClose={() => setShowTutorialModal(false)}
+        title="How Template Management Works"
+        subtitle="Learn to create and reuse templates effectively"
+        icon={<FileText className="w-8 h-8" />}
+        steps={[
+          {
+            title: 'Create Content First',
+            description: 'Start by generating content using any of our frameworks in the Brand & Content Studio. Perfect your message until you\'re satisfied.'
+          },
+          {
+            title: 'Save as Template',
+            description: 'When you\'re happy with the content, click the "Save as Template" button to preserve your inputs and settings for future use.'
+          },
+          {
+            title: 'Reuse Anytime',
+            description: 'Access your saved templates from this page and reuse them to generate similar content quickly without starting from scratch.'
+          }
+        ]}
+        ctaText="Got it, Let's Start Creating!"
+      />
     </div>
   )
 }
