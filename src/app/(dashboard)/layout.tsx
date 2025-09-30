@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { ideanApi } from '@/lib/api/idean-api'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -82,10 +82,20 @@ export default function DashboardRouteLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+  const isOnboarding = pathname === '/dashboard/onboarding'
+
   return (
     <BusinessProvider>
       <BusinessStatusChecker>
-        <DashboardLayout>{children}</DashboardLayout>
+        {isOnboarding ? (
+          // Render onboarding without DashboardLayout (no sidebar/header)
+          <div className="min-h-screen bg-white">
+            {children}
+          </div>
+        ) : (
+          <DashboardLayout>{children}</DashboardLayout>
+        )}
       </BusinessStatusChecker>
     </BusinessProvider>
   )
