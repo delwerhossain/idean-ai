@@ -297,32 +297,32 @@ export default function DashboardPage() {
       {/* Core Module Cards - Reorganized Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Brand & Content Studio Card - Available Now */}
-        <Card className="p-4 hover:shadow-xl transition-all duration-300 border-2 border-idean-blue hover:border-blue-600 group cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50"
+        <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 border-idean-blue hover:border-blue-600 group cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50"
               onClick={() => router.push('/dashboard/copywriting')}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-idean-blue to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-              <PenTool className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-idean-blue to-blue-700 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+              <PenTool className="w-7 h-7 text-white" />
             </div>
-            <span className="text-xs bg-idean-blue text-white px-2 py-1 rounded-full font-medium shadow-sm">Available Now</span>
+            <span className="text-xs bg-idean-blue text-white px-3 py-1.5 rounded-full font-semibold shadow-md">Available Now</span>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-idean-blue transition-colors">Brand & Content Studio</h3>
-          <p className="text-gray-700 text-sm mb-3 leading-relaxed">
+          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-idean-blue transition-colors">Brand & Content Studio</h3>
+          <p className="text-gray-700 text-sm mb-4 leading-relaxed">
             Create powerful brand content with AI-powered copywriting, design frameworks, and marketing materials. Generate everything from social posts to complete campaigns.
           </p>
 
           {/* Enhanced Stats */}
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-white/50 rounded-lg p-2">
-              <div className="text-base font-bold text-idean-blue">12+</div>
-              <div className="text-xs text-gray-600">Content Types</div>
+            <div className="bg-white/70 rounded-lg p-3 border border-blue-100">
+              <div className="text-lg font-bold text-idean-blue">12+</div>
+              <div className="text-xs text-gray-600 font-medium">Content Types</div>
             </div>
-            <div className="bg-white/50 rounded-lg p-2">
-              <div className="text-base font-bold text-idean-blue">AI-Powered</div>
-              <div className="text-xs text-gray-600">Generation</div>
+            <div className="bg-white/70 rounded-lg p-3 border border-blue-100">
+              <div className="text-lg font-bold text-idean-blue">AI-Powered</div>
+              <div className="text-xs text-gray-600 font-medium">Generation</div>
             </div>
           </div>
 
-          <Button className="w-full bg-idean-blue hover:bg-blue-600 text-white font-semibold py-2 text-sm">
+          <Button className="w-full bg-idean-blue hover:bg-blue-700 text-white font-semibold py-3 text-sm shadow-lg hover:shadow-xl transition-all">
             Start Creating Content
             <Sparkles className="w-4 h-4 ml-2" />
           </Button>
