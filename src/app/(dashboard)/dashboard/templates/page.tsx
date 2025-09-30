@@ -176,7 +176,7 @@ const TemplateCard = memo(({ template, onUseTemplate }: { template: Template; on
   const getCategoryName = (template: Template) => {
     if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'Branding Lab'
     if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'Growth Co-pilot'
-    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Copywriting'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Brand & Content'
     return 'Custom Template'
   }
 
@@ -503,7 +503,7 @@ export default function TemplatesPage() {
   const getCategoryName = (template: Template) => {
     if (template.serviceType === 'brandinglab' || template.brandinglab || template.brandinglabId) return 'Branding Lab'
     if (template.serviceType === 'growthcopilot' || template.growthcopilot || template.growthcopilotId) return 'Growth Co-pilot'
-    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Copywriting'
+    if (template.serviceType === 'copywriting' || template.copywriting || template.copywritingId) return 'Brand & Content'
     return 'Custom Template'
   }
 
@@ -612,28 +612,12 @@ export default function TemplatesPage() {
             </Button>
           )}
           <Button
-            variant={selectedCategory === 'brandinglab' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleCategoryChange('brandinglab')}
-          >
-            <Palette className="w-3 h-3 mr-1" />
-            Branding
-          </Button>
-          <Button
-            variant={selectedCategory === 'growthcopilot' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleCategoryChange('growthcopilot')}
-          >
-            <TrendingUp className="w-3 h-3 mr-1" />
-            Growth
-          </Button>
-          <Button
             variant={selectedCategory === 'copywriting' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleCategoryChange('copywriting')}
           >
             <PenTool className="w-3 h-3 mr-1" />
-            Copy
+            Brand & Content
           </Button>
         </div>
 
