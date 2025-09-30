@@ -239,32 +239,12 @@ export function GenerationInputPanel({
 
         {activeTab === 'inputs' && (
           <div className="space-y-6">
-            {/* User Prompt Section - Always Visible */}
-            <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-idean-blue">
-              <div className="space-y-2">
-                <Label htmlFor="userPrompt" className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-idean-blue" />
-                  Your Custom Instructions
-                </Label>
-                <p className="text-xs text-gray-600 mb-2">
-                  Tell us what you need in your own words. Be specific about your goals, tone, or any special requirements.
-                </p>
-                <Textarea
-                  id="userPrompt"
-                  placeholder="Example: I need a professional email that convinces enterprise clients to schedule a demo. Keep it concise, focus on ROI, and use a consultative tone..."
-                  className="min-h-32 resize-none bg-white border-idean-blue/30 focus:border-idean-blue"
-                  value={inputs.additionalInstructions || ''}
-                  onChange={(e) => handleInputChange('additionalInstructions', e.target.value)}
-                />
-              </div>
-            </Card>
-
             {/* Input Fields */}
             {framework.input_fields?.map((field) => {
               const fieldName = field.includes(':') ? field.split(':')[0] : field
               const fieldType = field.includes(':') ? field.split(':')[1] : 'string'
 
-              // Skip additionalInstructions as it's now handled above
+              // Skip additionalInstructions as it's handled at the bottom
               if (fieldName === 'additionalInstructions') {
                 return null
               }
@@ -288,6 +268,20 @@ export function GenerationInputPanel({
                 </div>
               )
             })}
+
+            {/* Additional Instructions - Always Last */}
+            <div className="space-y-2">
+              <Label htmlFor="additionalInstructions" className="text-sm font-medium text-gray-700">
+                Additional Instructions (Optional)
+              </Label>
+              <Textarea
+                id="additionalInstructions"
+                placeholder="Any specific requirements or additional context..."
+                className="min-h-24 resize-none"
+                value={inputs.additionalInstructions || ''}
+                onChange={(e) => handleInputChange('additionalInstructions', e.target.value)}
+              />
+            </div>
           </div>
         )}
 
