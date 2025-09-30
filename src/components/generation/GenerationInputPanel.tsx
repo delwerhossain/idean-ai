@@ -42,6 +42,7 @@ interface GenerationInputPanelProps {
   onGenerate: () => void
   onRetry?: () => void
   onBack?: () => void
+  onShowTutorial?: () => void
 }
 
 export function GenerationInputPanel({
@@ -55,7 +56,8 @@ export function GenerationInputPanel({
   onOptionsChange,
   onGenerate,
   onRetry,
-  onBack
+  onBack,
+  onShowTutorial
 }: GenerationInputPanelProps) {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [activeTab, setActiveTab] = useState<'inputs' | 'options'>('inputs')
@@ -113,15 +115,21 @@ export function GenerationInputPanel({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="px-4 py-4 border-b border-gray-200 bg-white">
-        {/* Back Button */}
-        {onBack && (
-          <div className="mb-4">
+        {/* Back Button and Tutorial */}
+        <div className="mb-4 flex items-center justify-between">
+          {onBack && (
             <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-600 hover:text-gray-900 -ml-2">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-          </div>
-        )}
+          )}
+          {onShowTutorial && (
+            <Button variant="outline" size="sm" onClick={onShowTutorial} className="ml-auto">
+              <Info className="w-4 h-4 mr-1" />
+              Help
+            </Button>
+          )}
+        </div>
 
         {/* Step Indicator */}
         <div className="flex items-center justify-center gap-3 mb-4">

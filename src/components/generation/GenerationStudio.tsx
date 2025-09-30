@@ -6,6 +6,8 @@ import { GenerationInputPanel } from './GenerationInputPanel'
 import { GenerationEditor } from './GenerationEditor'
 import { ideanApi, Template } from '@/lib/api/idean-api'
 import { Button } from '@/components/ui/button'
+import TutorialModal from '@/components/modals/TutorialModal'
+import { Sparkles } from 'lucide-react'
 
 interface Framework {
   id: string
@@ -53,6 +55,7 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
   const [inputs, setInputs] = useState<Record<string, any>>({})
   const [mobileView, setMobileView] = useState<'input' | 'editor'>('input')
   const [retryCount, setRetryCount] = useState(0)
+  const [showTutorialModal, setShowTutorialModal] = useState(false)
   // Initialize generation options with template data if available
   const [generationOptions, setGenerationOptions] = useState(() => {
     const defaultOptions = {
@@ -573,6 +576,7 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
             onGenerate={handleGenerate}
             onRetry={handleRetryGeneration}
             onBack={onBack}
+            onShowTutorial={() => setShowTutorialModal(true)}
           />
         </div>
 
@@ -616,6 +620,34 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
           </div>
         </div>
       </div>
+
+      {/* Tutorial Modal */}
+      <TutorialModal
+        isOpen={showTutorialModal}
+        onClose={() => setShowTutorialModal(false)}
+        title="How to Generate Content with AI"
+        subtitle="Step-by-step guide to creating compelling content"
+        icon={<Sparkles className="w-8 h-8" />}
+        steps={[
+          {
+            title: 'Fill in the Input Fields',
+            description: 'Provide details about your product, target audience, and key benefits. The more specific you are, the better the AI-generated content will be.'
+          },
+          {
+            title: 'Customize Generation Options',
+            description: 'Adjust tone, length, and audience settings. Advanced users can fine-tune creativity level and token limits for precise control.'
+          },
+          {
+            title: 'Generate Your Content',
+            description: 'Click the Generate button and watch as AI creates professional content following your selected framework and inputs.'
+          },
+          {
+            title: 'Edit and Refine',
+            description: 'Review the generated content, make edits, regenerate specific sections, and export when satisfied with the results.'
+          }
+        ]}
+        ctaText="Got it, Let's Generate Content!"
+      />
     </div>
   )
 }
