@@ -482,9 +482,9 @@ export default function Sidebar({
           <button
             onClick={() => !isOnboarding && setShowUpgradeModal(true)}
             disabled={isOnboarding}
-            className={`w-full flex items-center justify-between p-2.5 mb-1 rounded-lg bg-gray-800/5 hover:bg-gray-800/10 transition-all duration-200 group ${
+            className={`w-full flex items-center justify-between rounded-lg bg-gray-800/5 hover:bg-gray-800/10 transition-all duration-200 group mb-1 ${
               isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
-            }`}
+            } ${isMobile || isExpanded ? 'p-2.5' : 'lg:p-2 lg:justify-center'}`}
           >
             <div className="flex items-center gap-2.5">
               <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-blue-500 rounded-md flex items-center justify-center flex-shrink-0">
@@ -510,9 +510,9 @@ export default function Sidebar({
             <button
               onClick={() => !isOnboarding && setShowAccountMenu(!showAccountMenu)}
               disabled={isOnboarding}
-              className={`w-full flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-gray-800/5 transition-all duration-200 group ${
+              className={`w-full flex items-center rounded-lg hover:bg-gray-800/5 transition-all duration-200 group ${
                 isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
-              }`}
+              } ${isMobile || isExpanded ? 'gap-2.5 p-2.5' : 'lg:p-2 lg:justify-center'}`}
             >
               <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-semibold">
                 {user?.photoURL ? (
