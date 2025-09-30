@@ -469,7 +469,7 @@ export default function Sidebar({
           {/* Help Button */}
           <button
             onClick={() => setShowHelpModal(true)}
-            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-blue-50 transform-gpu"
+            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation hover:bg-blue-50 transform-gpu p-2"
             title={!isExpanded && !isMobile ? "Help & Guide" : undefined}
           >
             {/* Expandable Background */}
@@ -482,8 +482,10 @@ export default function Sidebar({
             />
 
             {/* Fixed Icon Container - Always Same Position */}
-            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation">
-              <HelpCircle className="text-blue-600 w-6 h-6 lg:w-5 lg:h-5 hover:text-blue-700 transition-colors duration-200" />
+            <div className={`relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation ${
+              !isMobile && !isExpanded ? 'lg:mt-4' : ''
+            }`}>
+              <HelpCircle className="text-blue-600 w-6 h-6 lg:w-5 lg:h-5 transition-colors duration-200" />
             </div>
 
             {/* Text Label */}
