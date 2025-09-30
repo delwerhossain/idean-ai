@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "iDEAN AI - Business Strategy Co-Pilot",
   description: "AI-powered business strategy and execution platform combining proven frameworks with intelligent automation",
+  icons: {
+    icon: '/ideanai_logo_icon.png',
+    apple: '/ideanai_logo_icon.png',
+  },
 };
 
 export default function RootLayout({
