@@ -352,65 +352,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Start Wizard */}
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-idean-blue mb-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-idean-blue rounded-xl flex items-center justify-center">
-            <Rocket className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Quick Start: Create powerful content today</h3>
-            <p className="text-gray-600 text-sm">Jump into our Brand & Content Studio and start creating engaging content</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <Button
-            variant={selectedQuickAction === 'content' ? 'default' : 'outline'}
-            className="h-auto p-3 justify-start w-full bg-idean-blue hover:bg-blue-600 text-white border-idean-blue"
-            onClick={() => {
-              setSelectedQuickAction('content')
-              setTimeout(() => router.push('/dashboard/copywriting'), 300)
-            }}
-          >
-            <div className="flex items-center gap-3">
-              <PenTool className="w-4 h-4" />
-              <div className="text-left">
-                <div className="font-medium text-sm">Brand & Content Studio</div>
-                <div className="text-xs opacity-90">Copy, campaigns & content</div>
-              </div>
-            </div>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="h-auto p-3 justify-start w-full opacity-60 cursor-not-allowed"
-            disabled
-          >
-            <div className="flex items-center gap-3">
-              <Target className="w-4 h-4" />
-              <div className="text-left">
-                <div className="font-medium text-sm">Business Strategy</div>
-                <div className="text-xs opacity-80">Coming Soon</div>
-              </div>
-            </div>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="h-auto p-3 justify-start w-full opacity-60 cursor-not-allowed"
-            disabled
-          >
-            <div className="flex items-center gap-3">
-              <Palette className="w-4 h-4" />
-              <div className="text-left">
-                <div className="font-medium text-sm">Brand Identity</div>
-                <div className="text-xs opacity-80">Coming Soon</div>
-              </div>
-            </div>
-          </Button>
-        </div>
-      </Card>
 
       {/* Business Health Dashboard & Recent Activity - Removed as redundant */}
       <div className="hidden">
