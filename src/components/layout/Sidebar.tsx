@@ -105,6 +105,9 @@ export default function Sidebar({
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : true); // Default to mobile for better mobile UX
   const prevPathnameRef = useRef(pathname);
 
+  // Check if user is on onboarding (hasn't completed it yet)
+  const isOnboarding = pathname === '/dashboard/onboarding';
+
   // Check if we're on mobile with debounced resize handling
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -402,14 +405,23 @@ export default function Sidebar({
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
+              const isDisabled = isOnboarding && item.href !== '/dashboard/onboarding';
 
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
-                  className="relative flex items-center transition-all duration-200 ease-out group touch-manipulation p-2 transform-gpu"
+                  href={isDisabled ? '#' : item.href}
+                  onClick={(e) => {
+                    if (isDisabled) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`relative flex items-center transition-all duration-200 ease-out group touch-manipulation p-2 transform-gpu ${
+                    isDisabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''
+                  }`}
                   title={!isExpanded && !isMobile ? item.label : undefined}
-                  tabIndex={0}
+                  tabIndex={isDisabled ? -1 : 0}
+                  aria-disabled={isDisabled}
                 >
                   {/* Expandable Background */}
                   <div
@@ -468,8 +480,11 @@ export default function Sidebar({
         <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/50 p-2 space-y-1">
           {/* Help Button */}
           <button
-            onClick={() => setShowHelpModal(true)}
-            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation hover:bg-blue-50 transform-gpu p-2"
+            onClick={() => !isOnboarding && setShowHelpModal(true)}
+            disabled={isOnboarding}
+            className={`relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation hover:bg-blue-50 transform-gpu p-2 ${
+              isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
+            }`}
             title={!isExpanded && !isMobile ? "Help & Guide" : undefined}
           >
             {/* Expandable Background */}
@@ -502,8 +517,11 @@ export default function Sidebar({
 
           {/* Upgrade Button */}
           <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-idean-blue-light transform-gpu"
+            onClick={() => !isOnboarding && setShowUpgradeModal(true)}
+            disabled={isOnboarding}
+            className={`relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-idean-blue-light transform-gpu ${
+              isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
+            }`}
             title={!isExpanded && !isMobile ? "Upgrade Plan" : undefined}
           >
             {/* Expandable Background */}
@@ -535,8 +553,11 @@ export default function Sidebar({
           {/* User Profile with Dropdown - Hidden on mobile since it's in header */}
           <div className="relative lg:block hidden">
             <button
-              onClick={() => setShowAccountMenu(!showAccountMenu)}
-              className="relative flex items-center w-full cursor-pointer transition-all duration-200 ease-out group p-2 transform-gpu"
+              onClick={() => !isOnboarding && setShowAccountMenu(!showAccountMenu)}
+              disabled={isOnboarding}
+              className={`relative flex items-center w-full cursor-pointer transition-all duration-200 ease-out group p-2 transform-gpu ${
+                isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
+              }`}
             >
               {/* Expandable Background */}
               <div

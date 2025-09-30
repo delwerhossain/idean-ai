@@ -3,7 +3,7 @@
 import { ReactNode, useState, useCallback } from 'react'
 import { Menu, User, Settings, Crown, LogOut, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Sidebar from './Sidebar'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -19,7 +19,11 @@ interface DashboardLayoutProps {
 function MobileAccountMenu() {
   const { user, logout } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Check if user is on onboarding
+  const isOnboarding = pathname === '/dashboard/onboarding'
 
   const handleLogout = async () => {
     try {
@@ -35,8 +39,11 @@ function MobileAccountMenu() {
     <div className="relative">
       {/* Account Button */}
       <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation"
+        onClick={() => !isOnboarding && setIsMenuOpen(!isMenuOpen)}
+        disabled={isOnboarding}
+        className={`flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation ${
+          isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
+        }`}
         type="button"
         aria-label="Account menu"
       >
