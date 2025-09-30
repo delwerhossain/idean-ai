@@ -30,7 +30,7 @@ export default function Home() {
                 </Link>
               ) : (
                 <>
-                  <Link href="/dashboard/onboarding">
+                  <Link href="/login">
                     <Button className="bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium">
                       Get Started
                     </Button>
@@ -70,7 +70,7 @@ export default function Home() {
                 </Link>
               ) : (
                 <>
-                  <Link href="/dashboard/onboarding">
+                  <Link href="/login">
                     <Button
                       size="lg"
                       className="bg-idean-navy hover:bg-idean-navy-dark text-white px-8 py-4 text-lg font-medium"
@@ -154,7 +154,7 @@ export default function Home() {
                 </Button>
               </Link>
             ) : (
-              <Link href="/dashboard/onboarding">
+              <Link href="/login">
                 <Button size="lg" className="bg-idean-blue hover:bg-idean-blue text-white px-8 py-4 text-lg font-medium">
                   Start Creating Content
                   <Sparkles className="ml-2 w-5 h-5" />
@@ -224,7 +224,7 @@ export default function Home() {
                 </Button>
               </Link>
             ) : (
-              <Link href="/dashboard/onboarding">
+              <Link href="/login">
                 <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
                   Join Early Access
                 </Button>
@@ -251,7 +251,7 @@ export default function Home() {
               </Button>
             </Link>
           ) : (
-            <Link href="/dashboard/onboarding">
+            <Link href="/login">
               <Button
                 size="lg"
                 className="bg-idean-white text-idean-navy hover:bg-gray-50 px-8 py-3 text-base font-medium"

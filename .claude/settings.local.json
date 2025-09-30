@@ -79,7 +79,8 @@
       "WebFetch(domain:www.ideanconsulting.com)",
       "WebFetch(domain:azure.microsoft.com)",
       "Bash(dir:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(git diff:*)"
     ],
     "deny": [],
     "ask": [],

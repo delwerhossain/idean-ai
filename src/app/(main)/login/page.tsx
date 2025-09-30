@@ -18,9 +18,9 @@ export default function LoginPage() {
           />
         </Link>
         <div className="flex space-x-4">
-          <Link href="/onboarding">
+          <Link href="/signup">
             <Button className="bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium">
-              Get Started
+              Create Account
             </Button>
           </Link>
         </div>

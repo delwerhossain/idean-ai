@@ -20,20 +20,10 @@ export default function SignupPage() {
   const router = useRouter()
   const { signInWithGoogle, loading } = useAuth()
 
-  // Check if user came from onboarding
+  // Clear signup flag on mount if it exists
   useEffect(() => {
-    const readyForSignup = localStorage.getItem('readyForSignup')
-    const onboardingCompleted = localStorage.getItem('onboardingCompleted')
-
-    if (!readyForSignup || !onboardingCompleted) {
-      // Redirect to onboarding if they haven't completed it
-      router.push('/onboarding')
-      return
-    }
-
-    // Clear the signup flag
     localStorage.removeItem('readyForSignup')
-  }, [router])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

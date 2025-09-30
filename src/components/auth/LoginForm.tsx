@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Eye, EyeOff, Chrome } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import Link from 'next/link'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -180,6 +181,15 @@ export function LoginForm() {
               {loading ? 'Signing in...' : 'Continue'}
             </Button>
           </form>
+
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link href="/signup" className="text-idean-navy font-medium hover:text-idean-navy-dark">
+                Create account
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
