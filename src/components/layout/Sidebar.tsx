@@ -318,7 +318,7 @@ export default function Sidebar({
 
               {/* Fixed Icon Container - Always Same Position */}
               <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10">
-                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm w-10 h-10 lg:w-8 lg:h-8 touch-manipulation">
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm w-10 h-10 lg:w-8 lg:h-8 touch-manipulation">
                   <span className="text-white font-bold text-base lg:text-sm select-none">
                     {user.business?.business_name?.[0]?.toUpperCase() || "B"}
                   </span>
@@ -497,38 +497,6 @@ export default function Sidebar({
               } ${isMobile ? "text-sm sm:text-base" : "text-sm"}`}
             >
               Help & Guide
-            </span>
-          </button>
-
-          {/* Tips Button */}
-          <button
-            onClick={() => alert('Tips feature coming soon! 💡\n\nQuick tips will help you:\n• Master AI copywriting techniques\n• Optimize your campaigns\n• Get the most from Idean AI')}
-            className="relative flex items-center w-full transition-all duration-200 ease-out touch-manipulation p-2 hover:bg-green-50 transform-gpu"
-            title={!isExpanded && !isMobile ? "Daily Tips" : undefined}
-          >
-            {/* Expandable Background */}
-            <div
-              className={`absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl lg:rounded-lg transition-all duration-200 ease-out hover:from-green-100 hover:to-emerald-100 ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100"
-                  : "lg:opacity-0 lg:scale-95 lg:w-12 lg:h-12"
-              }`}
-            />
-
-            {/* Fixed Icon Container - Always Same Position */}
-            <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 touch-manipulation">
-              <Lightbulb className="text-green-600 w-6 h-6 lg:w-5 lg:h-5 hover:text-green-700 transition-colors duration-200" />
-            </div>
-
-            {/* Text Label */}
-            <span
-              className={`relative z-10 ml-3 font-semibold lg:font-medium text-green-700 transition-all duration-200 ease-out select-none ${
-                isMobile || isExpanded
-                  ? "opacity-100 scale-100 translate-x-0"
-                  : "lg:opacity-0 lg:scale-95 lg:-translate-x-2 lg:w-0 lg:overflow-hidden"
-              } ${isMobile ? "text-sm sm:text-base" : "text-sm"}`}
-            >
-              Daily Tips
             </span>
           </button>
 
