@@ -265,7 +265,7 @@ export default function Sidebar({
 
           {/* Logo Section - Always Visible and Responsive */}
           <div className="p-2 flex items-center">
-            <Link href="/dashboard" className="flex items-center hover:opacity-80 transition-opacity">
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
               {isMobile || isExpanded ? (
                 // Full logo when expanded or on mobile - no icon, just full logo with left margin
                 <div className="flex items-center ml-5">

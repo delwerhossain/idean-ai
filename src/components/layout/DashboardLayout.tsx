@@ -138,7 +138,7 @@ export default function DashboardLayout({ children, className = '' }: DashboardL
 
             {/* Center: Logo */}
             <div className="grid items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
-              <Link href="/dashboard">
+              <Link href="/">
                 <img
                   src="/ideanai_logo.png"
                   alt="iDEAN AI"
