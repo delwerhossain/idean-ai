@@ -99,6 +99,7 @@ export default function CopywritingPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [hasLoaded, setHasLoaded] = useState(false)
+  const [showTutorialModal, setShowTutorialModal] = useState(false)
 
   const loadCopywritings = useCallback(async () => {
     if (hasLoaded) return
@@ -173,14 +174,25 @@ export default function CopywritingPage() {
     <div className="p-3 sm:p-6">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-idean-navy rounded-lg flex items-center justify-center">
-            <PenTool className="w-5 h-5 text-white" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-idean-navy rounded-lg flex items-center justify-center">
+              <PenTool className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Brand & Content Studio</h1>
+              <p className="text-gray-600 text-sm sm:text-base">AI-powered content creation and brand development studio</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Brand & Content Studio</h1>
-            <p className="text-gray-600 text-sm sm:text-base">AI-powered content creation and brand development studio</p>
-          </div>
+          <Button
+            onClick={() => setShowTutorialModal(true)}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <TrendingUp className="w-4 h-4" />
+            Watch Tutorial
+          </Button>
         </div>
 
         {user ? (
@@ -283,6 +295,96 @@ export default function CopywritingPage() {
           </>
         )}
       </div>
+
+      {/* Tutorial Modal */}
+      {showTutorialModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+          onClick={() => setShowTutorialModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-idean-navy p-6 text-white border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <PenTool className="w-8 h-8" />
+                  <div>
+                    <h2 className="text-2xl font-bold">How to Use Copywriting Frameworks</h2>
+                    <p className="text-blue-100 mt-1">Learn to create compelling content with AI</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTutorialModal(false)}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/10 rounded-lg flex items-center justify-center transition-colors"
+                  aria-label="Close"
+                >
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* YouTube Video */}
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-6">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/f0i37zHn-e0?si=TGloS0i_06ijh1Bt"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+
+              {/* Tutorial Steps */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-900 text-lg mb-4">Quick Start Guide</h3>
+
+                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex-shrink-0 w-8 h-8 bg-idean-navy text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Choose a Framework</h4>
+                    <p className="text-gray-600 text-sm">Browse and select a copywriting framework that matches your content goals.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex-shrink-0 w-8 h-8 bg-idean-navy text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Fill in Details</h4>
+                    <p className="text-gray-600 text-sm">Provide information about your product, audience, and goals to guide the AI.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex-shrink-0 w-8 h-8 bg-idean-navy text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Generate & Edit</h4>
+                    <p className="text-gray-600 text-sm">Click generate, review the AI-created content, and refine it to perfection.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <Button
+                onClick={() => setShowTutorialModal(false)}
+                className="bg-idean-navy hover:bg-idean-navy-dark text-white w-full"
+              >
+                Got it, Let's Create Content!
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
