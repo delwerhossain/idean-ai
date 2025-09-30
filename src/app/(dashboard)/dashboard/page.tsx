@@ -300,8 +300,8 @@ export default function DashboardPage() {
         <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 border-idean-blue hover:border-blue-600 group cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50"
               onClick={() => router.push('/dashboard/copywriting')}>
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-idean-blue to-blue-700 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-              <PenTool className="w-7 h-7 text-white" />
+            <div className="w-16 h-16 bg-idean-navy rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl border-2 border-gray-900">
+              <PenTool className="w-8 h-8 text-white stroke-[2.5]" />
             </div>
             <span className="text-xs bg-idean-blue text-white px-3 py-1.5 rounded-full font-semibold shadow-md">Available Now</span>
           </div>
