@@ -33,11 +33,34 @@ export function LoginForm() {
     }
   }, [])
 
-  // Email/password auth is handled by Firebase directly in this implementation
-  // For now, we'll focus on Google OAuth which your backend supports
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('Email/password login is not currently available. Please use Google sign-in.')
+    setError('')
+
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password')
+      return
+    }
+
+    try {
+      const { ideanApi } = await import('@/lib/api/idean-api')
+
+      // Login with email/password
+      const response = await ideanApi.auth.login({
+        email: email.trim(),
+        password
+      })
+
+      // Store token
+      localStorage.setItem('token', response.token)
+
+      // Redirect will be handled by useEffect when user state updates
+      // Force page reload to trigger AuthContext
+      window.location.href = '/dashboard'
+    } catch (error: any) {
+      console.error('Login error:', error)
+      setError(error.message || 'Invalid email or password. Please try again.')
+    }
   }
 
   const handleGoogleSignIn = async () => {

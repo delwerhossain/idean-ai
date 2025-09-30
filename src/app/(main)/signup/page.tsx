@@ -37,7 +37,78 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('Email/password signup is not currently available. Please use Google sign-up.')
+    setError('')
+
+    // Validate inputs
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('Please enter your full name')
+      return
+    }
+
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
+    try {
+      const { ideanApi } = await import('@/lib/api/idean-api')
+
+      // Register user
+      const response = await ideanApi.auth.register({
+        email: email.trim(),
+        password,
+        name: `${firstName.trim()} ${lastName.trim()}`,
+        provider: 'email'
+      })
+
+      // Store token
+      localStorage.setItem('token', response.token)
+
+      // Process onboarding data and create business
+      const onboardingData = localStorage.getItem('onboardingData')
+      if (onboardingData) {
+        try {
+          const data = JSON.parse(onboardingData)
+
+          const businessData = {
+            business_name: data.businessName,
+            website_url: data.website || '',
+            industry_tag: data.industry,
+            business_documents: [],
+            business_context: data.businessContext || '',
+            language: data.language || 'en',
+            mentor_approval: data.mentorApproval ? 'approved' : 'pending',
+            module_select: 'standard' as const,
+            readiness_checklist: 'pending'
+          }
+
+          await ideanApi.business.create(businessData)
+
+          // Clear onboarding data
+          localStorage.removeItem('onboardingData')
+          localStorage.removeItem('onboardingCompleted')
+          localStorage.removeItem('readyForSignup')
+          localStorage.setItem('hasCompletedOnboarding', 'true')
+
+          // Redirect to dashboard
+          router.push('/dashboard')
+        } catch (apiError) {
+          console.error('Failed to create business:', apiError)
+          setError('Failed to create business. Please try again.')
+        }
+      } else {
+        // No onboarding data, just go to dashboard
+        router.push('/dashboard')
+      }
+    } catch (error: any) {
+      console.error('Signup error:', error)
+      setError(error.message || 'Failed to sign up. Please try again.')
+    }
   }
 
   const handleGoogleSignup = async () => {
