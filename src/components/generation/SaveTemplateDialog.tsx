@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,6 +22,7 @@ interface SaveTemplateDialogProps {
   onSave: (data: { name: string; description?: string }) => Promise<void>
   frameworkName: string
   loading?: boolean
+  initialAdditionalInstructions?: string
 }
 
 export function SaveTemplateDialog({
@@ -29,10 +30,11 @@ export function SaveTemplateDialog({
   onOpenChange,
   onSave,
   frameworkName,
-  loading = false
+  loading = false,
+  initialAdditionalInstructions = ''
 }: SaveTemplateDialogProps) {
   const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState(initialAdditionalInstructions)
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -80,10 +82,17 @@ export function SaveTemplateDialog({
 
   const handleCancel = () => {
     setName('')
-    setDescription('')
+    setDescription(initialAdditionalInstructions)
     setErrors({})
     onOpenChange(false)
   }
+
+  // Reset description when dialog opens/closes or initial value changes
+  useEffect(() => {
+    if (open) {
+      setDescription(initialAdditionalInstructions)
+    }
+  }, [open, initialAdditionalInstructions])
 
   // Auto-suggest template name based on framework
   const suggestedName = `${frameworkName} Template - ${new Date().toLocaleDateString()}`
@@ -130,10 +139,10 @@ export function SaveTemplateDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="template-description">Description (Optional)</Label>
+            <Label htmlFor="template-description">Additional Instructions (Optional)</Label>
             <Textarea
               id="template-description"
-              placeholder="Describe what this template does and when to use it..."
+              placeholder="Any specific requirements or context for this template..."
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value)

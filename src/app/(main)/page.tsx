@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Home() {
-  const { user } = useAuth()
+  const { user, isAuthReady } = useAuth()
 
   return (
     <div className="min-h-screen bg-white">
@@ -22,7 +22,9 @@ export default function Home() {
               />
             </Link>
             <div className="flex items-center space-x-6">
-              {user ? (
+              {!isAuthReady ? (
+                <div className="h-10 w-32 bg-gray-100 animate-pulse rounded"></div>
+              ) : user ? (
                 <Link href="/dashboard">
                   <Button className="bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium">
                     Dashboard
@@ -58,7 +60,12 @@ export default function Home() {
               Transform business ideas into actionable strategies with proven frameworks from iMarketing, GrowthX, and iMBA programs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {user ? (
+              {!isAuthReady ? (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <div className="h-14 w-56 bg-gray-100 animate-pulse rounded"></div>
+                  <div className="h-14 w-44 bg-gray-100 animate-pulse rounded"></div>
+                </div>
+              ) : user ? (
                 <Link href="/dashboard">
                   <Button
                     size="lg"
@@ -146,7 +153,9 @@ export default function Home() {
           </div>
 
           <div className="text-center">
-            {user ? (
+            {!isAuthReady ? (
+              <div className="h-14 w-64 bg-gray-100 animate-pulse rounded mx-auto"></div>
+            ) : user ? (
               <Link href="/dashboard/copywriting">
                 <Button size="lg" className="bg-idean-blue hover:bg-idean-blue text-white px-8 py-4 text-lg font-medium">
                   Start Creating Content
@@ -217,7 +226,9 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-6">Get started with Brand & Content Studio today and be the first to access new features as they launch.</p>
-            {user ? (
+            {!isAuthReady ? (
+              <div className="h-14 w-56 bg-gray-100 animate-pulse rounded mx-auto"></div>
+            ) : user ? (
               <Link href="/dashboard">
                 <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
                   Go to Dashboard
@@ -240,7 +251,9 @@ export default function Home() {
           <h2 className="text-3xl font-semibold text-white mb-6">
             Ready to get started?
           </h2>
-          {user ? (
+          {!isAuthReady ? (
+            <div className="h-12 w-56 bg-white/20 animate-pulse rounded mx-auto"></div>
+          ) : user ? (
             <Link href="/dashboard">
               <Button
                 size="lg"

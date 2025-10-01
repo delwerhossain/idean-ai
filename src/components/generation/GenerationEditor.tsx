@@ -323,7 +323,7 @@ export function GenerationEditor({
           variant="default"
           size="sm"
           onClick={() => setShowSaveDialog(true)}
-          className="fixed top-4 right-4 z-50 shadow-lg bg-gray-900 hover:bg-gray-800 text-white"
+          className="fixed top-4 right-4 z-50 shadow-lg bg-idean-blue hover:bg-idean-blue-dark text-white transition-colors"
         >
           <BookmarkPlus className="w-4 h-4 mr-2" />
           Save Template
@@ -422,8 +422,8 @@ export function GenerationEditor({
                   onClick={handleChatSend}
                   disabled={!chatInput.trim() || isChatRegenerating || !hasContent}
                   size="sm"
-                  className="h-11 w-11 p-0 bg-gray-900 hover:bg-gray-800 text-white rounded-xl
-                           disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                  className="h-11 w-11 p-0 bg-idean-blue hover:bg-idean-blue-dark text-white rounded-xl
+                           disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 transition-colors"
                 >
                   {isChatRegenerating ? (
                     <LoadingSpinner size="sm" />
@@ -453,6 +453,7 @@ export function GenerationEditor({
           onOpenChange={setShowSaveDialog}
           onSave={onSaveAsTemplate}
           frameworkName={framework.name}
+          initialAdditionalInstructions={userInputs?.additionalInstructions || ''}
         />
       )}
 

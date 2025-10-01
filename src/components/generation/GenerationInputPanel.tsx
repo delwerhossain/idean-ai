@@ -70,6 +70,27 @@ export function GenerationInputPanel({
     onOptionsChange({ ...generationOptions, [field]: value })
   }
 
+  // Parse dynamic dropdowns from framework
+  const parseDynamicDropdowns = () => {
+    if (!framework.dropdown || framework.dropdown.length === 0) {
+      return {}
+    }
+
+    const dropdownGroups: Record<string, string[]> = {}
+    framework.dropdown.forEach(item => {
+      const [key, value] = item.split(':')
+      if (!dropdownGroups[key]) {
+        dropdownGroups[key] = []
+      }
+      if (value && !dropdownGroups[key].includes(value)) {
+        dropdownGroups[key].push(value)
+      }
+    })
+    return dropdownGroups
+  }
+
+  const dynamicDropdowns = parseDynamicDropdowns()
+
   const getFieldLabel = (field: string): string => {
     const labelMap: Record<string, string> = {
       productName: 'Product/Service Name',
@@ -287,56 +308,91 @@ export function GenerationInputPanel({
 
         {activeTab === 'options' && (
           <div className="space-y-6">
-            {/* Basic Options */}
-            <Card className="p-4">
-              <h3 className="font-medium text-gray-900 mb-4">Style & Tone</h3>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">Tone</Label>
-                  <Select value={generationOptions.tone} onValueChange={(value) => handleOptionChange('tone', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="casual">Casual & Friendly</SelectItem>
-                      <SelectItem value="persuasive">Persuasive</SelectItem>
-                      <SelectItem value="educational">Educational</SelectItem>
-                      <SelectItem value="humorous">Humorous</SelectItem>
-                    </SelectContent>
-                  </Select>
+            {/* Dynamic Dropdowns from Backend */}
+            {Object.keys(dynamicDropdowns).length > 0 && (
+              <Card className="p-4">
+                <h3 className="font-medium text-gray-900 mb-4">Configuration Options</h3>
+                <div className="space-y-4">
+                  {Object.entries(dynamicDropdowns).map(([key, values]) => (
+                    <div key={key}>
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </Label>
+                      <Select
+                        value={generationOptions[key as keyof typeof generationOptions] as string || values[0]}
+                        onValueChange={(value) => handleOptionChange(key, value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {values.map((value) => (
+                            <SelectItem key={value} value={value} className="capitalize">
+                              {value.replace(/([A-Z])/g, ' $1').trim()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
                 </div>
+              </Card>
+            )}
 
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">Length</Label>
-                  <Select value={generationOptions.length} onValueChange={(value) => handleOptionChange('length', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="short">Short (100-300 words)</SelectItem>
-                      <SelectItem value="medium">Medium (300-600 words)</SelectItem>
-                      <SelectItem value="long">Long (600+ words)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* Fallback to hardcoded options if no dynamic dropdowns */}
+            {Object.keys(dynamicDropdowns).length === 0 && (
+              <Card className="p-4">
+                <h3 className="font-medium text-gray-900 mb-4">Style & Tone</h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-2 block">Tone</Label>
+                    <Select value={generationOptions.tone} onValueChange={(value) => handleOptionChange('tone', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="casual">Casual & Friendly</SelectItem>
+                        <SelectItem value="persuasive">Persuasive</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                        <SelectItem value="humorous">Humorous</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">Target Audience</Label>
-                  <Select value={generationOptions.audience} onValueChange={(value) => handleOptionChange('audience', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="business">Business Decision Makers</SelectItem>
-                      <SelectItem value="technical">Technical Professionals</SelectItem>
-                      <SelectItem value="general">General Consumers</SelectItem>
-                      <SelectItem value="marketing">Marketing Professionals</SelectItem>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-2 block">Length</Label>
+                    <Select value={generationOptions.length} onValueChange={(value) => handleOptionChange('length', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="short">Short (100-300 words)</SelectItem>
+                        <SelectItem value="medium">Medium (300-600 words)</SelectItem>
+                        <SelectItem value="long">Long (600+ words)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-2 block">Target Audience</Label>
+                    <Select value={generationOptions.audience} onValueChange={(value) => handleOptionChange('audience', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="business">Business Decision Makers</SelectItem>
+                        <SelectItem value="technical">Technical Professionals</SelectItem>
+                        <SelectItem value="general">General Consumers</SelectItem>
+                        <SelectItem value="marketing">Marketing Professionals</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             </Card>
+            )}
+
+            {/* Keep Advanced Options section visible regardless */}
 
             {/* Advanced Options */}
             <Card className="p-4">
@@ -415,7 +471,7 @@ export function GenerationInputPanel({
         <Button
           onClick={onGenerate}
           disabled={!isFormValid() || isGenerating}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3"
+          className="w-full bg-idean-blue hover:bg-idean-blue-dark text-white font-medium py-3 transition-colors"
         >
           {isGenerating ? (
             <>

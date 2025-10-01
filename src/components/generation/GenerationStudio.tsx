@@ -58,28 +58,40 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
   const [showTutorialModal, setShowTutorialModal] = useState(false)
   // Initialize generation options with template data if available
   const [generationOptions, setGenerationOptions] = useState(() => {
-    const defaultOptions = {
-      tone: 'professional',
-      length: 'medium',
-      audience: 'business',
+    const baseOptions = {
       temperature: 0.7,
       maxTokens: 2000,
       includeBusinessContext: true,
       saveDocument: true
     }
 
-    // Load dropdown selections from template if available
-    if (template?.drop_down) {
-      const dropDownOptions = template.drop_down
-      return {
-        ...defaultOptions,
-        tone: dropDownOptions[0] || defaultOptions.tone,
-        length: dropDownOptions[1] || defaultOptions.length,
-        audience: dropDownOptions[2] || defaultOptions.audience
-      }
+    // Parse dynamic dropdowns from framework
+    const dynamicOptions: Record<string, string> = {}
+    if (framework.dropdown && framework.dropdown.length > 0) {
+      framework.dropdown.forEach(item => {
+        const [key, value] = item.split(':')
+        if (key && value && !dynamicOptions[key]) {
+          dynamicOptions[key] = value
+        }
+      })
+    } else {
+      // Fallback to hardcoded defaults if no dynamic dropdowns
+      dynamicOptions.tone = 'professional'
+      dynamicOptions.length = 'medium'
+      dynamicOptions.audience = 'business'
     }
 
-    return defaultOptions
+    // Load dropdown selections from template if available
+    if (template?.drop_down && template.drop_down.length > 0) {
+      template.drop_down.forEach(item => {
+        const [key, value] = item.split(':')
+        if (key && value) {
+          dynamicOptions[key] = value
+        }
+      })
+    }
+
+    return { ...baseOptions, ...dynamicOptions }
   })
 
   // Initialize inputs based on framework fields and template data
@@ -119,14 +131,19 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
       setError(null)
       setCurrentStep('generating')
 
+      // Extract dynamic dropdown selections (exclude base options like temperature, maxTokens, etc.)
+      const baseOptionKeys = ['temperature', 'maxTokens', 'includeBusinessContext', 'saveDocument']
+      const userSelections: Record<string, string> = {}
+      Object.keys(generationOptions).forEach(key => {
+        if (!baseOptionKeys.includes(key)) {
+          userSelections[key] = generationOptions[key as keyof typeof generationOptions] as string
+        }
+      })
+
       // Prepare API payload
       const apiPayload = {
         userInputs: inputs,
-        userSelections: {
-          tone: generationOptions.tone,
-          length: generationOptions.length,
-          audience: generationOptions.audience
-        },
+        userSelections,
         userPrompt: inputs.additionalInstructions || '',
         businessContext: generationOptions.includeBusinessContext,
         generationOptions: {
@@ -421,12 +438,14 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
         text_input_given.push(inputs[fieldName] || '')
       })
 
-      // Transform dropdown selections
-      const drop_down: string[] = [
-        generationOptions.tone,
-        generationOptions.length,
-        generationOptions.audience
-      ].filter(Boolean)
+      // Transform dropdown selections to key:value format
+      const baseOptionKeys = ['temperature', 'maxTokens', 'includeBusinessContext', 'saveDocument']
+      const drop_down: string[] = []
+      Object.entries(generationOptions).forEach(([key, value]) => {
+        if (!baseOptionKeys.includes(key) && value) {
+          drop_down.push(`${key}:${value}`)
+        }
+      })
 
       const templateData = {
         name: data.name,
@@ -470,12 +489,14 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
         text_input_given.push(inputs[fieldName] || '')
       })
 
-      // Transform current dropdown selections
-      const drop_down: string[] = [
-        generationOptions.tone,
-        generationOptions.length,
-        generationOptions.audience
-      ].filter(Boolean)
+      // Transform current dropdown selections to key:value format
+      const baseOptionKeys = ['temperature', 'maxTokens', 'includeBusinessContext', 'saveDocument']
+      const drop_down: string[] = []
+      Object.entries(generationOptions).forEach(([key, value]) => {
+        if (!baseOptionKeys.includes(key) && value) {
+          drop_down.push(`${key}:${value}`)
+        }
+      })
 
       const updateData = {
         name: template.name, // Keep existing name
@@ -601,11 +622,16 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
               onSaveAsTemplate={user ? handleSaveAsTemplate : undefined}
               documentId={generationResult?.documentId}
               userInputs={inputs}
-              userSelections={{
-                tone: generationOptions.tone,
-                length: generationOptions.length,
-                audience: generationOptions.audience
-              }}
+              userSelections={(() => {
+                const baseOptionKeys = ['temperature', 'maxTokens', 'includeBusinessContext', 'saveDocument']
+                const selections: Record<string, string> = {}
+                Object.keys(generationOptions).forEach(key => {
+                  if (!baseOptionKeys.includes(key)) {
+                    selections[key] = generationOptions[key as keyof typeof generationOptions] as string
+                  }
+                })
+                return selections
+              })()}
               documentHistory={generationResult?.documentHistory || []}
               onHistoryUpdate={handleHistoryUpdate}
               onContentChange={(newContent) => {
