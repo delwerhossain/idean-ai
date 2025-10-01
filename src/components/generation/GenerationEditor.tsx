@@ -1,23 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { FileText, Edit, Wand2, Copy, Eye, Download, ChevronDown, BookmarkPlus, MessageSquare, X, Send, History } from 'lucide-react'
+import { FileText, Wand2, BookmarkPlus, MessageSquare, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import ReactMarkdown from 'react-markdown'
-import jsPDF from 'jspdf'
 import { SaveTemplateDialog } from './SaveTemplateDialog'
-import { DocumentHistoryPanel } from './DocumentHistoryPanel'
 import { ChatConversationView } from './ChatConversationView'
 import { ideanApi } from '@/lib/api/idean-api'
-import './text-regeneration.css'
 
 interface Framework {
   id: string
@@ -87,14 +76,9 @@ export function GenerationEditor({
   onHistoryUpdate
 }: GenerationEditorProps) {
   const [editorContent, setEditorContent] = useState(content)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
-  const [viewMode, setViewMode] = useState<'editor' | 'conversation'>('conversation')
   const [showSaveDialog, setShowSaveDialog] = useState(false)
   const [isChatRegenerating, setIsChatRegenerating] = useState(false)
   const [chatInput, setChatInput] = useState('')
-  const [showHistory, setShowHistory] = useState(false)
-  const printRef = useRef<HTMLDivElement>(null)
-  const editorRef = useRef<HTMLDivElement>(null)
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -169,8 +153,6 @@ export function GenerationEditor({
     }
 
     try {
-      // Switch to conversation view when user sends a message
-      setViewMode('conversation')
       setIsChatRegenerating(true)
       console.log('🔄 Starting chat-based regeneration with:', {
         userMessage: userMessage.substring(0, 100),
@@ -239,9 +221,11 @@ export function GenerationEditor({
       if (chatInputRef.current) {
         chatInputRef.current.focus()
         chatInputRef.current.setSelectionRange(suggestion.length, suggestion.length)
-        // Auto-resize textarea
+        // Auto-resize textarea with overflow management
         chatInputRef.current.style.height = 'auto'
-        chatInputRef.current.style.height = chatInputRef.current.scrollHeight + 'px'
+        const newHeight = Math.min(chatInputRef.current.scrollHeight, 200)
+        chatInputRef.current.style.height = newHeight + 'px'
+        chatInputRef.current.style.overflowY = chatInputRef.current.scrollHeight > 200 ? 'auto' : 'hidden'
       }
     }, 10)
   }
@@ -250,296 +234,16 @@ export function GenerationEditor({
   const handleChatSend = () => {
     if (chatInput.trim()) {
       handleChatRegenerate(chatInput.trim())
-      // Reset textarea height after sending
+      // Reset textarea height and overflow after sending
       setTimeout(() => {
         if (chatInputRef.current) {
           chatInputRef.current.style.height = 'auto'
+          chatInputRef.current.style.overflowY = 'hidden'
         }
       }, 100)
     }
   }
 
-  // Handle history view
-  const handleViewHistory = (item: any) => {
-    setEditorContent(item.output_content)
-    onContentChange?.(item.output_content)
-  }
-
-  // Handle history download
-  const handleDownloadHistory = (item: any, format: 'txt' | 'md' | 'pdf') => {
-    const content = item.output_content
-    const filename = `${item.name}-${new Date(item.createdAt).toISOString().split('T')[0]}`
-
-    switch (format) {
-      case 'txt':
-        const txtBlob = new Blob([content], { type: 'text/plain' })
-        const txtUrl = URL.createObjectURL(txtBlob)
-        const txtLink = document.createElement('a')
-        txtLink.href = txtUrl
-        txtLink.download = `${filename}.txt`
-        txtLink.click()
-        URL.revokeObjectURL(txtUrl)
-        break
-      case 'md':
-        const mdBlob = new Blob([content], { type: 'text/markdown' })
-        const mdUrl = URL.createObjectURL(mdBlob)
-        const mdLink = document.createElement('a')
-        mdLink.href = mdUrl
-        mdLink.download = `${filename}.md`
-        mdLink.click()
-        URL.revokeObjectURL(mdUrl)
-        break
-      case 'pdf':
-        // Use existing PDF export functionality
-        handleExportPDF()
-        break
-    }
-  }
-
-  // Simplified text selection handling for basic editing
-  const handleTextSelection = () => {
-    // Only basic selection handling needed now since we use chat interface
-    const selection = window.getSelection()
-    if (selection && !selection.isCollapsed) {
-      console.log('Text selected:', selection.toString().substring(0, 50))
-    }
-  }
-
-  // Handle copy to clipboard
-  const handleCopyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(editorContent)
-      console.log('Content copied to clipboard')
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err)
-    }
-  }
-
-  // Simple event handlers for basic editor functionality
-  const handleEditorMouseUp = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    handleTextSelection()
-  }
-
-  const handleEditorKeyUp = (e: React.KeyboardEvent) => {
-    if (e.shiftKey || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
-        e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      handleTextSelection()
-    }
-  }
-
-  // Export handlers
-  const handleExportMarkdown = () => {
-    if (!editorContent.trim()) {
-      console.warn('No content to export')
-      return
-    }
-
-    try {
-      // Create formatted markdown content with metadata
-      const markdownContent = `# ${framework.name}
-
-*Generated on: ${new Date().toLocaleString()}*
-*Word count: ${editorContent.split(' ').filter(w => w.trim()).length} words*
-
----
-
-${editorContent}`
-
-      const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${framework.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.md`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-
-    } catch (error) {
-      console.error('Failed to export markdown:', error)
-      alert('Failed to export markdown file. Please try again.')
-    }
-  }
-
-  const handleExportPDF = async () => {
-    if (!editorContent.trim()) {
-      console.warn('No content to export')
-      return
-    }
-
-    try {
-      console.log('Starting PDF export...')
-
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      })
-
-      // Basic settings
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 20
-      const contentWidth = pageWidth - (margin * 2)
-      let yPosition = 30
-
-      // Add title
-      pdf.setFontSize(20)
-      pdf.setFont('helvetica', 'bold')
-      pdf.text(framework.name, margin, yPosition)
-      yPosition += 15
-
-      // Add metadata
-      pdf.setFontSize(10)
-      pdf.setFont('helvetica', 'normal')
-      pdf.setTextColor(100)
-      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, yPosition)
-      yPosition += 6
-
-      const wordCount = editorContent.split(/\s+/).filter(w => w.trim()).length
-      pdf.text(`Words: ${wordCount}`, margin, yPosition)
-      yPosition += 15
-
-      // Add separator
-      pdf.setDrawColor(200)
-      pdf.line(margin, yPosition, pageWidth - margin, yPosition)
-      yPosition += 10
-
-      // Simple content processing
-      pdf.setFontSize(11)
-      pdf.setFont('helvetica', 'normal')
-      pdf.setTextColor(0)
-
-      const processContent = (text: string) => {
-        const lines = text.split('\n')
-
-        for (let line of lines) {
-          if (!line.trim()) {
-            yPosition += 5
-            continue
-          }
-
-          // Check page break
-          if (yPosition > pageHeight - 30) {
-            pdf.addPage()
-            yPosition = 30
-          }
-
-          // Handle headers
-          if (line.startsWith('# ')) {
-            pdf.setFontSize(16)
-            pdf.setFont('helvetica', 'bold')
-            const headerText = line.substring(2)
-            const wrappedLines = pdf.splitTextToSize(headerText, contentWidth)
-            wrappedLines.forEach((wrappedLine: string) => {
-              pdf.text(wrappedLine, margin, yPosition)
-              yPosition += 8
-            })
-            yPosition += 5
-            pdf.setFontSize(11)
-            pdf.setFont('helvetica', 'normal')
-          } else if (line.startsWith('## ')) {
-            pdf.setFontSize(14)
-            pdf.setFont('helvetica', 'bold')
-            const headerText = line.substring(3)
-            const wrappedLines = pdf.splitTextToSize(headerText, contentWidth)
-            wrappedLines.forEach((wrappedLine: string) => {
-              pdf.text(wrappedLine, margin, yPosition)
-              yPosition += 7
-            })
-            yPosition += 3
-            pdf.setFontSize(11)
-            pdf.setFont('helvetica', 'normal')
-          } else if (line.startsWith('### ')) {
-            pdf.setFontSize(12)
-            pdf.setFont('helvetica', 'bold')
-            const headerText = line.substring(4)
-            const wrappedLines = pdf.splitTextToSize(headerText, contentWidth)
-            wrappedLines.forEach((wrappedLine: string) => {
-              pdf.text(wrappedLine, margin, yPosition)
-              yPosition += 6
-            })
-            yPosition += 2
-            pdf.setFontSize(11)
-            pdf.setFont('helvetica', 'normal')
-          } else if (line.match(/^[-*+]\s/)) {
-            // Bullet list
-            const listText = line.replace(/^[-*+]\s/, '')
-            pdf.text('•', margin + 5, yPosition)
-            const wrappedLines = pdf.splitTextToSize(listText, contentWidth - 15)
-            wrappedLines.forEach((wrappedLine: string, idx: number) => {
-              pdf.text(wrappedLine, margin + 15, yPosition)
-              if (idx < wrappedLines.length - 1) yPosition += 5
-            })
-            yPosition += 6
-          } else {
-            // Regular text - remove markdown formatting for simple display
-            const cleanText = line
-              .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-              .replace(/\*(.*?)\*/g, '$1')     // Remove italic
-              .replace(/`(.*?)`/g, '$1')       // Remove code
-
-            const wrappedLines = pdf.splitTextToSize(cleanText, contentWidth)
-            wrappedLines.forEach((wrappedLine: string) => {
-              pdf.text(wrappedLine, margin, yPosition)
-              yPosition += 5
-            })
-            yPosition += 2
-          }
-        }
-      }
-
-      processContent(editorContent)
-
-      // Generate filename
-      const sanitizedName = framework.name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .substring(0, 30)
-
-      const filename = `${sanitizedName}-${new Date().toISOString().split('T')[0]}.pdf`
-
-      console.log('Saving PDF:', filename)
-      pdf.save(filename)
-      console.log('PDF export completed successfully')
-
-    } catch (error) {
-      console.error('PDF export error:', error)
-      alert(`PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    }
-  }
-
-  const handleExport = (format: 'pdf' | 'markdown' | 'docx' | 'html') => {
-    console.log('handleExport called with format:', format)
-
-    if (!editorContent.trim()) {
-      console.warn('No content to export')
-      return
-    }
-
-    // Use external export handler if provided, otherwise use internal methods
-    if (onExport) {
-      console.log('Using external export handler')
-      onExport(format)
-      return
-    }
-
-    console.log('Using internal export handler')
-    switch (format) {
-      case 'markdown':
-        console.log('Calling handleExportMarkdown')
-        handleExportMarkdown()
-        break
-      case 'pdf':
-        console.log('Calling handleExportPDF')
-        handleExportPDF()
-        break
-      default:
-        console.warn(`Export format ${format} not supported`)
-    }
-  }
 
   if (currentStep === 'input') {
     return (
@@ -555,7 +259,7 @@ ${editorContent}`
             Fill in the details on the left and click "Generate Content" to create your {framework.name.toLowerCase()}.
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-            <Edit className="w-4 h-4" />
+            <FileText className="w-4 h-4" />
             <span>Editor ready</span>
           </div>
         </div>
@@ -650,7 +354,7 @@ ${editorContent}`
           </div>
 
           {/* Chat Input Section - Fixed at bottom, centered with max-width */}
-          <div className="border-t border-gray-200 bg-white">
+          <div className="border-t border-gray-200 bg-gray-50 ">
             <div className="max-w-3xl mx-auto px-4 py-4">
               {/* Suggestion Chips */}
               {hasContent && (
@@ -688,9 +392,13 @@ ${editorContent}`
                     value={chatInput}
                     onChange={(e) => {
                       setChatInput(e.target.value)
-                      // Auto-resize textarea
-                      e.target.style.height = 'auto'
-                      e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px'
+                      // Auto-resize textarea with smooth scrollbar appearance
+                      const target = e.target
+                      target.style.height = 'auto'
+                      const newHeight = Math.min(target.scrollHeight, 200)
+                      target.style.height = newHeight + 'px'
+                      // Only show scrollbar when content exceeds max height
+                      target.style.overflowY = target.scrollHeight > 200 ? 'auto' : 'hidden'
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -705,8 +413,8 @@ ${editorContent}`
                              text-sm placeholder-gray-500 focus:outline-none focus:ring-2
                              focus:ring-gray-400 focus:border-transparent resize-none
                              disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50
-                             max-h-[200px] overflow-y-auto"
-                    style={{ minHeight: '44px' }}
+                             transition-all duration-150 ease-in-out"
+                    style={{ minHeight: '44px', maxHeight: '200px', overflowY: 'hidden' }}
                   />
                 </div>
 
@@ -728,69 +436,6 @@ ${editorContent}`
           </div>
         </div>
       </div>
-
-      {/* Preview Mode - Kept for potential future use but hidden */}
-      {false && isPreviewMode && (
-            <div ref={printRef} className="p-6 sm:p-8 h-full  mt-1 rounded-2xl ">
-              {/* Print Header - Hidden on screen, visible when printing */}
-              <div className="print:block hidden mb-8 text-center border-b pb-4">
-                <h1 className="text-2xl font-bold text-gray-900">{framework.name}</h1>
-                <p className="text-gray-600 mt-2">Generated on {new Date().toLocaleString()}</p>
-                <p className="text-gray-500 text-sm">
-                  {wordCount} words • {charCount} characters • {lineCount} lines
-                </p>
-              </div>
-
-              <div className="prose max-w-none h-auto">
-                <ReactMarkdown
-                  components={{
-                    h1: ({ children }) => (
-                      <h1 className="text-3xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                        {children}
-                      </h1>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="text-2xl font-semibold text-gray-800 mb-3 mt-6">
-                        {children}
-                      </h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-xl font-medium text-gray-700 mb-2 mt-4">
-                        {children}
-                      </h3>
-                    ),
-                    p: ({ children }) => (
-                      <p className="text-gray-700 leading-relaxed mb-4">
-                        {children}
-                      </p>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700">
-                        {children}
-                      </ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700">
-                        {children}
-                      </ol>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote className="border-l-4 border-purple-500 bg-purple-50 p-4 italic text-purple-900 mb-4">
-                        {children}
-                      </blockquote>
-                    ),
-                    code: ({ children }) => (
-                      <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-purple-600">
-                        {children}
-                      </code>
-                    )
-                  }}
-                >
-                  {editorContent || '# No content yet\n\nStart typing to see the preview...'}
-                </ReactMarkdown>
-              </div>
-            </div>
-          )}
 
       {/* Bottom Stats Bar - Compact */}
       {/* <div className="border-t bg-gray-50 px-3 sm:px-4 py-1.5 sm:py-2">
