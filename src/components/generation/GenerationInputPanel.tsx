@@ -411,7 +411,7 @@ export function GenerationInputPanel({
       </div>
 
       {/* Generate Button - Fixed at Bottom */}
-      <div className="sticky bottom-0 p-4 sm:p-6 bg-white border-t border-gray-200 shadow-lg z-10">
+  <div className="sticky bottom-0 p-4 sm:p-6 bg-white border-t border-gray-200 shadow-lg z-10">
         <Button
           onClick={onGenerate}
           disabled={!isFormValid() || isGenerating}
