@@ -309,14 +309,14 @@ export function GenerationInputPanel({
                 className="min-h-24 resize-none"
                 value={inputs.additionalInstructions || ''}
                 onChange={(e) => handleInputChange('additionalInstructions', e.target.value)}
-                maxLength={1000}
+                maxLength={2500}
               />
               <div className="flex justify-between items-center">
                 <p className="text-xs text-gray-500">
                   Tell AI exactly what you want in your own words
                 </p>
                 <span className="text-xs text-gray-500">
-                  {(inputs.additionalInstructions || '').length}/1000
+                  {(inputs.additionalInstructions || '').length}/2500
                 </span>
               </div>
             </div>
