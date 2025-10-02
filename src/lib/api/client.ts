@@ -80,7 +80,7 @@ class APIClient {
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       let errorData: APIErrorType
-      
+
       try {
         errorData = await response.json()
       } catch {
@@ -92,8 +92,11 @@ class APIClient {
         }
       }
 
+      // Check for backend error format { error: "message" }
+      const errorMessage = errorData.message || (errorData as any).error || 'API request failed'
+
       throw new APIError(
-        errorData.message || 'API request failed',
+        errorMessage,
         response.status,
         errorData.error_code as ErrorCode,
         errorData.details

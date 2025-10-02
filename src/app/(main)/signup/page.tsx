@@ -97,7 +97,9 @@ export default function SignupPage() {
       }
     } catch (error: any) {
       console.error('Signup error:', error)
-      setError(error.message || 'Failed to sign up. Please try again.')
+      // Show detailed error for debugging
+      const errorMessage = error.message || error.details?.message || 'Failed to sign up. Please try again.'
+      setError(errorMessage)
     }
   }
 
@@ -251,9 +253,10 @@ export default function SignupPage() {
                       placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pr-10 h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                      className="pr-10 h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md [&::-ms-reveal]:hidden [&::-ms-clear]:hidden [&::-webkit-credentials-auto-fill-button]:hidden"
                       maxLength={128}
                       required
+                      autoComplete="new-password"
                     />
                     <button
                       type="button"
