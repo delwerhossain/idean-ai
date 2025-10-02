@@ -317,18 +317,18 @@ export function GenerationEditor({
 
   return (
     <div className="h-full bg-white flex flex-col relative">
-      {/* Fixed Save Button - Positioned below mobile header */}
+      {/* Fixed Save Button - Desktop Only (mobile uses header button) */}
       {onSaveAsTemplate && hasContent && (
         <Button
           variant="default"
           size="sm"
           onClick={() => setShowSaveDialog(true)}
-          className="fixed top-[110px] right-2 sm:top-4 sm:right-4 z-[100] shadow-lg
+          className="hidden lg:flex fixed top-4 right-4 z-[100] shadow-lg
                    bg-idean-blue hover:bg-idean-blue-dark text-white transition-colors
-                   h-9 w-9 sm:h-10 sm:w-auto p-0 sm:px-3 rounded-full sm:rounded-lg"
+                   h-10 w-auto px-3 rounded-lg"
         >
-          <BookmarkPlus className="w-4 h-4 sm:mr-2" />
-          <span className="hidden sm:inline text-sm">Save Template</span>
+          <BookmarkPlus className="w-4 h-4 mr-2" />
+          <span className="text-sm">Save Template</span>
         </Button>
       )}
 

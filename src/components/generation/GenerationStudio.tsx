@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { GenerationInputPanel } from './GenerationInputPanel'
 import { GenerationEditor } from './GenerationEditor'
+import { SaveTemplateDialog } from './SaveTemplateDialog'
 import { ideanApi, Template } from '@/lib/api/idean-api'
 import { Button } from '@/components/ui/button'
 import TutorialModal from '@/components/modals/TutorialModal'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, BookmarkPlus } from 'lucide-react'
 
 interface Framework {
   id: string
@@ -56,6 +57,7 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
   const [mobileView, setMobileView] = useState<'input' | 'editor'>('input')
   const [retryCount, setRetryCount] = useState(0)
   const [showTutorialModal, setShowTutorialModal] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
   // Initialize generation options with template data if available
   const [generationOptions, setGenerationOptions] = useState(() => {
     const baseOptions = {
@@ -549,6 +551,18 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
             <h2 className="text-xs font-medium text-gray-700 truncate flex-1">{framework.name}</h2>
 
             <div className="flex items-center gap-2">
+              {/* Save Template Button - Only show when editing and has content */}
+              {currentStep === 'editing' && user && generationResult?.content && (
+                <Button
+                  onClick={() => setShowSaveDialog(true)}
+                  size="sm"
+                  variant="default"
+                  className="h-7 w-7 p-0 bg-idean-blue hover:bg-idean-blue-dark text-white rounded-lg shadow-sm"
+                >
+                  <BookmarkPlus className="w-4 h-4" />
+                </Button>
+              )}
+
               {/* Compact Toggle - Only show when editing */}
               {currentStep === 'editing' && (
                 <div className="flex items-center bg-idean-blue-pale rounded-full p-0.5">
@@ -700,6 +714,15 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
           }
         ]}
         ctaText="Got it, Let's Generate Content!"
+      />
+
+      {/* Save Template Dialog */}
+      <SaveTemplateDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        onSave={handleSaveAsTemplate}
+        frameworkName={framework.name}
+        initialAdditionalInstructions={inputs.additionalInstructions || ''}
       />
     </div>
   )
