@@ -301,15 +301,24 @@ export function GenerationInputPanel({
             {/* Additional Instructions - Always Last */}
             <div className="space-y-2">
               <Label htmlFor="additionalInstructions" className="text-sm font-medium text-gray-700">
-                Additional Instructions (Optional)
+                Your Custom Instructions (Optional)
               </Label>
               <Textarea
                 id="additionalInstructions"
-                placeholder="Any specific requirements or additional context..."
+                placeholder="Describe what you want to generate... e.g., 'Make it more persuasive', 'Focus on benefits for small businesses', 'Use storytelling approach'"
                 className="min-h-24 resize-none"
                 value={inputs.additionalInstructions || ''}
                 onChange={(e) => handleInputChange('additionalInstructions', e.target.value)}
+                maxLength={1000}
               />
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-gray-500">
+                  Tell AI exactly what you want in your own words
+                </p>
+                <span className="text-xs text-gray-500">
+                  {(inputs.additionalInstructions || '').length}/1000
+                </span>
+              </div>
             </div>
           </div>
         )}
