@@ -74,15 +74,23 @@ export default function OnboardingPage() {
         } else {
           console.log('🆕 New user - first business creation')
           setIsExistingUser(false)
+          // Pre-fill user name for new users too
+          if (user.name && !data.userName) {
+            updateData('userName', user.name)
+          }
         }
       } catch (error) {
         console.log('ℹ️ Could not check existing business status:', error)
         setIsExistingUser(false)
+        // Pre-fill user name even if API call fails
+        if (user.name && !data.userName) {
+          updateData('userName', user.name)
+        }
       }
     }
 
     checkExistingBusiness()
-  }, [user, data.userName])
+  }, [user])
 
   const updateData = (field: keyof OnboardingData, value: string | boolean | File[]) => {
     setData(prev => {
@@ -197,12 +205,10 @@ export default function OnboardingPage() {
       }
 
       // Update localStorage as cache
-      if (!isExistingUser) {
-        // Only set these for first-time users
-        localStorage.setItem('onboardingCompleted', 'true')
-        localStorage.setItem('hasCompletedOnboarding', 'true')
-        localStorage.removeItem('isNewUser')
-      }
+      // ALWAYS set onboarding complete to prevent redirect loops
+      localStorage.setItem('onboardingCompleted', 'true')
+      localStorage.setItem('hasCompletedOnboarding', 'true')
+      localStorage.removeItem('isNewUser')
 
       // Always update current business info
       const business = 'business' in createdBusiness ? createdBusiness.business : createdBusiness
@@ -511,7 +517,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Fixed Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-[80]">
+      <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-white border-t border-gray-200 p-4 z-[80] shadow-lg">
         <div className="max-w-2xl mx-auto flex justify-between">
           <Button
             variant="outline"
