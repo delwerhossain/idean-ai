@@ -519,17 +519,77 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
 
   return (
     <div className="flex flex-col h-full w-full">
-      {/* Template Header - Show when loaded from template */}
+      {/* Top Mobile Header - Always Visible on Mobile */}
+      <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-200">
+        {/* Template Banner - Compact */}
+        {template && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 px-3 py-1.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">T</span>
+                </div>
+                <span className="text-xs font-medium text-blue-900 truncate">{template.name}</span>
+              </div>
+              <Button
+                onClick={handleUpdateTemplate}
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs text-blue-700 hover:bg-blue-50"
+              >
+                Update
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Main Navigation Bar - Compact */}
+        <div className="px-2 py-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-xs font-medium text-gray-700 truncate flex-1">{framework.name}</h2>
+
+            <div className="flex items-center gap-2">
+              {/* Compact Toggle - Only show when editing */}
+              {currentStep === 'editing' && (
+                <div className="flex items-center bg-idean-blue-pale rounded-full p-0.5">
+                  <button
+                    onClick={() => setMobileView('input')}
+                    className={`px-2 py-1 text-xs font-medium rounded-full transition-all ${
+                      mobileView === 'input'
+                        ? 'bg-idean-navy text-white shadow-sm'
+                        : 'text-idean-blue-medium'
+                    }`}
+                  >
+                    Input
+                  </button>
+                  <button
+                    onClick={() => setMobileView('editor')}
+                    className={`px-2 py-1 text-xs font-medium rounded-full transition-all ${
+                      mobileView === 'editor'
+                        ? 'bg-idean-navy text-white shadow-sm'
+                        : 'text-idean-blue-medium'
+                    }`}
+                  >
+                    Chat
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Template Header */}
       {template && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 px-4 py-3">
+        <div className="hidden lg:block bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-sm font-bold">T</span>
               </div>
               <div>
-                <h3 className="font-semibold text-blue-900">🎨 Using Template: {template.name}</h3>
-                <p className="text-xs text-blue-600">Modify the inputs below and regenerate to update your template</p>
+                <h3 className="text-sm font-semibold text-blue-900">🎨 Using Template: {template.name}</h3>
+                <p className="text-xs text-blue-600">Modify and regenerate to update</p>
               </div>
             </div>
             <Button
@@ -540,39 +600,6 @@ export function GenerationStudio({ type, framework, template, onBack }: Generati
             >
               Save Template Changes
             </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Navigation Bar - Compact Design */}
-      {currentStep === 'editing' && (
-        <div className="lg:hidden bg-white border-b border-gray-200 px-3 py-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-700 truncate flex-1">{framework.name}</h2>
-
-            {/* Compact Toggle */}
-            <div className="flex items-center bg-gray-100 rounded-full p-0.5">
-              <button
-                onClick={() => setMobileView('input')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
-                  mobileView === 'input'
-                    ? 'bg-gray-900 text-white shadow-sm'
-                    : 'text-gray-600'
-                }`}
-              >
-                Input
-              </button>
-              <button
-                onClick={() => setMobileView('editor')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
-                  mobileView === 'editor'
-                    ? 'bg-gray-900 text-white shadow-sm'
-                    : 'text-gray-600'
-                }`}
-              >
-                Edit
-              </button>
-            </div>
           </div>
         </div>
       )}

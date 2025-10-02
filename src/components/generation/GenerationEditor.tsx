@@ -29,7 +29,7 @@ interface GenerationOptions {
 interface GenerationEditorProps {
   content: string
   isGenerating: boolean
-  currentStep: 'input' | 'generating' | 'editing'
+  currentStep: 'input' | 'generating' | 'Chating'
   framework: Framework
   onRegenerateSection?: (sectionText: string) => void
   onContentChange?: (content: string) => void
@@ -317,16 +317,18 @@ export function GenerationEditor({
 
   return (
     <div className="h-full bg-white flex flex-col relative">
-      {/* Fixed Save Button - Top Right */}
+      {/* Fixed Save Button - Positioned below mobile header */}
       {onSaveAsTemplate && hasContent && (
         <Button
           variant="default"
           size="sm"
           onClick={() => setShowSaveDialog(true)}
-          className="fixed top-4 right-4 z-50 shadow-lg bg-idean-blue hover:bg-idean-blue-dark text-white transition-colors"
+          className="fixed top-[110px] right-2 sm:top-4 sm:right-4 z-[100] shadow-lg
+                   bg-idean-blue hover:bg-idean-blue-dark text-white transition-colors
+                   h-9 w-9 sm:h-10 sm:w-auto p-0 sm:px-3 rounded-full sm:rounded-lg"
         >
-          <BookmarkPlus className="w-4 h-4 mr-2" />
-          Save Template
+          <BookmarkPlus className="w-4 h-4 sm:mr-2" />
+          <span className="hidden sm:inline text-sm">Save Template</span>
         </Button>
       )}
 
@@ -354,12 +356,12 @@ export function GenerationEditor({
           </div>
 
           {/* Chat Input Section - Fixed at bottom, centered with max-width */}
-          <div className="border-t border-gray-200 bg-gray-50 ">
-            <div className="max-w-3xl mx-auto px-4 py-4">
+          <div className="border-t border-gray-200 bg-gray-50">
+            <div className="max-w-3xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
               {/* Suggestion Chips */}
               {hasContent && (
-                <div className="mb-3">
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-2 sm:mb-3">
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
                     {[
                       'Add scarcity',
                       'More friendly',
@@ -373,9 +375,9 @@ export function GenerationEditor({
                         key={suggestion}
                         onClick={() => handleSuggestionClick(suggestion)}
                         disabled={isChatRegenerating || !hasContent}
-                        className="px-2.5 py-1 text-xs font-medium bg-gray-50 hover:bg-gray-100
-                                 text-gray-700 rounded-lg border border-gray-200 transition-colors
-                                 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium
+                                 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded border border-gray-200
+                                 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {suggestion}
                       </button>
@@ -385,7 +387,7 @@ export function GenerationEditor({
               )}
 
               {/* Input Area */}
-              <div className="flex items-end gap-2">
+              <div className="flex items-end gap-1.5 sm:gap-2">
                 <div className="flex-1 relative">
                   <textarea
                     ref={chatInputRef}
@@ -406,15 +408,15 @@ export function GenerationEditor({
                         handleChatSend()
                       }
                     }}
-                    placeholder={hasContent ? "Message to refine content..." : "Generate content first"}
+                    placeholder={hasContent ? "Message to refine..." : "Generate first"}
                     disabled={isChatRegenerating || !hasContent}
                     rows={1}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-white
-                             text-sm placeholder-gray-500 focus:outline-none focus:ring-2
+                    className="w-full px-2.5 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl sm:rounded-2xl bg-white
+                             text-xs sm:text-sm placeholder-gray-500 focus:outline-none focus:ring-2
                              focus:ring-gray-400 focus:border-transparent resize-none
                              disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50
                              transition-all duration-150 ease-in-out"
-                    style={{ minHeight: '44px', maxHeight: '200px', overflowY: 'hidden' }}
+                    style={{ minHeight: '38px', maxHeight: '200px', overflowY: 'hidden' }}
                   />
                 </div>
 
@@ -422,13 +424,14 @@ export function GenerationEditor({
                   onClick={handleChatSend}
                   disabled={!chatInput.trim() || isChatRegenerating || !hasContent}
                   size="sm"
-                  className="h-11 w-11 p-0 bg-idean-blue hover:bg-idean-blue-dark text-white rounded-xl
-                           disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 transition-colors"
+                  className="h-[38px] w-[38px] sm:h-11 sm:w-11 p-0 bg-idean-blue hover:bg-idean-blue-dark
+                           text-white rounded-lg sm:rounded-xl disabled:opacity-50 disabled:cursor-not-allowed
+                           flex-shrink-0 transition-colors"
                 >
                   {isChatRegenerating ? (
                     <LoadingSpinner size="sm" />
                   ) : (
-                    <Send className="w-4 h-4" />
+                    <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   )}
                 </Button>
               </div>
