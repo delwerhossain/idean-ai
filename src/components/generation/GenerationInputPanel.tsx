@@ -62,7 +62,14 @@ export function GenerationInputPanel({
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [activeTab, setActiveTab] = useState<'inputs' | 'options'>('inputs')
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string, fieldType?: string) => {
+    // Validate numeric fields to prevent negative values
+    if ((fieldType === 'int' || fieldType === 'float') && value !== '') {
+      const numValue = parseFloat(value)
+      if (numValue < 0) {
+        return // Don't update if negative
+      }
+    }
     onInputChange({ ...inputs, [field]: value })
   }
 
@@ -283,8 +290,9 @@ export function GenerationInputPanel({
                     type={fieldType === 'int' || fieldType === 'float' ? 'number' : 'text'}
                     placeholder={getFieldPlaceholder(fieldName)}
                     value={inputs[fieldName] || ''}
-                    onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                    onChange={(e) => handleInputChange(fieldName, e.target.value, fieldType)}
                     className="w-full"
+                    {...(fieldType === 'int' || fieldType === 'float' ? { min: '0', step: fieldType === 'int' ? '1' : 'any' } : {})}
                   />
                 </div>
               )
