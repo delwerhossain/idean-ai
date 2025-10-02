@@ -7,9 +7,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   PenTool,
-  Plus,
   Search,
-  Filter,
   AlertTriangle,
   TrendingUp
 } from 'lucide-react'
@@ -33,15 +31,12 @@ function CopywritingSkeletonLoader() {
         <div className={`h-6 rounded w-64 mt-4 ${shimmerClasses}`}></div>
       </div>
 
-      {/* Search and Filter Skeleton */}
+      {/* Search Skeleton */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex-1 max-w-md">
           <div className={`h-10 rounded-md ${shimmerClasses}`}></div>
         </div>
-        <div className="flex gap-2 sm:gap-3">
-          <div className={`h-10 rounded w-24 ${shimmerClasses}`}></div>
-          <div className={`h-10 rounded w-32 ${shimmerClasses}`}></div>
-        </div>
+        <div className={`h-10 rounded w-24 ${shimmerClasses}`}></div>
       </div>
 
       {/* Frameworks Grid Skeleton */}
@@ -206,7 +201,7 @@ export default function CopywritingPage() {
         )}
       </div>
 
-      {/* Search and Filter */}
+      {/* Search */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex-1 max-w-md">
           <div className="relative">
@@ -216,30 +211,14 @@ export default function CopywritingPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
         </div>
-        <div className="flex gap-2 sm:gap-3">
-          <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
-            <Filter className="w-4 h-4 mr-2" />
-            Search
-          </Button>
-          <Button
-            onClick={() => {
-              // Scroll down to show available frameworks
-              const frameworksSection = document.querySelector('[data-frameworks-section]');
-              if (frameworksSection) {
-                frameworksSection.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="bg-idean-navy hover:bg-idean-navy-dark flex-1 sm:flex-none"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Browse Frameworks</span>
-            <span className="sm:hidden">Browse</span>
-          </Button>
-        </div>
+        <Button onClick={handleSearch} variant="outline" className="flex-1 sm:flex-none">
+          <Search className="w-4 h-4 mr-2" />
+          Search
+        </Button>
       </div>
       {/* Available Frameworks */}
       <div className="mb-6 sm:mb-8" data-frameworks-section>
