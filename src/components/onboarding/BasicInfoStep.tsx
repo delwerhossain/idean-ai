@@ -131,6 +131,7 @@ export default function BasicInfoStep({
             value={userName}
             onChange={(e) => onUserNameChange(e.target.value)}
             className="w-full text-base p-3 border-2 border-gray-300 rounded focus:border-blue-500"
+            maxLength={50}
           />
           <p className="text-xs text-gray-500 mt-1">
             {language === 'en' ? 'This will be used for personalization' : 'এটি ব্যক্তিগতকরণের জন্য ব্যবহৃত হবে'}
@@ -178,6 +179,7 @@ export default function BasicInfoStep({
                 onFocus={handleBusinessNameFocus}
                 onBlur={handleBusinessNameBlur}
                 className="w-full text-base p-3 border-2 border-gray-300 rounded focus:border-blue-500"
+                maxLength={100}
               />
               
               {/* Auto-suggest dropdown */}

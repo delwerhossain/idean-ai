@@ -71,6 +71,7 @@ export default function WebsiteStep({ website, onWebsiteChange, language }: Webs
             value={website}
             onChange={(e) => onWebsiteChange(e.target.value)}
             className={`w-full text-base p-3 border-2 border-gray-300 rounded focus:border-blue-500 ${!isValidUrl(website) && website ? 'border-red-300' : ''}`}
+            maxLength={2048}
           />
           {!isValidUrl(website) && website && (
             <p className="text-xs text-red-600 mt-1">
