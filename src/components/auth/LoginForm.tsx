@@ -53,7 +53,7 @@ export function LoginForm() {
       })
 
       // Store token
-      localStorage.setItem('token', response.token)
+      localStorage.setItem('authToken', response.token)
 
       // Redirect will be handled by useEffect when user state updates
       // Force page reload to trigger AuthContext
@@ -133,6 +133,7 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                maxLength={254}
                 required
               />
             </div>
@@ -146,6 +147,7 @@ export function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pr-10 h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                  maxLength={128}
                   required
                 />
                 <button

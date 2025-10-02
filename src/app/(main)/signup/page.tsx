@@ -57,7 +57,7 @@ export default function SignupPage() {
       })
 
       // Store token
-      localStorage.setItem('token', response.token)
+      localStorage.setItem('authToken', response.token)
 
       // Process onboarding data and create business
       const onboardingData = localStorage.getItem('onboardingData')
@@ -212,6 +212,7 @@ export default function SignupPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       className="h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                      maxLength={50}
                       required
                     />
                   </div>
@@ -223,6 +224,7 @@ export default function SignupPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       className="h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                      maxLength={50}
                       required
                     />
                   </div>
@@ -236,6 +238,7 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                    maxLength={254}
                     required
                   />
                 </div>
@@ -249,6 +252,7 @@ export default function SignupPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pr-10 h-11 border-gray-300 focus:border-gray-400 focus:ring-0 focus:ring-offset-0 rounded-md"
+                      maxLength={128}
                       required
                     />
                     <button
