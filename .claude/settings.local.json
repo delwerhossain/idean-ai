@@ -80,7 +80,10 @@
       "WebFetch(domain:azure.microsoft.com)",
       "Bash(dir:*)",
       "Bash(tail:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(findstr:*)",
+      "Bash(move:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": [],

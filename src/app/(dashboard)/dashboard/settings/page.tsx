@@ -343,7 +343,7 @@ export default function SettingsPage() {
 
 
       {/* Notification Settings */}
-      <Card className="p-4 sm:p-6">
+      {/* <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <Bell className="w-5 h-5 text-idean-navy" />
           <h2 className="text-lg sm:text-xl font-semibold">Notifications</h2>
@@ -376,7 +376,7 @@ export default function SettingsPage() {
             />
           </div>
         </div>
-      </Card>
+      </Card> */}
 
    
 

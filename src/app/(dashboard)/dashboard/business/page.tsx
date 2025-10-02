@@ -117,6 +117,7 @@ export default function BusinessKnowledgePage() {
   const [showTutorialModal, setShowTutorialModal] = useState(false)
   const [documents, setDocuments] = useState<any[]>([])
   const [uploadingDocs, setUploadingDocs] = useState(false)
+  const [uploadingFileCount, setUploadingFileCount] = useState(0)
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null)
   const [formData, setFormData] = useState<BusinessFormData>({
     business_name: '',
@@ -255,11 +256,12 @@ export default function BusinessKnowledgePage() {
 
     try {
       setUploadingDocs(true)
+      setUploadingFileCount(fileArray.length)
       setError(null)
 
       await ideanApi.documents.uploadMultiple(fileArray, business.id)
 
-      setSuccess('Documents uploaded successfully!')
+      setSuccess(`${fileArray.length} document(s) uploaded successfully!`)
       await loadDocuments()
 
       // Clear the file input
@@ -269,6 +271,7 @@ export default function BusinessKnowledgePage() {
       setError(err.message || 'Failed to upload documents')
     } finally {
       setUploadingDocs(false)
+      setUploadingFileCount(0)
     }
   }
 
@@ -713,14 +716,34 @@ export default function BusinessKnowledgePage() {
           {/* Upload Section */}
           <div className="mb-4">
             <label htmlFor="document-upload" className="block">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-idean-blue hover:bg-blue-50 transition-all cursor-pointer">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-700 mb-1">
-                  {uploadingDocs ? 'Uploading...' : 'Click to upload or drag and drop'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  PDF files only, max 30MB per file, up to 4 files at once
-                </p>
+              <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                uploadingDocs
+                  ? 'border-idean-blue bg-blue-50 cursor-not-allowed'
+                  : 'border-gray-300 hover:border-idean-blue hover:bg-blue-50 cursor-pointer'
+              }`}>
+                {uploadingDocs ? (
+                  <>
+                    <div className="w-12 h-12 mx-auto mb-3 relative">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <p className="text-sm font-semibold text-idean-blue mb-1">
+                      Uploading Documents...
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Please wait while we process your files
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-gray-700 mb-1">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      PDF files only, max 30MB per file, up to 4 files at once
+                    </p>
+                  </>
+                )}
               </div>
               <input
                 id="document-upload"

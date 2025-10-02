@@ -626,11 +626,6 @@ export default function TemplatesPage() {
             <RefreshCw className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
-          <Button className="bg-gray-600 hover:bg-gray-700" size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">New Template</span>
-            <span className="sm:hidden">New</span>
-          </Button>
         </div>
       </div>
 
