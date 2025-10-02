@@ -217,21 +217,33 @@ export const ideanApi = {
       password: string
       name: string
       provider?: string
-    }) => apiClient.post<{ user: User; token: string; message: string }>('/api/v1/auth/register', data),
+    }) => apiClient.publicRequest<{ user: User; token: string; message: string }>('/api/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
 
     // Login with email/password
     login: (data: {
       email: string
       password: string
-    }) => apiClient.post<{ user: User; token: string; message: string }>('/api/v1/auth/login', data),
+    }) => apiClient.publicRequest<{ user: User; token: string; message: string }>('/api/v1/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
 
     // Login with Firebase token (Google OAuth)
     loginWithFirebase: (firebaseToken: string) =>
-      apiClient.post<{ user: User; token: string; message: string }>('/api/v1/auth/login', { firebaseToken }),
+      apiClient.publicRequest<{ user: User; token: string; message: string }>('/api/v1/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ firebaseToken })
+      }),
 
     // Refresh access token
     refreshToken: (token: string) =>
-      apiClient.post<{ token: string; message: string }>('/api/v1/auth/refresh', { token }),
+      apiClient.publicRequest<{ token: string; message: string }>('/api/v1/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify({ token })
+      }),
 
     // Verify current token
     verify: () =>
