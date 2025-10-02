@@ -243,9 +243,9 @@ export default function DashboardPage() {
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-2">
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gray-900">Welcome to iDEAN AI: Your Growth Co-Pilot! 🚀</h1>
-                <p className="text-gray-600 text-base sm:text-lg">
-                  Powering <span className="font-semibold text-blue-700">{businessName}</span>&apos;s strategic success
+                <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-idean-navy">Welcome to iDEAN AI: Your Growth Co-Pilot! 🚀</h1>
+                <p className="text-idean-slate text-base sm:text-lg">
+                  Powering <span className="font-semibold text-idean-blue">{businessName}</span>&apos;s strategic success
                 </p>
               </div>
               <Button
@@ -305,8 +305,8 @@ export default function DashboardPage() {
             </div>
             <span className="text-xs bg-idean-blue text-white px-3 py-1.5 rounded-full font-semibold shadow-md">Available Now</span>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-idean-blue transition-colors">Brand & Content Studio</h3>
-          <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+          <h3 className="text-xl font-bold text-idean-navy mb-3 group-hover:text-idean-blue transition-colors">Brand & Content Studio</h3>
+          <p className="text-idean-slate text-sm mb-4 leading-relaxed">
             Create powerful brand content with AI-powered copywriting, design frameworks, and marketing materials. Generate everything from social posts to complete campaigns.
           </p>
 
@@ -338,8 +338,8 @@ export default function DashboardPage() {
               </div>
               <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">Coming Soon</span>
             </div>
-            <h3 className="text-sm font-bold text-gray-600 mb-1">Business Strategy</h3>
-            <p className="text-gray-500 text-xs leading-relaxed">
+            <h3 className="text-sm font-bold text-idean-slate mb-1">Business Strategy</h3>
+            <p className="text-idean-blue-medium text-xs leading-relaxed">
               Strategic frameworks for business growth
             </p>
           </Card>
@@ -352,8 +352,8 @@ export default function DashboardPage() {
               </div>
               <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">Coming Soon</span>
             </div>
-            <h3 className="text-sm font-bold text-gray-600 mb-1">Brand Identity</h3>
-            <p className="text-gray-500 text-xs leading-relaxed">
+            <h3 className="text-sm font-bold text-idean-slate mb-1">Brand Identity</h3>
+            <p className="text-idean-blue-medium text-xs leading-relaxed">
               Strategic brand frameworks and messaging
             </p>
           </Card>
@@ -466,7 +466,7 @@ export default function DashboardPage() {
               {dashboardData.analytics.usage.aiCredits.used}
             </span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm">AI Credits Used</h3>
+          <h3 className="font-medium text-idean-navy mb-1 text-sm">AI Credits Used</h3>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
             <div
               className="bg-idean-navy h-2 rounded-full"
@@ -483,7 +483,7 @@ export default function DashboardPage() {
             </div>
             <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm">Frameworks</h3>
+          <h3 className="font-medium text-idean-navy mb-1 text-sm">Frameworks</h3>
           <p className="text-xs text-gray-600">Completed this month</p>
         </Card>
 
@@ -494,7 +494,7 @@ export default function DashboardPage() {
             </div>
             <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm">Documents</h3>
+          <h3 className="font-medium text-idean-navy mb-1 text-sm">Documents</h3>
           <p className="text-xs text-gray-600">In knowledge base</p>
         </Card>
 
@@ -505,7 +505,7 @@ export default function DashboardPage() {
             </div>
             <span className="text-lg font-bold text-gray-900">{industry}</span>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1 text-sm">Industry</h3>
+          <h3 className="font-medium text-idean-navy mb-1 text-sm">Industry</h3>
           <p className="text-xs text-gray-600">Business vertical</p>
         </Card>
       </div>

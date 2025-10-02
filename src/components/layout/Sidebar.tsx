@@ -210,7 +210,7 @@ export default function Sidebar({
       {/* Enhanced Mobile Overlay with Smooth Fade */}
       {isMobile && (
         <div
-          className={`fixed inset-0 bg-black z-[60] lg:hidden transition-all duration-300 ease-out transform-gpu ${
+          className={`fixed inset-0 bg-idean-navy z-[60] lg:hidden transition-all duration-300 ease-out transform-gpu ${
             isOpen
               ? "opacity-50 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -307,10 +307,10 @@ export default function Sidebar({
         <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-gray-25 to-white p-2">
           {user?.business?.business_name || user?.businessId ? (
             // User has a business - show business info
-            <div className="relative flex items-center transition-colors p-2">
+            <div className="relative flex items-center transition-colors p-2 ">
               {/* Expandable Background */}
               <div
-                className={`absolute inset-0 hover:bg-gray-50 rounded-xl transition-all duration-200 ease-out ${
+                className={`absolute inset-0 hover:bg-idean-blue-pale rounded-xl transition-all duration-200 ease-out ${
                   isMobile || isExpanded
                     ? "opacity-100 scale-100"
                     : "lg:opacity-0 lg:scale-95 lg:w-12 lg:h-12"
@@ -319,7 +319,7 @@ export default function Sidebar({
 
               {/* Fixed Icon Container - Always Same Position */}
               <div className="relative z-20 flex-shrink-0 flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10">
-                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm w-10 h-10 lg:w-8 lg:h-8 touch-manipulation">
+                <div className="bg-blue-900 rounded-xl flex items-center justify-center shadow-lg lg:shadow-sm w-10 h-10 lg:w-8 lg:h-8 touch-manipulation">
                   <span className="text-white font-bold text-base lg:text-sm select-none">
                     {user.business?.business_name?.[0]?.toUpperCase() || "B"}
                   </span>
@@ -482,7 +482,7 @@ export default function Sidebar({
           <button
             onClick={() => !isOnboarding && setShowUpgradeModal(true)}
             disabled={isOnboarding}
-            className={`w-full flex items-center justify-between rounded-lg bg-gray-800/5 hover:bg-gray-800/10 transition-all duration-200 group mb-1 ${
+            className={`w-full flex items-center justify-between rounded-lg bg-idean-blue/10 hover:bg-idean-blue/20 transition-all duration-200 group mb-1 ${
               isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
             } ${isMobile || isExpanded ? 'p-2.5' : 'lg:p-2 lg:justify-center'}`}
           >
@@ -510,11 +510,11 @@ export default function Sidebar({
             <button
               onClick={() => !isOnboarding && setShowAccountMenu(!showAccountMenu)}
               disabled={isOnboarding}
-              className={`w-full flex items-center rounded-lg hover:bg-gray-800/5 transition-all duration-200 group ${
+              className={`w-full flex items-center rounded-lg hover:bg-idean-blue/10 transition-all duration-200 group ${
                 isOnboarding ? 'opacity-40 cursor-not-allowed' : ''
               } ${isMobile || isExpanded ? 'gap-2.5 p-2.5' : 'lg:p-2 lg:justify-center'}`}
             >
-              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-semibold">
+              <div className="w-8 h-8 bg-idean-navy rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-semibold">
                 {user?.photoURL ? (
                   <img
                     src={user.photoURL}
@@ -528,10 +528,10 @@ export default function Sidebar({
               <div className={`flex-1 text-left transition-all duration-200 ${
                 isMobile || isExpanded ? 'opacity-100' : 'lg:opacity-0 lg:w-0 lg:overflow-hidden'
               }`}>
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-idean-navy truncate">
                   {user?.name || user?.email?.split('@')[0] || 'Account'}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-idean-blue-medium">
                   Free
                 </p>
               </div>

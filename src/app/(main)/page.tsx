@@ -53,10 +53,10 @@ export default function Home() {
       <div className="relative overflow-hidden bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-5xl md:text-6xl font-bold text-idean-navy mb-6 leading-tight">
               AI-Powered Business Strategy Platform
             </h1>
-            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+            <p className="text-xl text-idean-slate mb-10 max-w-3xl mx-auto">
               Transform business ideas into actionable strategies with proven frameworks from iMarketing, GrowthX, and iMBA programs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -90,7 +90,7 @@ export default function Home() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium"
+                      className="border-idean-blue text-idean-navy hover:bg-idean-blue-light px-8 py-4 text-lg font-medium"
                     >
                       Sign In
                     </Button>
@@ -110,10 +110,10 @@ export default function Home() {
               <PenTool className="w-4 h-4 mr-2" />
               Available Now
             </div>
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-3xl font-semibold text-idean-navy mb-4">
               Brand & Content Studio
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-idean-slate max-w-3xl mx-auto">
               Create powerful brand content with AI-powered copywriting, design frameworks, and marketing materials.
               Generate everything from social posts to complete campaigns using proven business methodologies.
             </p>
@@ -125,29 +125,29 @@ export default function Home() {
                 <div className="w-12 h-12 bg-idean-blue-pale rounded-lg flex items-center justify-center mx-auto mb-4">
                   <PenTool className="w-6 h-6 text-idean-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">AI Copywriting</h3>
-                <p className="text-sm text-gray-600">Generate engaging copy using proven frameworks</p>
+                <h3 className="font-semibold text-idean-navy mb-2">AI Copywriting</h3>
+                <p className="text-sm text-idean-slate">Generate engaging copy using proven frameworks</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-idean-blue-pale rounded-lg flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-6 h-6 text-idean-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Content Templates</h3>
-                <p className="text-sm text-gray-600">Ready-to-use templates for all content types</p>
+                <h3 className="font-semibold text-idean-navy mb-2">Content Templates</h3>
+                <p className="text-sm text-idean-slate">Ready-to-use templates for all content types</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-idean-blue-pale rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Rocket className="w-6 h-6 text-idean-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Campaign Builder</h3>
-                <p className="text-sm text-gray-600">Complete marketing campaigns in minutes</p>
+                <h3 className="font-semibold text-idean-navy mb-2">Campaign Builder</h3>
+                <p className="text-sm text-idean-slate">Complete marketing campaigns in minutes</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-idean-blue-pale rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Building className="w-6 h-6 text-idean-blue" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Business Context</h3>
-                <p className="text-sm text-gray-600">Personalized content based on your business</p>
+                <h3 className="font-semibold text-idean-navy mb-2">Business Context</h3>
+                <p className="text-sm text-idean-slate">Personalized content based on your business</p>
               </div>
             </div>
           </div>
@@ -178,10 +178,10 @@ export default function Home() {
       <div className="bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-3xl font-semibold text-idean-navy mb-4">
               More Features Coming Soon
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-idean-slate max-w-2xl mx-auto">
               We're building additional modules based on proven frameworks from iMarketing, GrowthX, and iMBA programs.
             </p>
           </div>
@@ -194,11 +194,11 @@ export default function Home() {
                 </div>
                 <span className="text-xs bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-medium">Coming Soon</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Growth Co-Pilot</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-semibold text-idean-navy mb-3">Growth Co-Pilot</h3>
+              <p className="text-idean-slate mb-4">
                 Strategic frameworks for business growth including Customer Value Journey and Blue Ocean Strategy.
               </p>
-              <ul className="space-y-2 text-sm text-gray-500">
+              <ul className="space-y-2 text-sm text-idean-blue-medium">
                 <li>• Growth Heist™ framework</li>
                 <li>• Business strategy mapping</li>
                 <li>• Market analysis tools</li>
@@ -212,11 +212,11 @@ export default function Home() {
                 </div>
                 <span className="text-xs bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-medium">Coming Soon</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Branding Lab</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-semibold text-idean-navy mb-3">Branding Lab</h3>
+              <p className="text-idean-slate mb-4">
                 Strategic brand frameworks including Brand Foundation and Voice & Messaging systems.
               </p>
-              <ul className="space-y-2 text-sm text-gray-500">
+              <ul className="space-y-2 text-sm text-idean-blue-medium">
                 <li>• Brand DNA foundation</li>
                 <li>• Visual identity systems</li>
                 <li>• Brand voice development</li>
@@ -225,18 +225,18 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-gray-600 mb-6">Get started with Brand & Content Studio today and be the first to access new features as they launch.</p>
+            <p className="text-idean-slate mb-6">Get started with Brand & Content Studio today and be the first to access new features as they launch.</p>
             {!isAuthReady ? (
               <div className="h-14 w-56 bg-gray-100 animate-pulse rounded mx-auto"></div>
             ) : user ? (
               <Link href="/dashboard">
-                <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
+                <Button variant="outline" size="lg" className="border-idean-blue text-idean-navy hover:bg-idean-blue-light px-8 py-4 text-lg font-medium">
                   Go to Dashboard
                 </Button>
               </Link>
             ) : (
               <Link href="/login">
-                <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-medium">
+                <Button variant="outline" size="lg" className="border-idean-blue text-idean-navy hover:bg-idean-blue-light px-8 py-4 text-lg font-medium">
                   Join Early Access
                 </Button>
               </Link>

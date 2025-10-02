@@ -47,10 +47,10 @@
   --radius: 0.625rem;
 
   /* Idean Consulting Brand Colors */
-  --idean-navy-blue: #000;
+  --idean-navy-blue: #1e2a4a;
   --idean-dark-charcoal: #272727;
   --idean-pure-white: #FFFFFF;
-  --idean-slate-gray: #1A1A1A;
+  --idean-slate-gray: #2c3e50;
   --idean-blue: #515d8f;
   --idean-blue-light: #f8f9fc;
   --idean-blue-pale: #eef1f7;
@@ -91,36 +91,36 @@
 }
 
 /* Idean Consulting Custom Color Classes */
-.bg-idean-navy { background-color: #000; }
-.bg-idean-navy-dark { background-color: #1e2a4a; }
+.bg-idean-navy { background-color: #1e2a4a; }
+.bg-idean-navy-dark { background-color: #0f1629; }
 .bg-idean-charcoal { background-color: #272727; }
 .bg-idean-white { background-color: #FFFFFF; }
-.bg-idean-slate { background-color: #1A1A1A; }
+.bg-idean-slate { background-color: #2c3e50; }
 .bg-idean-blue { background-color: #515d8f; }
 .bg-idean-blue-light { background-color: #f8f9fc; }
 .bg-idean-blue-pale { background-color: #eef1f7; }
 .bg-idean-blue-dark { background-color: #404a73; }
 .bg-idean-blue-medium { background-color: #6b77a8; }
 
-.text-idean-navy { color: #000; }
+.text-idean-navy { color: #1e2a4a; }
 .text-idean-charcoal { color: #272727; }
 .text-idean-white { color: #FFFFFF; }
-.text-idean-slate { color: #1A1A1A; }
+.text-idean-slate { color: #2c3e50; }
 .text-idean-blue { color: #515d8f; }
 .text-idean-blue-dark { color: #404a73; }
 .text-idean-blue-medium { color: #6b77a8; }
 
-.border-idean-navy { border-color: #000; }
+.border-idean-navy { border-color: #1e2a4a; }
 .border-idean-charcoal { border-color: #272727; }
-.border-idean-slate { border-color: #1A1A1A; }
+.border-idean-slate { border-color: #2c3e50; }
 .border-idean-blue { border-color: #515d8f; }
 .border-idean-blue-dark { border-color: #404a73; }
 .border-idean-blue-medium { border-color: #6b77a8; }
 
 /* Hover States */
-.hover\:bg-idean-navy:hover { background-color: #000; }
-.hover\:bg-idean-navy-dark:hover { background-color: #1e2a4a; }
-.hover\:bg-idean-slate:hover { background-color: #1A1A1A; }
+.hover\:bg-idean-navy:hover { background-color: #1e2a4a; }
+.hover\:bg-idean-navy-dark:hover { background-color: #0f1629; }
+.hover\:bg-idean-slate:hover { background-color: #2c3e50; }
 .hover\:bg-idean-blue:hover { background-color: #404a73; }
 .hover\:bg-idean-blue-light:hover { background-color: #eef1f7; }
 .hover\:bg-idean-blue-dark:hover { background-color: #353f6b; }
@@ -128,10 +128,10 @@
 .hover\:text-idean-blue:hover { color: #515d8f; }
 
 /* Group Hover States */
-.group:hover .group-hover\:bg-idean-navy { background-color: #000; }
-.group:hover .group-hover\:bg-idean-navy-dark { background-color: #1e2a4a; }
+.group:hover .group-hover\:bg-idean-navy { background-color: #1e2a4a; }
+.group:hover .group-hover\:bg-idean-navy-dark { background-color: #0f1629; }
 .group:hover .group-hover\:text-idean-white { color: #FFFFFF; }
-.group:hover .group-hover\:text-idean-navy { color: #000; }
+.group:hover .group-hover\:text-idean-navy { color: #1e2a4a; }
 
 .dark {
   --background: oklch(0.145 0 0);
