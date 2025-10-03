@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight, Globe, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Globe, Loader2, User, Globe as WebIcon, Building2, FileText, MessageSquare } from 'lucide-react'
+import Image from 'next/image'
 import BasicInfoStep from '@/components/onboarding/BasicInfoStep'
 import WebsiteStep from '@/components/onboarding/WebsiteStep'
 import IndustryStep from '@/components/onboarding/IndustryStep'
@@ -374,12 +375,14 @@ export default function OnboardingPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="w-8"></div>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <div className="w-4 h-4 bg-white rounded-sm flex items-center justify-center">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                </div>
-              </div>
-              <span className="font-bold text-xl text-gray-900 tracking-tight">iDEAN AI</span>
+              <Image
+                src="/ideanai_logo.png"
+                alt="Idean AI Logo"
+                width={120}
+                height={40}
+                className="object-contain"
+                priority
+              />
             </div>
             <Button
               variant="ghost"
@@ -416,8 +419,8 @@ export default function OnboardingPage() {
             {currentStep === 0 && (
               <div className="flex items-center justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
-                    <div className="text-white text-2xl">👤</div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[var(--idean-blue)] to-[var(--idean-navy-blue)] rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
+                    <User className="w-10 h-10 text-white" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full animate-bounce shadow-lg flex items-center justify-center">
                     <div className="text-white text-xs">✓</div>
@@ -428,8 +431,8 @@ export default function OnboardingPage() {
             {currentStep === 1 && (
               <div className="flex items-center justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
-                    <div className="text-white text-2xl">🌐</div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[var(--idean-blue-medium)] to-[var(--idean-blue)] rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
+                    <WebIcon className="w-10 h-10 text-white" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-400 rounded-full animate-ping"></div>
                 </div>
@@ -438,8 +441,8 @@ export default function OnboardingPage() {
             {currentStep === 2 && (
               <div className="flex items-center justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
-                    <div className="text-white text-2xl">🏢</div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[var(--idean-blue-dark)] to-[var(--idean-slate-gray)] rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
+                    <Building2 className="w-10 h-10 text-white" />
                   </div>
                   <div className="absolute -bottom-1 -left-1 w-5 h-5 bg-yellow-400 rounded-full animate-bounce shadow-md"></div>
                 </div>
@@ -448,10 +451,10 @@ export default function OnboardingPage() {
             {currentStep === 3 && (
               <div className="flex items-center justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-cyan-600 rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
-                    <div className="text-white text-2xl">📄</div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[var(--idean-navy-blue)] to-[var(--idean-blue-dark)] rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
+                    <FileText className="w-10 h-10 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-400 rounded-full animate-spin-slow shadow-md flex items-center justify-center">
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-[var(--idean-blue-medium)] rounded-full animate-spin-slow shadow-md flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
@@ -460,8 +463,8 @@ export default function OnboardingPage() {
             {currentStep === 4 && (
               <div className="flex items-center justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
-                    <div className="text-white text-2xl">💬</div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[var(--idean-blue-medium)] to-[var(--idean-blue)] rounded-2xl shadow-lg animate-pulse-slow flex items-center justify-center">
+                    <MessageSquare className="w-10 h-10 text-white" />
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse shadow-md"></div>
                 </div>
@@ -476,10 +479,10 @@ export default function OnboardingPage() {
             <div key={index} className="flex items-center">
               <div
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index < currentStep 
-                    ? 'bg-green-500 ring-2 ring-green-100' 
-                    : index === currentStep 
-                    ? 'bg-blue-600 ring-2 ring-blue-100 scale-125' 
+                  index < currentStep
+                    ? 'bg-green-500 ring-2 ring-green-100'
+                    : index === currentStep
+                    ? 'bg-[var(--idean-blue)] ring-2 ring-[var(--idean-blue-pale)] scale-125'
                     : 'bg-gray-200'
                 }`}
               />
@@ -533,7 +536,7 @@ export default function OnboardingPage() {
             <Button
               onClick={handleFinish}
               disabled={!isStepValid() || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 px-6 disabled:opacity-50"
+              className="bg-[var(--idean-blue)] hover:bg-[var(--idean-blue-dark)] px-6 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -551,7 +554,7 @@ export default function OnboardingPage() {
             <Button
               onClick={nextStep}
               disabled={!isStepValid() || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 px-6 disabled:opacity-50"
+              className="bg-[var(--idean-blue)] hover:bg-[var(--idean-blue-dark)] px-6 disabled:opacity-50"
             >
               {language === 'en' ? 'Continue' : 'চালিয়ে যান'}
               <ArrowRight className="w-4 h-4 ml-2" />
