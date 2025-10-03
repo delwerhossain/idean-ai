@@ -94,10 +94,10 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className="text-center mb-6 sm:mb-8">
-        <div className="mx-auto w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-3 sm:mb-4">
+        {/* <div className="mx-auto w-12 h-12 bg-gradient-to-br from-[var(--idean-blue)] to-[var(--idean-navy-blue)] rounded-lg flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
           <span className="text-lg font-bold text-white">iA</span>
-        </div>
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
+        </div> */}
+        <h1 className="text-xl sm:text-2xl font-semibold text-[var(--idean-navy-blue)] mb-2">
           Login
         </h1>
       </div>
@@ -178,7 +178,7 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full h-11 bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium rounded-md"
+              className="w-full h-11 bg-[var(--idean-blue)] hover:bg-[var(--idean-blue-dark)] text-white font-medium rounded-md"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Continue'}
@@ -188,7 +188,7 @@ export function LoginForm() {
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link href="/signup" className="text-idean-navy font-medium hover:text-idean-navy-dark">
+              <Link href="/signup" className="text-[var(--idean-blue)] font-medium hover:text-[var(--idean-blue-dark)]">
                 Create account
               </Link>
             </p>

@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Eye, EyeOff, Chrome } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function SignupPage() {
   const [firstName, setFirstName] = useState('')
@@ -156,19 +157,22 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="h-screen bg-white flex items-center justify-center overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-[var(--idean-blue-light)] to-white flex items-center justify-center overflow-hidden">
       {/* Header with login link */}
       <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-6">
         <Link href="/">
-          <img
+          <Image
             src="/ideanai_logo.png"
             alt="iDEAN AI"
+            width={120}
+            height={40}
             className="h-10 w-auto hover:opacity-80 transition-opacity"
+            priority
           />
         </Link>
         <Link
           href="/login"
-          className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+          className="text-sm text-[var(--idean-navy-blue)] hover:text-[var(--idean-blue)] font-medium"
         >
           Login
         </Link>
@@ -177,7 +181,7 @@ export default function SignupPage() {
       <div className="w-full max-w-sm px-6 py-8 max-h-screen overflow-y-auto">
         <div className="w-full max-w-sm mx-auto">
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
+            <h1 className="text-xl sm:text-2xl font-semibold text-[var(--idean-navy-blue)] mb-2">
               Sign up to save your Strategy
             </h1>
           </div>
@@ -276,7 +280,7 @@ export default function SignupPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-idean-navy hover:bg-idean-navy-dark text-idean-white font-medium rounded-md"
+                  className="w-full h-11 bg-[var(--idean-blue)] hover:bg-[var(--idean-blue-dark)] text-white font-medium rounded-md"
                   disabled={loading}
                 >
                   {loading ? 'Signing up...' : 'Sign up'}
@@ -291,7 +295,7 @@ export default function SignupPage() {
       <div className="absolute bottom-4 left-0 right-0 px-4 text-center text-sm text-gray-500">
         <p className="max-w-sm mx-auto">
           Private & secure. See our{' '}
-          <Link href="/privacy" className="underline hover:text-gray-700">
+          <Link href="/privacy" className="underline hover:text-[var(--idean-blue)]">
             privacy policy
           </Link>
           .
