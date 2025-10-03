@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { 
-  FileText, 
-  TrendingUp, 
+import {
+  FileText,
+  TrendingUp,
   ArrowRight,
   Zap,
   Target,
@@ -17,16 +17,8 @@ import {
   Sparkles,
   Palette,
   PenTool,
-  Star,
-  Clock,
-  CheckCircle2,
   Brain,
-  Rocket,
-  Globe,
-  Crown,
-  Activity,
-  Eye,
-  ChevronRight
+  Globe
 } from 'lucide-react'
 import { ideanApi } from '@/lib/api/idean-api'
 import { Business } from '@/lib/api/idean-api'
@@ -35,24 +27,10 @@ import TutorialModal from '@/components/modals/TutorialModal'
 interface DashboardData {
   business?: Business
   analytics: {
-    totalTemplates: number
-    totalDocuments: number
-    totalGenerations: number
-    recentActivity: { id: string; type: string; title: string; time: string }[]
-    usage: {
-      aiCredits: { used: number; total: number }
-      storage: { used: number; total: number }
-    }
-    frameworks: {
-      completed: number
-      total: number
-      recent: string[]
-    }
-    growth: {
-      score: number
-      trend: 'up' | 'down' | 'stable'
-      recommendations: string[]
-    }
+    credit: number
+    creditLimit: number
+    businessdocuments: number
+    frameworks: number
   }
 }
 
@@ -108,35 +86,18 @@ export default function DashboardPage() {
         return
       }
 
+      // Default analytics data
       let analytics: DashboardData['analytics'] = {
-        totalTemplates: 0,
-        totalDocuments: 0,
-        totalGenerations: 0,
-        recentActivity: [],
-        usage: {
-          aiCredits: { used: 150, total: 1000 },
-          storage: { used: 250, total: 5000 }
-        },
-        frameworks: {
-          completed: 3,
-          total: 12,
-          recent: ['Customer Value Journey', 'Brand DNA Foundation', 'NeuroCopywriting']
-        },
-        growth: {
-          score: 72,
-          trend: 'up',
-          recommendations: [
-            'Complete your Blue Ocean Strategy framework',
-            'Upload business documents for better AI insights',
-            'Set up your first marketing campaign'
-          ]
-        }
+        credit: 0,
+        creditLimit: 40,
+        businessdocuments: 0,
+        frameworks: 0
       }
 
       // Handle analytics data from API
       if (analyticsResponse.status === 'fulfilled' && analyticsResponse.value) {
-        analytics = { ...analytics, ...analyticsResponse.value as Record<string, unknown> }
-        console.log('📈 Analytics data loaded')
+        analytics = analyticsResponse.value
+        console.log('📈 Analytics data loaded:', analytics)
       } else if (analyticsResponse.status === 'rejected') {
         console.warn('⚠️ Analytics data failed to load, using defaults:', analyticsResponse.reason?.message)
       }
@@ -361,143 +322,57 @@ export default function DashboardPage() {
       </div>
 
 
-      {/* Business Health Dashboard & Recent Activity - Removed as redundant */}
-      <div className="hidden">
-        {/* Business Health Dashboard */}
-        <Card className="p-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-green-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Business Health Score</h3>
-          </div>
-          
-          {/* Growth Score Circle */}
-          <div className="flex items-center gap-6 mb-6">
-            <div className="relative w-20 h-20">
-              <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                <path className="text-gray-200" fill="none" stroke="currentColor" strokeWidth="3"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="text-green-500" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-                      strokeDasharray={`${dashboardData.analytics.growth.score}, 100`}
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900">{dashboardData.analytics.growth.score}</span>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-1">Strategic Completeness</h4>
-              <p className="text-sm text-gray-600 mb-2">Your business frameworks are {dashboardData.analytics.growth.score}% complete</p>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="w-4 h-4 text-green-500" />
-                <span className="text-sm text-green-600 font-medium">Trending Up</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Recommendations */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Next Actions:</h4>
-            {dashboardData.analytics.growth.recommendations.map((rec, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <span className="text-gray-700">{rec}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Recent Activity & Templates */}
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-5 h-5 text-blue-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/templates')}>
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-          
-          {/* Recent Frameworks */}
-          <div className="space-y-4">
-            {dashboardData.analytics.frameworks.recent.map((framework, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="w-8 h-8 bg-idean-navy rounded-lg flex items-center justify-center">
-                  <Star className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">{framework}</p>
-                  <p className="text-xs text-gray-500">Completed {Math.floor(Math.random() * 7) + 1} days ago</p>
-                </div>
-                <Button size="sm" variant="ghost">
-                  <Eye className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-          
-          {/* Templates Summary */}
-          <div className="mt-6 pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Saved Templates</span>
-              <span className="font-medium">{dashboardData.analytics.totalTemplates}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm mt-2">
-              <span className="text-gray-600">AI Generations</span>
-              <span className="font-medium">{dashboardData.analytics.totalGenerations}</span>
-            </div>
-          </div>
-        </Card>
-      </div>
 
       {/* Analytics & Usage Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Generation Credits Card */}
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-blue-600" />
             </div>
             <span className="text-xl font-bold text-gray-900">
-              {dashboardData.analytics.usage.aiCredits.used}
+              {dashboardData.analytics.credit}
             </span>
           </div>
-          <h3 className="font-medium text-idean-navy mb-1 text-sm">AI Credits Used</h3>
+          <h3 className="font-medium text-idean-navy mb-1 text-sm">Generation Credits</h3>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
             <div
-              className="bg-idean-navy h-2 rounded-full"
-              style={{ width: `${(dashboardData.analytics.usage.aiCredits.used / dashboardData.analytics.usage.aiCredits.total) * 100}%` }}
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(dashboardData.analytics.credit / dashboardData.analytics.creditLimit) * 100}%` }}
             ></div>
           </div>
-          <p className="text-xs text-gray-600">of {dashboardData.analytics.usage.aiCredits.total} monthly</p>
+          <p className="text-xs text-gray-600">
+            {dashboardData.analytics.credit} of {dashboardData.analytics.creditLimit} daily credits
+          </p>
+          <p className="text-xs text-gray-500 mt-1">Resets at 12 AM BDT</p>
         </Card>
 
+        {/* Frameworks Card */}
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
               <FileText className="w-5 h-5 text-green-600" />
             </div>
-            <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.frameworks.completed}</span>
+            <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.frameworks}</span>
           </div>
           <h3 className="font-medium text-idean-navy mb-1 text-sm">Frameworks</h3>
-          <p className="text-xs text-gray-600">Completed this month</p>
+          <p className="text-xs text-gray-600">Content frameworks used</p>
         </Card>
 
+        {/* Business Documents Card */}
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <Building className="w-5 h-5 text-purple-600" />
             </div>
-            <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.totalDocuments}</span>
+            <span className="text-xl font-bold text-gray-900">{dashboardData.analytics.businessdocuments}</span>
           </div>
           <h3 className="font-medium text-idean-navy mb-1 text-sm">Documents</h3>
           <p className="text-xs text-gray-600">In knowledge base</p>
         </Card>
 
+        {/* Industry Card */}
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">

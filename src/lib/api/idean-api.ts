@@ -757,18 +757,23 @@ export const ideanApi = {
 
   // Dashboard Analytics
   analytics: {
-    // Get user dashboard data
+    // Get user dashboard statistics
     getDashboard: () =>
       apiClient.get<{
-        totalTemplates: number
-        totalDocuments: number
-        totalGenerations: number
-        recentActivity: any[]
-        usage: {
-          aiCredits: { used: number; total: number }
-          storage: { used: number; total: number }
-        }
-      }>('/api/v1/analytics/dashboard'),
+        credit: number
+        creditLimit: number
+        businessdocuments: number
+        frameworks: number
+      }>('/api/v1/users/dashboard-stats'),
+
+    // Get user credit information
+    getCredits: () =>
+      apiClient.get<{
+        credit: number
+        creditLimit: number
+        businessdocuments: number
+        frameworks: number
+      }>('/api/v1/users/credits'),
 
     // Get usage statistics
     getUsage: (period?: 'day' | 'week' | 'month' | 'year') =>
