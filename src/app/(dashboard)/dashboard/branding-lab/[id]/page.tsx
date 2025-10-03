@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ideanApi, BrandingLab } from '@/lib/api/idean-api'
 import { GenerationStudio } from '@/components/generation/GenerationStudio'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { LoadingState } from '@/components/ui/loading-states'
 
 export default function BrandingLabGenerationPage() {
   const params = useParams()
@@ -43,12 +43,12 @@ export default function BrandingLabGenerationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Loading branding lab framework...</p>
-        </div>
-      </div>
+      <LoadingState
+        message="Loading branding lab framework..."
+        submessage="Preparing your brand strategy studio"
+        variant="brand"
+        size="lg"
+      />
     )
   }
 

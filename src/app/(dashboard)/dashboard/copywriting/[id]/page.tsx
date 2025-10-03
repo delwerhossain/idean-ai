@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { ArrowLeft, AlertCircle, Zap } from 'lucide-react'
+import { ArrowLeft, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ideanApi, Copywriting, Template } from '@/lib/api/idean-api'
 import { GenerationStudio } from '@/components/generation/GenerationStudio'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { LoadingState } from '@/components/ui/loading-states'
 
 export default function CopywritingGenerationPage() {
   const params = useParams()
@@ -95,16 +95,12 @@ export default function CopywritingGenerationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
-          </div>
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-700 font-medium text-sm sm:text-base">Loading copywriting framework...</p>
-          <p className="text-xs sm:text-sm text-gray-500 mt-2">Setting up your AI-powered content studio</p>
-        </div>
-      </div>
+      <LoadingState
+        message="Loading copywriting framework..."
+        submessage="Setting up your AI-powered content studio"
+        variant="brand"
+        size="lg"
+      />
     )
   }
 
